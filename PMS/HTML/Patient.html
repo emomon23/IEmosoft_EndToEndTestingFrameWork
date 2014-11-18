@@ -1,0 +1,50 @@
+﻿ <div class="col-xs-8">
+<h2>Enter Patient Data Below</h2>
+<p>Please enter the patient details</p>
+
+     <span id="patientList"></span>
+
+<form name="editPatientForm" novalidate>
+    <div class="well">
+        <h3>Patient Data</h3>
+
+        <div class="form-group">
+            <label>First Name</label>
+            <input id="firstName" name="firstname" class="form-control" ng-model="data.editPatient.firstname" required />
+            <span id="firstNameError" class="error" ng-show="editPatientForm.firstname.$error.required">
+                Please enter a first name
+            </span>
+        </div>
+              
+
+        <div class="form-group">
+            <label>Last Name</label>
+            <input id="lastName" name="lastname" class="form-control" ng-model="data.editPatient.lastname" required />
+            <span id="lastNameError" class="error" ng-show="editPatientForm.lastname.$error.required">
+                Please enter a last name
+            </span>
+         </div>
+
+         <div class="form-group">
+            <label>Next Visit Date</label>
+            <input id="nextVist" name="nextvisit" class="form-control" ng-model="data.editPatient.nextvisit" required />
+              <span id="nextVisitError" class="error" ng-show="editPatientForm.nextvisit.$error.required">
+               Please enter the next visit date
+            </span>
+         </div>
+           
+         <div class="form-group">
+            <label>Primary Physician</label>
+            
+              <select id="physicianId" name="physicianId" class="form-control" ng-model="data.editPatient.physicianid">
+                 <option ng-repeat="obj in data.physicians" value="{{obj.id}}">{{obj.firstname + ' ' + obj.lastname }}</option>
+            </select>
+                 
+         </div>     
+               
+         <div class="text-center">
+            <button id="saveBtn" ng-click="savePatient()" ng-disabled="editPatientForm.$invalid" class="btn btn-primary">Save Patient Data</button>
+         </div>
+    </div>
+</form>
+     </div>

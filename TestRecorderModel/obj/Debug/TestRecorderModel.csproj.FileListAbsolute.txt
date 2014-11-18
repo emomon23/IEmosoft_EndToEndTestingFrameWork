@@ -1,0 +1,9 @@
+C:\Projects\TestRecorderModel\bin\Debug\TestRecorderModel.dll
+C:\Projects\TestRecorderModel\bin\Debug\TestRecorderModel.pdb
+C:\Projects\TestRecorderModel\obj\Debug\TestRecorderModel.dll
+C:\Projects\TestRecorderModel\obj\Debug\TestRecorderModel.pdb
+C:\Projects\RecordableBrowser\TestRecorderModel\bin\Debug\TestRecorderModel.dll
+C:\Projects\RecordableBrowser\TestRecorderModel\bin\Debug\TestRecorderModel.pdb
+C:\Projects\RecordableBrowser\TestRecorderModel\obj\Debug\TestRecorderModel.csprojResolveAssemblyReference.cache
+C:\Projects\RecordableBrowser\TestRecorderModel\obj\Debug\TestRecorderModel.dll
+C:\Projects\RecordableBrowser\TestRecorderModel\obj\Debug\TestRecorderModel.pdb

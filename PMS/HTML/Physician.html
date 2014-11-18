@@ -1,0 +1,50 @@
+﻿ <div class="col-xs-8">
+     <h2>Enter Physician Data Below</h2>
+<p>Please enter the physician details</p>
+
+<form name="editPhysicianForm" novalidate>
+    <div class="well">
+        <h3>Physician Data</h3>
+
+        <div class="form-group">
+            <label>First Name</label>
+            <input name="firstname" class="form-control" ng-model="data.editPhysician.firstname" required />
+            <span class="error" ng-show="editPhysicianForm.firstname.$error.required">
+                Please enter a first name
+            </span>
+        </div>
+              
+
+        <div class="form-group">
+            <label>Last Name</label>
+            <input name="lastname" class="form-control" ng-model="data.editPhysician.lastname" required />
+            <span class="error" ng-show="editPhysicianForm.lastname.$error.required">
+                Please enter a last name
+            </span>
+         </div>
+
+         <div class="form-group">
+            <label>Cell Phone</label>
+            <input name="cellnumber" class="form-control" ng-model="data.editPhysician.cellnumber" required />
+              <span class="error" ng-show="editPhysicianForm.cellnumber.$error.required">
+               Please enter cell number
+            </span>
+         </div>
+          
+         
+         <div class="form-group">
+            <label>Assigned Hospital</label>
+           
+            <select name="hospitalId" class="form-control" ng-model="data.editPhysician.hospitalid">
+                 <option ng-repeat="obj in data.hospitals" value="{{obj.id}}">{{obj.name}}</option>
+            </select>
+                 
+         </div>     
+             
+
+         <div class="text-center">
+            <button ng-click="savePhysician()" ng-disabled="editPhysicianForm.$invalid" class="btn btn-primary">Save Patient Data</button>
+         </div>
+    </div>
+</form>
+     </div>

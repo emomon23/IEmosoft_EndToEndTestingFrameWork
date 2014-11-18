@@ -1,0 +1,48 @@
+﻿ <div class="col-xs-8">
+<h2>Enter Hospital Data Below</h2>
+<p>Please enter the hospital details</p>
+
+<form name="editHospitalForm" novalidate>
+    <div class="well">
+        <h3>Hospital Name</h3>
+
+        <div class="form-group">
+            <label>Name</label>
+            <input id="hospitalName" name="name" class="form-control" ng-model="data.editHospital.name" required />
+            <span id="hospitalNameError" class="error" ng-show="editHospitalForm.name.$error.required">
+                Please enter a name
+            </span>
+        </div>
+
+        <h3>Address</h3>
+
+        <div class="form-group">
+            <label>Street Address</label>
+            <input id="street" name="street" class="form-control" ng-model="data.editHospital.address" required />
+            <span id="streetError" class="error" ng-show="editHospitalForm.street.$error.required">
+                Please enter street address
+            </span>
+         </div>
+
+         <div class="form-group">
+            <label>City</label>
+            <input id="city" name="city" class="form-control" ng-model="data.editHospital.city" required />
+              <span id="cityError" class="error" ng-show="editHospitalForm.city.$error.required">
+                Please enter a city
+            </span>
+         </div>
+
+         <div class="form-group">
+            <label>State</label>
+            <input id="state" name="state" class="form-control" ng-model="data.editHospital.state" required />
+              <span id="stateError" class="error" ng-show="editHospitalForm.state.$error.required">
+                Please enter a state
+            </span>
+         </div>
+               
+         <div class="text-center">
+            <button id="saveBtn" ng-click="saveHospital()" ng-disabled="editHospitalForm.$invalid" class="btn btn-primary">Save Hospital Data</button>
+         </div>
+    </div>
+</form>
+     </div>

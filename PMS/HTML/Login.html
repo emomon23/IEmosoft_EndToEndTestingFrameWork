@@ -1,0 +1,40 @@
+﻿<div class="col-xs-8">
+
+<p>Please provide your username and password</p>
+
+<form name="loginform" novalidate>
+    <div class="well" style="width:300px">
+        
+        <h3>Login</h3>
+
+        <div class="form-group">
+            <label>UserName</label>
+            <input id="username" name="username" class="form-control" ng-model="data.user.username" required />
+            <span id="usernameError" class="error" ng-show="loginform.username.$error.required">
+                Please enter a user name
+            </span>
+        </div>
+
+        <h3>Address</h3>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input id="password" name="password" class="form-control" ng-model="data.user.password" required />
+            <span id="passwordError" class="error" ng-show="loginform.password.$error.required">
+                Please enter a password
+            </span>
+         </div>
+
+         <div class="form-group">
+             <span ng-show="data.user.invalidCredentials" class="error">
+                 Invalid username or password
+             </span>
+         </div>
+
+         <div class="text-center">
+            <button id="loginBtn" ng-click="login()" ng-disabled="loginform.$invalid" class="btn btn-primary">Login</button>
+         </div>
+            </div>
+  
+</form>
+     </div>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" ng-app="PMSApp">
+<head>
+    <title>Angular Demo</title>
+
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+
+    <script src="scripts/angular/angular.js"></script>
+    <script src="Scripts/Angular/angular-route.js"></script>
+
+    <script>
+        //CREATE a new module called ''
+        angular.module("PMSApp", ['ngRoute']);
+    </script>
+    <script src="scripts/Custom/Controllers/MainController.js"></script>
+    <script src="Scripts/Custom/Filters/PhysiciansFilter.js"></script>
+    <script src="Scripts/Custom/Controllers/PMSAppModuleConfig.js"></script>
+</head>
+<body ng-controller="PMSMainCTRL">
+    <div class='navbar navbar-inverse'>
+	    <a class='nav-brand' href='#'>Patient Management System</a>
+    </div>
+
+    <div class="panel panel-default row">
+        <div class="col-xs-3">
+            <div  ng-show="data.user.loggedIn">
+                <a id="lnk_{{category}}" ng-click="setViewCategory(category)" ng-class='getActiveViewCategoryStyle(category)' class="btn btn-default btn-block" ng-repeat="category in data.categories">
+				    {{ category }}
+                </a>
+
+                <a id="lnk_createNew" ng-click="createNewEntity()" class="btn btn-default btn-block">
+				    Create New {{ currentEntity }}
+                </a>
+            </div>
+        </div>
+              
+        <div ng-view>
+
+        </div>
+    </div>
+</body>
+</html>

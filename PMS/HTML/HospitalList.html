@@ -1,0 +1,21 @@
+﻿ <div class="col-xs-8">
+        <h3>
+            Hospitals
+        </h3>
+
+        <span id="hospitalList"></span>
+
+            <div class="well" ng-repeat="hospital in data.hospitals">
+                <h3>
+                    <strong>{{ hospital.name }}</strong>
+                   
+                    <a ng-click="editHospital(hospital)" class="btn btn-success pull-right">Edit</a>
+                </h3>
+
+				<span class="lead">
+					    {{hospital.address }}
+						{{hospital.city }}
+						{{hospital.state }}
+				</span>
+             </div>
+ </div>

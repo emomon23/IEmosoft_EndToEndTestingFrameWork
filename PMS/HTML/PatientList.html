@@ -1,0 +1,18 @@
+﻿ <div class="col-xs-8">
+            <div class="well" ng-repeat="patient in data.patients | patientListView">
+                <h3>
+                    <strong>
+                        {{ patient.firstname }}
+                        {{ patient.lastname }}
+                    </strong>
+                    
+                    <a ng-click="editPatient(patient)" class="btn btn-success pull-right">Edit</a>
+                </h3>
+
+				<span class="lead">
+                       Physician: {{ patient.physician }} <br />
+                       Hospital: {{ patient.hospitalname }} <br />
+					   Next Visit: {{ patient.nextvisit }}
+				</span>
+             </div>
+ </div>
