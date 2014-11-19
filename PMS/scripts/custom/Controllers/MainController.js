@@ -15,9 +15,9 @@ var PmsDAL = {
 	],
 	physicians: [
 		{ id: 1, firstname: 'Mike', lastname: 'Emo', cellnumber: '612-555-2342', hospitalid: 1, category: 'Physicians' },
-		{ id: 2, firstname: 'Alan', lastname: 'Haggerty', cellnumber: '763-555-9999', hospitalid: 1, category: 'Physicians' },
-		{ id: 3, firstname: 'Michael', lastname: 'Colline', cellnumber: '612-555-0000', hospitalid: 2, category: 'Physicians' },
-		{ id: 4, firstname: 'Daniel', lastname: 'Messer', cellnumber: '952-555-1111', hospitalid: 3, category: 'Physicians' },
+		{ id: 2, firstname: 'Alan', lastname: 'Haggrity', cellnumber: '763-555-9999', hospitalid: 1, category: 'Physicians' },
+		{ id: 3, firstname: 'Michael', lastname: 'Kollins', cellnumber: '612-555-0000', hospitalid: 2, category: 'Physicians' },
+		{ id: 4, firstname: 'Daniel', lastname: 'Mezner', cellnumber: '952-555-1111', hospitalid: 3, category: 'Physicians' },
 	],
 	patients: [
 		{ id: 1, firstname: 'John', lastname: 'Travolta', nextvisit: '2/1/2015', physicianid: 1, category: 'Patients' },
@@ -183,7 +183,8 @@ angular.module("PMSApp")
    		}
 
    		$scope.saveHospital = function () {
-            $scope.data.addHospital($scope.data.editHospital);
+   		    $scope.data.addHospital($scope.data.editHospital);
+   		    $scope.data.editHospital = {};
    		}
 
    		$scope.login = function () {
