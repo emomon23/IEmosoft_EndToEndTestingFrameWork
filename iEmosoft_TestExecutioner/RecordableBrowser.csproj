@@ -39,10 +39,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="WebDriver">
-      <HintPath>..\..\..\SeleaniumExports\VSPackages\net40\WebDriver.dll</HintPath>
+      <HintPath>SeleniumLibs\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
-      <HintPath>..\..\..\SeleaniumExports\VSPackages\net40\WebDriver.Support.dll</HintPath>
+      <HintPath>SeleniumLibs\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +94,9 @@
     <None Include="Resources\TestCaseTemplate.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SeleniumLibs\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

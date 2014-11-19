@@ -37,10 +37,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="WebDriver">
-      <HintPath>..\RecordableBrowser\bin\Debug\WebDriver.dll</HintPath>
+      <HintPath>..\iEmosoft_TestExecutioner\SeleniumLibs\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver.Support">
-      <HintPath>..\RecordableBrowser\bin\Debug\WebDriver.Support.dll</HintPath>
+      <HintPath>..\iEmosoft_TestExecutioner\SeleniumLibs\WebDriver.Support.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Choose>
