@@ -1,5 +1,6 @@
 ﻿using System;
 using RecordableBrowser;
+using RecordableBrowser.Interfaces;
 using RecordableBrowser.TestData;
 using TestRecorderModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,7 +11,7 @@ namespace PatientMgmtTests
     public class LoginTests
     {
         TestCaseData testCaseHeader = null;
-
+        
         [TestInitialize]
         public void InitializerTestCase()
         {
@@ -55,7 +56,7 @@ namespace PatientMgmtTests
         [TestMethod]
         public void T4000_Create_A_New_Hospital_Record_Verify_It_Displays_On_List()
         {
-            testCaseHeader.TestDescription = "Given a new hospital record is created, then it should display on the Hospital List";
+            testCaseHeader.TestDescription = "Given 'Create New Hospital' is clicked, When a new hospital record is created, then it should display on the Hospital List";
             testCaseHeader.TestName = "Newly created hospital displays on hospital list";
             testCaseHeader.TestNumber = "T4000";
 
@@ -66,10 +67,14 @@ namespace PatientMgmtTests
             {
                 tester.LoginToPMSSite("mike.emo@iEmosoft.com", "P@ssw0rd");
                 tester.CreateNewHospital(hospitalData.CompanyName, hospitalData.HQAddress.Street1, hospitalData.HQAddress.City, hospitalData.HQAddress.State);
-                tester.AssertPageContains("Your data has been saved");
+                tester.AssertPageContains("Your data has been saved", true);
 
                 tester.NavigateToHospitalList();
                 tester.AssertHospitalExistsOnList(hospitalData.CompanyName);
+
+                //Because we called AssertPageContains with a 'true' value for continue if failed
+                //We need to see if that step failed or not.
+                tester.AssertAllStepsPassed();
             }
         }
     }

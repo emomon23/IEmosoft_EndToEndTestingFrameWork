@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRecorderModel", "TestRe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PMS", "PMS\PMS.csproj", "{A8FDE6F8-8964-42D7-AE21-1151DBEC6123}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraBugEntry", "JiraBugEntry\JiraBugEntry.csproj", "{8D763CA8-991B-417C-B997-35CDD4EEA2AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{A8FDE6F8-8964-42D7-AE21-1151DBEC6123}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8FDE6F8-8964-42D7-AE21-1151DBEC6123}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8FDE6F8-8964-42D7-AE21-1151DBEC6123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D763CA8-991B-417C-B997-35CDD4EEA2AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D763CA8-991B-417C-B997-35CDD4EEA2AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D763CA8-991B-417C-B997-35CDD4EEA2AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D763CA8-991B-417C-B997-35CDD4EEA2AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

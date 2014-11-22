@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
@@ -17,6 +19,30 @@ namespace RecordableBrowser
 
         public static void SetTextOnElement(this IWebDriver driver, By by, string text){
             driver.FindElement(by).SendKeys(text);
+        }
+
+        public static IntPtr GetFirefoxWindowsHandle(this IWebDriver driver)
+        {
+            IntPtr result = IntPtr.Zero;
+
+            var title = driver.Title;
+            title = title.IsNull() ? "Something we don't want to seach for ASFSFSA!!" : title;
+
+            var firefoxBrowsers = Process.GetProcessesByName("firefox");
+            if (firefoxBrowsers.Count() == 1)
+                return firefoxBrowsers.ElementAt(0).MainWindowHandle;
+
+            IntPtr activeWindowHandle = GetActiveWindow();
+
+            foreach (var browser in firefoxBrowsers)
+            {
+                if (browser.MainWindowTitle == title || browser.MainWindowHandle == activeWindowHandle)
+                {
+                    result = browser.MainWindowHandle;
+                }
+            }
+
+            return result;
         }
 
         public static bool ElementExists(this IWebDriver driver, By by)
@@ -85,6 +111,11 @@ namespace RecordableBrowser
             return dropdown.SelectedOption.Text;
         }
 
+        public static bool PageContains(this IWebDriver driver, string lookFor)
+        {
+            return driver.PageSource.ToLower().Contains(lookFor.ToLower());
+        }
+
         public static string GetSelectedValueOnDropdown(this IWebDriver driver, By by){
             var dropdown = (SelectElement)driver.FindElement(by);
 
@@ -95,6 +126,9 @@ namespace RecordableBrowser
             driver.Navigate().GoToUrl(url);
         }
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern IntPtr GetActiveWindow();
+        
 
         public static bool IsNull(this string str)
         {

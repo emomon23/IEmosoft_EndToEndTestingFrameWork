@@ -14,6 +14,9 @@ namespace RecordableBrowser
 {
 	public class TestCaseRecorder : ITestRecorder, IDisposable
 	{
+        List<TestCaseStep> recordedSteps = new List<TestCaseStep>();
+        TestCaseData testCaseHeader;
+
 		string testCaseTemplatePath;
 		string newTestCasePath = "";
 		string newTestCaseName = "";
@@ -40,7 +43,11 @@ namespace RecordableBrowser
 		int DARK_GREEN;
         
 		public bool TestCaseFailed { get; private set; }
-		
+
+        public List<TestCaseStep> RecordedSteps { get { return this.recordedSteps; } }
+
+        public TestCaseData TestCaseHeader { get { return this.testCaseHeader; } }
+
         public TestCaseRecorder(string rootTestCasesFolder)
 		{
 			RED = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
@@ -68,6 +75,9 @@ namespace RecordableBrowser
                 SuppliedData = suppliedData,
                 StepPassed = true
             };
+
+            this.recordedSteps.Add(currentTestCaseStep);
+
         }
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult)
@@ -115,6 +125,8 @@ namespace RecordableBrowser
 			{
 				this.SaveRecordedTest();
 			}
+
+            this.testCaseHeader = testCaseHeader;
 
 			this.newTestCaseName = testCaseHeader.TestName;
 

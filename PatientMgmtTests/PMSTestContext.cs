@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RecordableBrowser;
+using RecordableBrowser.Interfaces;
+using JiraBugEntry;
 using TestRecorderModel;
 using OpenQA;
 using OpenQA.Selenium;
@@ -14,16 +16,20 @@ namespace PatientMgmtTests
     {
         private string url = "http://localhost/PMS/default.html";
         private string testReportFolder = @"C:\PatientMgmtSystemTestsResults";
+        BugCreator bugCreator = new JiraBugEntry.BugLogger();
+
         private TestExecutioner testRecorder;
 
         public PMSTestContext(string testCaseName)
         {
             testRecorder = new TestExecutioner(testCaseName, testReportFolder);
+            testRecorder.BugCreator = bugCreator;
         }
 
         public PMSTestContext(TestCaseData testCaseHeader)
         {
             testRecorder = new TestExecutioner(testCaseHeader, testReportFolder);
+            testRecorder.BugCreator = bugCreator;
         }
 
         public void LoginToPMSSite(string username, string password)
@@ -64,6 +70,11 @@ namespace PatientMgmtTests
             }
         }
 
+        public void AssertPageContains(string lookFor, bool continueEvenIfFails)
+        {
+            testRecorder.AssertPageContains(lookFor, continueEvenIfFails);
+        }
+
         public void AssertPageContains(string lookFor)
         {
             testRecorder.AssertPageContains(lookFor);
@@ -81,9 +92,19 @@ namespace PatientMgmtTests
         
         public void NavigateToHospitalList()
         {
+            testRecorder.BeginTestCaseStep("Click Hospitals from the menu on the right", "Should see the list of hospitals");
             testRecorder.ClickElement("lnk_Hospitals");
         }
 
+        public void AssertAllStepsPassed()
+        {
+            var failed = testRecorder.RecordedSteps.FirstOrDefault(s => s.StepPassed == false);
+
+            if (failed != null)
+            {
+                throw new Exception(string.Format("Step: {2},  Actual Result: {0}, Expected: {1}", failed.ActualResult, failed.ExpectedResult, failed.StepDescription));
+            }
+        }
 
         public void Dispose()
         {

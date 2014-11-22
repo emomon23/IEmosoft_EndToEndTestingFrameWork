@@ -6,6 +6,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using TestRecorderModel;
+using RecordableBrowser.Interfaces;
 
 namespace RecordableBrowser
 {
@@ -14,7 +15,9 @@ namespace RecordableBrowser
         private IWebDriver firefoxDriver = new FirefoxDriver();
         private IScreenCapture screenCapture = null;
         private ITestRecorder recorder = null;
-              
+        private BugCreator bugCreator = null;
+
+
         public TestExecutioner(string testCaseNumber, string testCaseName, string rootPath)
         {
              var testCaseHeader = new TestCaseData()
@@ -60,10 +63,12 @@ namespace RecordableBrowser
         private void Initialize(TestCaseData testCaseHeader, string rootPath)
         {
             this.screenCapture = new ScreenCapture(rootPath + "\\ScreenCaptures");
-             
+        
             this.recorder = new TestCaseRecorder(rootPath);
             this.recorder.StartNewTestCase(testCaseHeader);
         }
+
+        public BugCreator BugCreator { get; set; }
 
         public bool ClickElement(By by, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
         {
@@ -88,7 +93,15 @@ namespace RecordableBrowser
               this.CaptureScreen();
             }
 
-            this.firefoxDriver.ClickElement(by);
+            try
+            {
+                this.firefoxDriver.ClickElement(by);
+            }
+            catch (Exception exp)
+            {
+               return false;
+            }
+
             return true;
         }
 
@@ -117,8 +130,15 @@ namespace RecordableBrowser
 
         public void ClickElement(By by)
         {
-            this.firefoxDriver.FindElement(by).Click();
-            System.Threading.Thread.Sleep(2000);
+            try
+            {
+                this.firefoxDriver.FindElement(by).Click();
+                System.Threading.Thread.Sleep(2000);
+            }
+            catch (Exception exp)
+            {
+                this.FailTest(exp);
+            }
         }
 
         public void SetTextOnElement(By by, string text, string stepDescription)
@@ -128,7 +148,14 @@ namespace RecordableBrowser
                 this.BeginTestCaseStep(stepDescription);
             }
 
-            firefoxDriver.FindElement(by).SendKeys(text);
+            try
+            {
+                firefoxDriver.FindElement(by).SendKeys(text);
+            }
+            catch (Exception exp)
+            {
+                this.FailTest(exp);
+            }
         }
 
         public void SetTextOnElement(string elementToFind, string text)
@@ -158,6 +185,8 @@ namespace RecordableBrowser
 
             if (elementToFind != null)
                 element.SendKeys(text);
+            else
+                this.FailTest(new Exception("Unable to find " + elementToFind));
 
         }
 
@@ -212,6 +241,9 @@ namespace RecordableBrowser
         public void NavigateTo(string url)
         {
             this.firefoxDriver.Navigate().GoToUrl(url);
+
+            this.screenCapture.ScreenToCaptureWindowsHandle = firefoxDriver.GetFirefoxWindowsHandle();
+
         }
 
         public void NavigateTo(string url, string expectedResult)
@@ -335,6 +367,8 @@ namespace RecordableBrowser
             {
                 recorder.CommitTestStep(actualResult, imageFile);
             }
+
+           
         }
 
         public void CommitTestStep(bool wasSuccessful, string actualResult, string imageFile)
@@ -384,6 +418,9 @@ namespace RecordableBrowser
             this.Quit();
             this.SaveRecordedTest();
             this.recorder.Dispose();
+
+            if (this.bugCreator != null)
+                bugCreator.Dispose();
         }
 
 
@@ -391,9 +428,13 @@ namespace RecordableBrowser
         {
             return this.firefoxDriver.PageSource.Contains(lookFor);
         }
-               
 
         public void AssertPageContains(string lookFor)
+        {
+            AssertPageContains(lookFor, false);
+        }
+
+        public void AssertPageContains(string lookFor, bool continueIfFails)
         {
             recorder.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
 
@@ -409,8 +450,12 @@ namespace RecordableBrowser
 
                 //captuer the screen with an error message
                 this.CaptureScreen(msg);
+                this.FailTest();
 
-                throw new Exception(msg);
+                if (! continueIfFails)
+                {
+                    throw new Exception(msg);
+                }
             }
             else
             {
@@ -435,9 +480,10 @@ namespace RecordableBrowser
                         this.recorder.CurrentStep.ActualResult += "  ";
 
                     this.recorder.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
-                    
+                    this.recorder.CurrentStep.StepPassed = false;     
                 }
 
+                this.FailTest();
                 throw new Exception("Am not on the expected page.  Url does not contain '" + urlSnippet + "'");
             }
         }
@@ -454,9 +500,43 @@ namespace RecordableBrowser
                         this.recorder.CurrentStep.ActualResult += "  ";
 
                     this.recorder.CurrentStep.ActualResult = msg;
+                    this.recorder.CurrentStep.StepPassed = false;
                 }
 
+                this.FailTest();
                 throw new Exception(msg);
+            }
+        }
+
+
+        public List<TestCaseStep> RecordedSteps
+        {
+            get { return recorder.RecordedSteps; }
+        }
+
+        public TestCaseData TestCaseHeader
+        {
+            get { return recorder.TestCaseHeader;  }
+        }
+
+        private void FailTest(Exception exp)
+        {
+            this.BeginTestCaseStep("Un expected error occurred", "", "");
+            this.CurrentStep.ActualResult = exp.Message;
+            this.CurrentStep.StepPassed = false;
+
+            this.FailTest();
+        }
+
+        private void FailTest()
+        {
+            if (this.BugCreator != null)
+            {
+                try
+                {
+                    this.bugCreator.CreateBug(recorder.TestCaseHeader, recorder.RecordedSteps);
+                }
+                catch { }
             }
         }
     }

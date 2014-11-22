@@ -49,6 +49,7 @@ namespace RecordableBrowser
         {
             if (this.screenToCapture == IntPtr.Zero)
                 this.screenToCapture = User32.GetDesktopWindow();
+            
 
             return CaptureWindow(this.screenToCapture);
         }
@@ -59,7 +60,7 @@ namespace RecordableBrowser
             this.WriteTextOnImage(result, textToWriteOnImage);
             return result;
         }
-
+               
         public Image CaptureWindow(IntPtr windowHandle)
         {
             IntPtr handle = windowHandle;
@@ -90,6 +91,7 @@ namespace RecordableBrowser
             // free up the Bitmap object
             GDI32.DeleteObject(hBitmap);
 
+            
             this.lastImageCaptured = img;
             return img;
         }

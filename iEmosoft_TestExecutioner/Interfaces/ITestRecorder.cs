@@ -22,5 +22,7 @@ namespace RecordableBrowser
 		void RecordStep(TestCaseStep step);
 		void SaveRecordedTest();
         TestCaseStep CurrentStep { get; }
+        List<TestCaseStep> RecordedSteps { get; }
+        TestCaseData TestCaseHeader { get; }
     }
 }
