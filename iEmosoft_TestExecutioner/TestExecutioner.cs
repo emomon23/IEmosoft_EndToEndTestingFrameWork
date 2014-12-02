@@ -5,10 +5,10 @@ using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
-using TestRecorderModel;
-using RecordableBrowser.Interfaces;
+using iEmosoft.TestRecorderModel;
+using iEmosoft.RecordableBrowser.Interfaces;
 
-namespace RecordableBrowser
+namespace iEmosoft.RecordableBrowser
 {
     public class TestExecutioner : ITestRecorder , IDisposable
     {

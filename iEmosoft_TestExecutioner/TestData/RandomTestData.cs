@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RecordableBrowser.TestData
+namespace iEmosoft.RecordableBrowser.TestData
 {
     public class RandomTestData
     {

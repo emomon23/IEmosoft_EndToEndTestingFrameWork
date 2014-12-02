@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestRecorderModel
+namespace iEmosoft.TestRecorderModel
 {
     public class TestCaseData
     {

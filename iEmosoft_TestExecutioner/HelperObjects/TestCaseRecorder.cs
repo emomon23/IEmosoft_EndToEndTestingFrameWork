@@ -8,9 +8,9 @@ using System.Diagnostics;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop;
 using Excel = Microsoft.Office.Interop.Excel;
-using TestRecorderModel;
+using iEmosoft.TestRecorderModel;
 
-namespace RecordableBrowser
+namespace iEmosoft.RecordableBrowser
 {
 	public class TestCaseRecorder : ITestRecorder, IDisposable
 	{

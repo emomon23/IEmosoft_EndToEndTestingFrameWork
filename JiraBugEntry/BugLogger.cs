@@ -5,26 +5,36 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Windows.Forms;
-using RecordableBrowser;
-using RecordableBrowser.Interfaces;
+using iEmosoft.RecordableBrowser;
+using iEmosoft.RecordableBrowser.Interfaces;
 using AnotherJiraRestClient;
 using AnotherJiraRestClient.JiraModel;
 
-namespace JiraBugEntry
+namespace iEmosoft.JiraBugEntry
 {
     public class BugLogger : BugCreator
     {
-        JiraClient client = null;
+        private string projectName = "";
+        private string jiraURL = "";
+        private JiraClient client = null;
 
-        public override void CreateBug(TestRecorderModel.TestCaseData header, List<TestRecorderModel.TestCaseStep> steps)
+        public BugLogger(string projectName)
+        {
+            this.projectName = projectName;
+        }
+
+        public override string CreateBug(TestRecorderModel.TestCaseData header, List<TestRecorderModel.TestCaseStep> steps)
         {
             base.InitializeBugCreator(header, steps);
             this.InitializeJiraClient();
 
-            if (this.BugPreviouslyEntered())
-                return;
+            string result = this.GetPreviouslyEnteredBugURL();
+            if (result.IsNull())
+            {
+                result = this.CreateNewBug();
+            }
 
-            this.CreateNewBug();
+            return result;
        }
 
         private void InitializeJiraClient()
@@ -35,12 +45,12 @@ namespace JiraBugEntry
                 JiraInstance credentialsReader = new JiraInstance();
                 string userName = credentialsReader.Username;
                 string password = credentialsReader.Password;
-                string url = credentialsReader.Url;
+                this.jiraURL = credentialsReader.Url;
 
                 JiraAccount account = new JiraAccount()
                                         {
                                             Password = password,
-                                            ServerUrl = url ,
+                                            ServerUrl = jiraURL,
                                             User = userName
                                         };
 
@@ -48,19 +58,30 @@ namespace JiraBugEntry
             }
         }
 
-        private void CreateNewBug()
+        private string CreateNewBug()
         {
-           
+            //Need to implement this
+            CreateIssue newIssue = new CreateIssue(this.projectName, base.BugTitle, base.BugDescription, "1", "1", null);
+            return this.GetPreviouslyEnteredBugURL();
         }
         
-        private bool BugPreviouslyEntered()
+        private string GetPreviouslyEnteredBugURL()
         {
-            return false;
+            string filter=string.Format("project={0} AND summary={1} AND status=Active", this.projectName, base.BugTitle);
+            string result = null;
+
+            var existingIssues = client.GetIssuesByJql(filter, 0, 50);
+            if (existingIssues != null && existingIssues.issues != null && existingIssues.issues.Count > 0)
+            {
+                result = string.Format("{0}/browse/{1}", this.jiraURL, existingIssues.issues[0].key);
+            }
+            
+            return result;
         }
         
         public override void Dispose()
         {
-          
+            //Nothing to dispose of here
         }
     }
 }

@@ -29,7 +29,7 @@
  * using minErr('namespace') . Error codes, namespaces and template strings
  * should all be static strings, not variables or general expressions.
  *
- * @param {string} module The namespace to use for the new minErr instance.
+ * @param {string} module The namespace iEmosoft.to use for the new minErr instance.
  * @returns {function(code:string, template:string, ...templateArgs): Error} minErr instance
  */
 

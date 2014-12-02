@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TestRecorderModel;
+using iEmosoft.TestRecorderModel;
 
-namespace RecordableBrowser.Interfaces
+namespace iEmosoft.RecordableBrowser.Interfaces
 {
     public abstract class BugCreator : IDisposable
     {
@@ -16,7 +16,7 @@ namespace RecordableBrowser.Interfaces
      
 
         //Make sure to call base.InitializeBugCreator when you override this method!
-        public abstract void CreateBug(TestCaseData header, List<TestCaseStep> steps);
+        public abstract string CreateBug(TestCaseData header, List<TestCaseStep> steps);
 
         protected void InitializeBugCreator(TestCaseData header, List<TestCaseStep> steps)
         {
@@ -75,7 +75,7 @@ namespace RecordableBrowser.Interfaces
             string testNumber = header.TestNumber.IsNull() ? "" : header.TestNumber + " - ";
             var badStep = this.GetFailedStep();
 
-            this.BugTitle = string.Format("{0}{1}", testNumber, badStep.ActualResult);
+            this.BugTitle = string.Format("{0}{1}", testNumber, badStep.ActualResult.Replace(", see image for details", ""));
             this.BugDescription = string.Format("- {1}{0} - Prereqs: {2}{0}{0}Steps to reproduce:{3}", "\n",
                 header.TestDescription,
                 header.Prereqs,

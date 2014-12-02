@@ -1,11 +1,11 @@
 ﻿using System;
-using RecordableBrowser;
-using RecordableBrowser.Interfaces;
-using RecordableBrowser.TestData;
-using TestRecorderModel;
+using iEmosoft.RecordableBrowser;
+using iEmosoft.RecordableBrowser.Interfaces;
+using iEmosoft.RecordableBrowser.TestData;
+using iEmosoft.TestRecorderModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PatientMgmtTests
+namespace iEmosoft.PatientMgmtTests
 {
     [TestClass]
     public class LoginTests

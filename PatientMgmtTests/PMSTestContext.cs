@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RecordableBrowser;
-using RecordableBrowser.Interfaces;
-using JiraBugEntry;
-using TestRecorderModel;
+using iEmosoft.RecordableBrowser;
+using iEmosoft.RecordableBrowser.Interfaces;
+using iEmosoft.JiraBugEntry;
+using iEmosoft.TestRecorderModel;
 using OpenQA;
 using OpenQA.Selenium;
 
-namespace PatientMgmtTests
+namespace iEmosoft.PatientMgmtTests
 {
     public class PMSTestContext : IDisposable
     {
         private string url = "http://localhost/PMS/default.html";
         private string testReportFolder = @"C:\PatientMgmtSystemTestsResults";
-        BugCreator bugCreator = new JiraBugEntry.BugLogger();
+        BugCreator bugCreator = new JiraBugEntry.BugLogger("Test1");
 
         private TestExecutioner testRecorder;
 

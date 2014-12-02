@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using TestRecorderModel;
+using iEmosoft.TestRecorderModel;
 
-namespace RecordableBrowser
+namespace iEmosoft.RecordableBrowser
 {
     public interface ITestRecorder : IDisposable
     {
