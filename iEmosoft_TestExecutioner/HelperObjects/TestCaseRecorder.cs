@@ -236,6 +236,12 @@ namespace iEmosoft.RecordableBrowser
 			fileIsDirty = false;
 		}
 
+        public void SetBugRecord(string bugLink, string bugLinkText)
+        {
+            var range = activateWorksheet.Range["F4"];
+            var hyperLink = activateWorksheet.Hyperlinks.Add(range, bugLink, MISSING, MISSING, bugLinkText);
+        }
+
         public void Dispose()
         {
             if (this.newTestCasePath != "")

@@ -15,9 +15,7 @@ namespace iEmosoft.RecordableBrowser
         private IWebDriver firefoxDriver = new FirefoxDriver();
         private IScreenCapture screenCapture = null;
         private ITestRecorder recorder = null;
-        private BugCreator bugCreator = null;
-
-
+     
         public TestExecutioner(string testCaseNumber, string testCaseName, string rootPath)
         {
              var testCaseHeader = new TestCaseData()
@@ -399,10 +397,28 @@ namespace iEmosoft.RecordableBrowser
 
         public void SaveRecordedTest()
         {
+            string bugLink = null;
+
+            if (this.TestCaseFailed && this.BugCreator != null)
+            {
+                try
+                {
+                    bugLink = this.BugCreator.CreateBug(this.TestCaseHeader, this.RecordedSteps);
+                }
+                catch { }
+            }
+
+            if (!bugLink.IsNull())
+            {
+                recorder.SetBugRecord(bugLink, "Jira Bug Record");
+            }
+
             if (this.recorder != null)
             {
                 recorder.SaveRecordedTest();
             }
+
+          
         }
 
         public TestRecorderModel.TestCaseStep CurrentStep
@@ -419,8 +435,8 @@ namespace iEmosoft.RecordableBrowser
             this.SaveRecordedTest();
             this.recorder.Dispose();
 
-            if (this.bugCreator != null)
-                bugCreator.Dispose();
+            if (this.BugCreator != null)
+                this.BugCreator.Dispose();
         }
 
 
@@ -534,10 +550,16 @@ namespace iEmosoft.RecordableBrowser
             {
                 try
                 {
-                    this.bugCreator.CreateBug(recorder.TestCaseHeader, recorder.RecordedSteps);
+                    this.BugCreator.CreateBug(recorder.TestCaseHeader, recorder.RecordedSteps);
                 }
                 catch { }
             }
+        }
+
+
+        public void SetBugRecord(string bugLink, string bugLinkText)
+        {
+            recorder.SetBugRecord(bugLink, bugLinkText);
         }
     }
 }

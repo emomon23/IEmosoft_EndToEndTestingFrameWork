@@ -62,21 +62,34 @@ namespace iEmosoft.JiraBugEntry
         {
             //Need to implement this
             CreateIssue newIssue = new CreateIssue(this.projectName, base.BugTitle, base.BugDescription, "1", "1", null);
+            client.CreateIssue(newIssue);
             return this.GetPreviouslyEnteredBugURL();
         }
         
         private string GetPreviouslyEnteredBugURL()
         {
-            string filter=string.Format("project={0} AND summary={1} AND status=Active", this.projectName, base.BugTitle);
+            string filter=string.Format("project={0} AND status=Open", this.projectName, base.BugTitle);
             string result = null;
 
-            var existingIssues = client.GetIssuesByJql(filter, 0, 50);
-            if (existingIssues != null && existingIssues.issues != null && existingIssues.issues.Count > 0)
+            try
             {
-                result = string.Format("{0}/browse/{1}", this.jiraURL, existingIssues.issues[0].key);
+                var existingIssues = client.GetIssuesByJql(filter, 0, 500);
+                if (existingIssues != null && existingIssues.issues != null && existingIssues.issues.Count > 0)
+                {
+                    var duplicate = existingIssues.issues.FirstOrDefault(i => i.fields.summary == base.BugTitle);
+
+                    if (duplicate != null)
+                    {
+                        result = string.Format("{0}/browse/{1}", this.jiraURL, duplicate.key);
+                    }
+                }
+
+                return result;
             }
-            
-            return result;
+            catch (Exception exp)
+            {
+                return string.Format("Exception in BugLogger.GetPreviouslyEnteredBugURL(), unable to automate bug creation in Jira: {0}", exp.ToString());
+            }
         }
         
         public override void Dispose()
