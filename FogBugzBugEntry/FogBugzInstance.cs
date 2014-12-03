@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace iEmosoft.JiraBugEntry
+namespace iEmosoft.FogBugzBugEntry
 {
-    public class JiraInstance
+    //I don't want to upload the url and my username and password for FogBugz to github
+    //so I implemented this work around.  
+    public class FogBugzInstance
     {
-        public JiraInstance()
+        public FogBugzInstance()
         {
             string fileName = @"C:\Projects\Data.dat";
-            string tagName = "LokiJira";
+            string tagName = "FogBugz";
 
             string[] filelines = File.ReadAllLines(fileName);
             bool gotIt = false;

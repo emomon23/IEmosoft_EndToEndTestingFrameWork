@@ -56,11 +56,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="MulitipleBugLogger.cs" />
     <Compile Include="PMSTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LoginTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FogBugzBugEntry\FogBugzBugEntry.csproj">
+      <Project>{8fe57eaf-acbc-430d-b67d-63ca9c1a43e1}</Project>
+      <Name>FogBugzBugEntry</Name>
+    </ProjectReference>
     <ProjectReference Include="..\iEmosoft_TestExecutioner\RecordableBrowser.csproj">
       <Project>{7fbe108d-df8c-4d3a-b4da-da86d17370b9}</Project>
       <Name>RecordableBrowser</Name>

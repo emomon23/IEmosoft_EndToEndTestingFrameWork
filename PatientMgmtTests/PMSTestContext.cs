@@ -16,7 +16,7 @@ namespace iEmosoft.PatientMgmtTests
     {
         private string url = "http://localhost/PMS/default.html";
         private string testReportFolder = @"C:\PatientMgmtSystemTestsResults";
-        BugCreator bugCreator = new JiraBugEntry.BugLogger("TP");
+        BugCreator bugCreator = new MulitipleBugLogger();
 
         private TestExecutioner testRecorder;
 

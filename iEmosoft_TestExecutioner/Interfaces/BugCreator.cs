@@ -53,13 +53,13 @@ namespace iEmosoft.RecordableBrowser.Interfaces
 
         protected string GetTestStepsParagraph(string stepSeperator)
         {
-            string result = "";
+            string result = stepSeperator;
 
             for (int i=0; i<steps.Count(); i++)
             {
                 var step = steps[i];
 
-                result += string.Format("Step {0}: {1}{2}", i * 10, step.StepDescription, stepSeperator);
+                result += string.Format("Step {0}: {1}{2}", (i+1) * 10, step.StepDescription, stepSeperator);
             }
 
             return result;
