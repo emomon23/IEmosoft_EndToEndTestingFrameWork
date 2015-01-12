@@ -1,10 +1,12 @@
-There are two pieces to this solution.  The main focus is the end to end testing framework using Selenium, Excel, 
+There are two pieces to this solution.  The main focus is the end to end testing framework using Selenium, Excel, and windows GDI api
 to capture the screen to an image file (see the TestExecutioner.png image for a high level overview).
 
 In order to demo the testing framework, we need something to test!  For this I've created the Patient Management System (PMS).  
 An Angular website to manage hospitals, physicians, and patients. 
 
 Begin:
+
+- You must HAVE FIREFOX INSTALLED on the PC these tests will run.
 
 - Create a folder on C: called iEmoSoft and clone this repository to that folder.
 
