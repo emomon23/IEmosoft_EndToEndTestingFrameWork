@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using iEmosoft.RecordableBrowser.Interfaces;
-using iEmosoft.RecordableBrowser;
+﻿using System.Collections.Generic;
 using iEmosoft.TestRecorderModel;
-using iEmosoft.JiraBugEntry;
 using iEmosoft.FogBugzBugEntry;
+using iEmosoft.RecordableBrowser.BaseClasses;
 
 //For this demo, I wanted to save faled bugs to both FogBugz and Jira 
 //so I'm creating a BugCreator that will pass through to both implementations

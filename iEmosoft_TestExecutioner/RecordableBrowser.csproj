@@ -46,7 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\BugCreator.cs" />
+    <Compile Include="BaseClasses\BugCreator.cs" />
     <Compile Include="Interfaces\IScreenCapture.cs" />
     <Compile Include="Interfaces\ITestRecorder.cs" />
     <Compile Include="HelperObjects\WebDriverExtensions.cs" />

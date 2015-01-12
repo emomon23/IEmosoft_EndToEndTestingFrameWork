@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using iEmosoft.RecordableBrowser.Interfaces;
+﻿using System.Collections.Generic;
+using iEmosoft.RecordableBrowser.BaseClasses;
 using iEmosoft.TestRecorderModel;
 
 namespace iEmosoft.FogBugzBugEntry

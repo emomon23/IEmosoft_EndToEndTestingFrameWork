@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using iEmosoft.TestRecorderModel;
 
-namespace iEmosoft.RecordableBrowser.Interfaces
+namespace iEmosoft.RecordableBrowser.BaseClasses
 {
     public abstract class BugCreator : IDisposable
     {

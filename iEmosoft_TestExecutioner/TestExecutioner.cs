@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using iEmosoft.RecordableBrowser.BaseClasses;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using iEmosoft.TestRecorderModel;
-using iEmosoft.RecordableBrowser.Interfaces;
 
 namespace iEmosoft.RecordableBrowser
 {
-    public class TestExecutioner : ITestRecorder , IDisposable
+    public class TestExecutioner : IDisposable
     {
         private IWebDriver firefoxDriver = new FirefoxDriver();
         private IScreenCapture screenCapture = null;
@@ -95,7 +93,7 @@ namespace iEmosoft.RecordableBrowser
             {
                 this.firefoxDriver.ClickElement(by);
             }
-            catch (Exception exp)
+            catch 
             {
                return false;
             }

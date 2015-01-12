@@ -1,6 +1,4 @@
 ﻿using System;
-using iEmosoft.RecordableBrowser;
-using iEmosoft.RecordableBrowser.Interfaces;
 using iEmosoft.RecordableBrowser.TestData;
 using iEmosoft.TestRecorderModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

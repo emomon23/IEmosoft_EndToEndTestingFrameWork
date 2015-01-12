@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using iEmosoft.RecordableBrowser;
-using iEmosoft.RecordableBrowser.Interfaces;
-using iEmosoft.JiraBugEntry;
+using iEmosoft.RecordableBrowser.BaseClasses;
 using iEmosoft.TestRecorderModel;
-using OpenQA;
 using OpenQA.Selenium;
 
 namespace iEmosoft.PatientMgmtTests
