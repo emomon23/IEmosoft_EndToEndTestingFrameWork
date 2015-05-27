@@ -7,9 +7,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace iEmosoft.RecordableBrowser
+namespace iEmosoft.Automation
 {
-    public class ScreenCapture : IScreenCapture
+    public class ScreenCapture 
     {
         private string baseRootFolder = "";
         private Image lastImageCaptured = null;

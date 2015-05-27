@@ -62,17 +62,9 @@
     <Compile Include="LoginTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FogBugzBugEntry\FogBugzBugEntry.csproj">
-      <Project>{8fe57eaf-acbc-430d-b67d-63ca9c1a43e1}</Project>
-      <Name>FogBugzBugEntry</Name>
-    </ProjectReference>
     <ProjectReference Include="..\iEmosoft_TestExecutioner\RecordableBrowser.csproj">
       <Project>{7fbe108d-df8c-4d3a-b4da-da86d17370b9}</Project>
       <Name>RecordableBrowser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\JiraBugEntry\JiraBugEntry.csproj">
-      <Project>{8d763ca8-991b-417c-b997-35cdd4eea2ac}</Project>
-      <Name>JiraBugEntry</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestRecorderModel\TestRecorderModel.csproj">
       <Project>{233ed5a7-cca2-4051-a89e-d35e07117a67}</Project>

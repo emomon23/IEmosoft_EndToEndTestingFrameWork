@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using iEmosoft.RecordableBrowser.BaseClasses;
+using iEmosoft.Automation.BaseClasses;
+using iEmosoft.Automation.Interfaces;
+using iEmosoft.Automation.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
-using iEmosoft.TestRecorderModel;
 
-namespace iEmosoft.RecordableBrowser
+
+namespace iEmosoft.Automation
 {
     public class TestExecutioner : IDisposable
     {
-        private IWebDriver firefoxDriver = new FirefoxDriver();
-        private IScreenCapture screenCapture = null;
-        private ITestRecorder recorder = null;
+        private IUIDriver uiDriver = null;
+        private ScreenCapture screenCapture = null;
+        private ITestAuthor recorder = null;
      
         public TestExecutioner(string testCaseNumber, string testCaseName, string rootPath)
         {
@@ -66,19 +68,10 @@ namespace iEmosoft.RecordableBrowser
 
         public BugCreator BugCreator { get; set; }
 
-        public bool ClickElement(By by, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
+        public bool ClickElement(string idOrCss, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
         {
-            try
-            {
-                var element = firefoxDriver.FindElement(by);
-                if (element == null)
-                    return false;
-            }
-            catch
-            {
-                return false;
-            }
-
+            uiDriver.ClickControl(idOrCss);
+           
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription, expectedResult);
@@ -88,15 +81,7 @@ namespace iEmosoft.RecordableBrowser
             {
               this.CaptureScreen();
             }
-
-            try
-            {
-                this.firefoxDriver.ClickElement(by);
-            }
-            catch 
-            {
-               return false;
-            }
+            
 
             return true;
         }
@@ -375,7 +360,7 @@ namespace iEmosoft.RecordableBrowser
             }
         }
 
-        public bool StartNewTestCase(TestRecorderModel.TestCaseData testCaseHeader)
+        public bool StartNewTestCase(TestCaseData testCaseHeader)
         {
             if (this.recorder != null)
             {
@@ -385,7 +370,7 @@ namespace iEmosoft.RecordableBrowser
             return false;
         }
 
-        public void RecordStep(TestRecorderModel.TestCaseStep step)
+        public void RecordStep(TestCaseStep step)
         {
             if (this.recorder != null)
             {
@@ -415,11 +400,9 @@ namespace iEmosoft.RecordableBrowser
             {
                 recorder.SaveRecordedTest();
             }
-
-          
         }
 
-        public TestRecorderModel.TestCaseStep CurrentStep
+        public TestCaseStep CurrentStep
         {
             get 
             {

@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
+using iEmosoft.Automation.Helpers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 
-namespace iEmosoft.RecordableBrowser
+namespace iEmosoft.Automation
 {
     public static class WebDriverExtensions
     {
@@ -16,7 +18,7 @@ namespace iEmosoft.RecordableBrowser
         {
             driver.FindElement(by).Click();
         }
-
+        
         public static void SetTextOnElement(this IWebDriver driver, By by, string text){
             driver.FindElement(by).SendKeys(text);
         }
@@ -126,10 +128,168 @@ namespace iEmosoft.RecordableBrowser
             driver.Navigate().GoToUrl(url);
         }
 
+        public static object ExecuteScript(this IWebDriver driver, string rawJavaScript)
+        {
+            IJavaScriptExecutor jsExecutor = driver as IJavaScriptExecutor;
+            return jsExecutor.ExecuteScript(rawJavaScript);
+        }
+
+        public static string MineForTextValue(this IWebElement element, IJavaScriptExecutor driver)
+        {
+            string result = element.Text;
+            if (result.isNull())
+            {
+                string id = element.GetAttribute("id");
+                if (!id.isNull())
+                {
+                    string script = string.Format("return $('#{0}').val()", id);
+                    result = driver.ExecuteScript(script).ToString();
+                }
+            }
+
+            return result;
+        }
+
+        public static IWebElement MineForElement(this IWebDriver driver, string idOrCssSelector,
+            int retryForSeconds = 10)
+        {
+            IWebElement rtnVal = null;
+
+            int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
+            int retryAttemps = (seconds*1000)/200;
+
+            for (var i = 0; i < retryAttemps; i++)
+            {
+                rtnVal = QueryForElement(driver, By.Id(idOrCssSelector));
+                if (rtnVal != null)
+                    break;
+
+                rtnVal = QueryForElement(driver, By.CssSelector(idOrCssSelector));
+                if (rtnVal != null)
+                    break;
+
+                Thread.Sleep(200);
+            }
+
+            if (rtnVal == null)
+            {
+                throw new Exception(string.Format("Unable to find '{0}' in DOM", idOrCssSelector));
+            }
+
+            return rtnVal;
+        }
+
+        public static IWebElement MineForElement(this IWebDriver driver, string attributeName, string attributeValue,
+            string controlType = "",
+            bool useWildCardSearch = true, int retryForSeconds = 10)
+        {
+            IWebElement result = null;
+            string query = "";
+
+             int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
+             int retryAttemps = (seconds*1000)/200;
+
+            for (var i = 0; i < retryAttemps; i++)
+            {
+                query = string.Format("{0}[{1}='{2}'", controlType, attributeName, attributeValue);
+                result = QueryForElement(driver, By.CssSelector(query));
+
+                if (result == null && useWildCardSearch)
+                {
+                    query = string.Format("{0}[{1}*='{2}'", controlType, attributeName, attributeValue);
+                    result = QueryForElement(driver, By.CssSelector(query));
+                }
+
+                if (result != null)
+                    break;
+
+                Thread.Sleep(200);
+            }
+
+            if (result == null)
+            {
+                throw new Exception(string.Format("Unable to find '{0}' in DOM", query));
+            }
+
+            return result;
+        }
+
+
+        public static List<IWebElement> MineForElements(this IWebDriver driver, string attributeName, string attributeValue, string controlType = "",
+            bool useWildCardSearch = true, int retryIfCountIsZeroHowManyTimes = 10)
+        {
+            List<IWebElement> rtnVal = null;
+
+            for (var i = 0; i <= retryIfCountIsZeroHowManyTimes; i++)
+            {
+                var query = string.Format("{0}[{1}='{2}'", controlType, attributeName, attributeValue);
+                rtnVal = QueryForElements(driver, By.CssSelector(query));
+
+                if ((rtnVal == null || rtnVal.Count == 0) && useWildCardSearch)
+                {
+                    query = string.Format("{0}[{1}*='{2}'", controlType, attributeName, attributeValue);
+                    rtnVal = QueryForElements(driver, By.CssSelector(query));
+                }
+
+                if (rtnVal != null && rtnVal.Count > 0)
+                {
+                    break;
+                }
+
+                Thread.Sleep(200);
+            }
+
+            return rtnVal;
+        }
+
+        public static List<IWebElement> MineForElements(this IWebDriver driver, string idOrCssSelector,
+            int retryIfCountIsZeroHowManyTimes = 10)
+        {
+            List<IWebElement> rtnVal = null;
+
+            for (var i = 0; i <= retryIfCountIsZeroHowManyTimes; i++)
+            { 
+                rtnVal = QueryForElements(driver, By.CssSelector(idOrCssSelector));
+                if (rtnVal != null && rtnVal.Count > 0)
+                    break;
+
+                rtnVal = QueryForElements(driver, By.Id(idOrCssSelector));
+                if (rtnVal != null && rtnVal.Count > 0)
+                    break;
+
+                Thread.Sleep(200);
+            }
+
+            return rtnVal;
+        }
+
+        private static IWebElement QueryForElement(IWebDriver driver, By by)
+        {
+            try
+            {
+                return driver.FindElement(by);
+            }
+            catch (NoSuchElementException exception)
+            {
+                return null;
+            }
+        }
+
+        private static List<IWebElement> QueryForElements(IWebDriver driver, By by)
+        {
+            try
+            {
+                return driver.FindElements(by).ToList();
+            }
+            catch (NoSuchElementException exception)
+            {
+                return null;
+            }
+        }
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern IntPtr GetActiveWindow();
-        
-
+      
         public static bool IsNull(this string str)
         {
             return string.IsNullOrEmpty(str);

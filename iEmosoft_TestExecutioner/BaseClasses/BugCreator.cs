@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using iEmosoft.TestRecorderModel;
+using iEmosoft.Automation.Model;
 
-namespace iEmosoft.RecordableBrowser.BaseClasses
+namespace iEmosoft.Automation.BaseClasses
 {
     public abstract class BugCreator : IDisposable
     {
