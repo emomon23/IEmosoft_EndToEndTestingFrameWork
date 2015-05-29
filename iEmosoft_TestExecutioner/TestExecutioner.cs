@@ -18,7 +18,7 @@ namespace iEmosoft.Automation
         private IScreenCapture screenCapture = null;
         private BaseAuthor testAuthor = null;
       
-        public TestExecutioner(string testCaseNumber, string rootPath, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
+        public TestExecutioner(string testCaseNumber, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
              var testCaseHeader = new TestCaseHeaderData()
             {
@@ -28,25 +28,16 @@ namespace iEmosoft.Automation
                 TestNumber = testCaseNumber,
                 TestWriter = "Mike Emo Automation Test Executioner"
             };
-
-            if (! string.IsNullOrEmpty(testCaseNumber))
-            {
-                testCaseHeader.TestCaseFileName = string.Format("{0}_{1}.xlsx", testCaseNumber, testCaseName);
-            }
-            else 
-            {
-                testCaseHeader.TestCaseFileName = string.Format("{0}.xlsx", testCaseName);
-            }
-
-            this.Initialize(testCaseHeader, rootPath, uiDriver, author, capture);
+            
+            this.Initialize(testCaseHeader, uiDriver, author, capture);
         }
 
-        public TestExecutioner(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
+        public TestExecutioner(TestCaseHeaderData testCaseHeader, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
-            this.Initialize(testCaseHeader, rootPath, uiDriver, author, capture);
+            this.Initialize(testCaseHeader, uiDriver, author, capture);
         }
 
-        private void Initialize(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
+        private void Initialize(TestCaseHeaderData testCaseHeader, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
         {
             AutomationFactory factory = new AutomationFactory();
 
@@ -56,14 +47,10 @@ namespace iEmosoft.Automation
             }
             else
             {
-                if (!rootPath.isNull())
-                {
-                    rootPath += "\\ScreenCaptures";
-                }
-                this.screenCapture = factory.CreateScreenCapturer(rootPath);
+                this.screenCapture = factory.CreateScreenCapturer();
             }
 
-            this.testAuthor = author == null ? factory.CreateAuthor(rootPath) : author;
+            this.testAuthor = author == null ? factory.CreateAuthor() : author;
             this.testAuthor.StartNewTestCase(testCaseHeader);
 
             this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
