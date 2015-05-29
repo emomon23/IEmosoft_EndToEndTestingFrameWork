@@ -21,7 +21,7 @@ namespace iEmosoft.PatientMgmtTests
             testRecorder.BugCreator = bugCreator;
         }
 
-        public PMSTestContext(TestCaseData testCaseHeader)
+        public PMSTestContext(TestCaseHeaderData testCaseHeader)
         {
             testRecorder = new TestExecutioner(testCaseHeader, testReportFolder);
             testRecorder.BugCreator = bugCreator;

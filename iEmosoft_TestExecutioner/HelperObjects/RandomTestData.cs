@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace iEmosoft.Automation.Helpers
+namespace iEmosoft.Automation.HelperObjects
 {
     public class RandomTestData
     {

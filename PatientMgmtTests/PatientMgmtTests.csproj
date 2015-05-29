@@ -62,7 +62,7 @@
     <Compile Include="LoginTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\iEmosoft_TestExecutioner\RecordableBrowser.csproj">
+    <ProjectReference Include="..\iEmosoft_TestExecutioner\EmoTestAutomation.csproj">
       <Project>{7fbe108d-df8c-4d3a-b4da-da86d17370b9}</Project>
       <Name>RecordableBrowser</Name>
     </ProjectReference>

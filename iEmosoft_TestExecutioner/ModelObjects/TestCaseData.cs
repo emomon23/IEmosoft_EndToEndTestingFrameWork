@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace iEmosoft.Automation.Model
 {
-    public class TestCaseData
+    public class TestCaseHeaderData
     {
         private string fileName="";
-        public TestCaseData()
+        public TestCaseHeaderData()
         {
-            this.ExecutedOnDate = DateTime.Now.ToShortDateString();
+            this.ExecutedOnDate = DateTime.Now.ToString();
             this.Priority = "HIGH";
             this.TestWriter = "Automated Test Writer";
             this.ExecutedByName = "Automated Tester";

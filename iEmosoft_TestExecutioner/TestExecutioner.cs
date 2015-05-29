@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using iEmosoft.Automation.Authors;
 using iEmosoft.Automation.BaseClasses;
+using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Interfaces;
 using iEmosoft.Automation.Model;
 using OpenQA.Selenium;
@@ -12,13 +14,14 @@ namespace iEmosoft.Automation
 {
     public class TestExecutioner : IDisposable
     {
+        
         private IUIDriver uiDriver = null;
         private ScreenCapture screenCapture = null;
-        private ITestAuthor recorder = null;
-     
-        public TestExecutioner(string testCaseNumber, string testCaseName, string rootPath)
+        private BaseAuthor testAuthor = null;
+
+        public TestExecutioner(string testCaseNumber, string rootPath, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null)
         {
-             var testCaseHeader = new TestCaseData()
+             var testCaseHeader = new TestCaseHeaderData()
             {
                 ExecutedByName = "Mike Emo Automation Test Executioner",
                 ExecutedOnDate = DateTime.Now.ToShortDateString(),
@@ -36,34 +39,24 @@ namespace iEmosoft.Automation
                 testCaseHeader.TestCaseFileName = string.Format("{0}.xlsx", testCaseName);
             }
 
-            this.Initialize(testCaseHeader, rootPath);
+            this.Initialize(testCaseHeader, rootPath, uiDriver, author);
         }
 
-        public TestExecutioner(string testCaseName, string rootPath)
+        public TestExecutioner(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver uiDriver = null, BaseAuthor author = null)
         {
-            var testCaseHeader = new TestCaseData()
-            {
-                ExecutedByName = "Mike Emo Automation Test Executioner",
-                ExecutedOnDate = DateTime.Now.ToShortDateString(),
-                TestName = testCaseName.Replace("_", " "),
-                TestCaseFileName = testCaseName.Replace(" ", "_") + ".xlsx",
-                TestWriter = "Mike Emo Automation Test Executioner"
-            };
-
-            this.Initialize(testCaseHeader, rootPath);
+            this.Initialize(testCaseHeader, rootPath, uiDriver, author);
         }
 
-        public TestExecutioner(TestCaseData testCaseHeader, string rootPath)
+        private void Initialize(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver injectedDriver, BaseAuthor author)
         {
-            this.Initialize(testCaseHeader, rootPath);
-        }
+            AutomationFactory factory = new AutomationFactory();
 
-        private void Initialize(TestCaseData testCaseHeader, string rootPath)
-        {
             this.screenCapture = new ScreenCapture(rootPath + "\\ScreenCaptures");
-        
-            this.recorder = new TestCaseRecorder(rootPath);
-            this.recorder.StartNewTestCase(testCaseHeader);
+
+            this.testAuthor = author == null ? factory.CreateAuthor(rootPath) : author;
+            this.testAuthor.StartNewTestCase(testCaseHeader);
+
+            this.uiDriver = injectedDriver == null ? factory.CreateDriver() : injectedDriver;
         }
 
         public BugCreator BugCreator { get; set; }
@@ -85,173 +78,103 @@ namespace iEmosoft.Automation
 
             return true;
         }
-
-        public bool ClickElement(string elementSearch, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
-        {
-            bool result = this.ClickElement(By.Id(elementSearch), stepDescription, expectedResult, snapScreenBeforeClick);
-            if (!result)
-            {
-                result = this.ClickElement(By.XPath(elementSearch), stepDescription, expectedResult, snapScreenBeforeClick);
-            }
-
-            if (!result)
-            {
-                result = this.ClickElement(By.PartialLinkText(elementSearch), stepDescription, expectedResult, snapScreenBeforeClick);
-            }
-
-            return result;
-        }
-
+        
         public bool ClickElement(string elementSearch)
         {
             return this.ClickElement(elementSearch, null, null, false);
         }
 
-        public string CurrentURL { get { return firefoxDriver.Url; } }
-
-        public void ClickElement(By by)
+        public string CurrentFormName_OrURL { get { return uiDriver.CurrentFormName_OrPageURL; } }
+        
+        public void SetTextOnElement(string idOrCSSSelector, string text)
         {
-            try
-            {
-                this.firefoxDriver.FindElement(by).Click();
-                System.Threading.Thread.Sleep(2000);
-            }
-            catch (Exception exp)
-            {
-                this.FailTest(exp);
-            }
+            SetTextOnElement(idOrCSSSelector, text, null);
         }
 
-        public void SetTextOnElement(By by, string text, string stepDescription)
+        public void SetTextOnElement(string idOrCSSSelector, string text, string stepDescription)
         {
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription);
             }
 
-            try
-            {
-                firefoxDriver.FindElement(by).SendKeys(text);
-            }
-            catch (Exception exp)
-            {
-                this.FailTest(exp);
-            }
+            uiDriver.SetTextOnControl(idOrCSSSelector, text);
         }
 
-        public void SetTextOnElement(string elementToFind, string text)
+        public void SetTextOnElement(string attributeName, string attributeValue, string textToSet,
+            string elementName = "", bool useWildCard = true)
         {
-            SetTextOnElement(elementToFind, text, null);
+            uiDriver.SetTextOnControl(attributeValue, attributeValue, textToSet, elementName, useWildCard);
         }
 
-        public void SetTextOnElement(string elementToFind, string text, string stepDescription)
+        public string GetTextOnElement(string idOrCss)
         {
-            if (!string.IsNullOrEmpty(stepDescription))
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-
-            IWebElement element = null;
-
-            try
-            {
-                element = firefoxDriver.FindElement(By.Id(elementToFind));
-            }
-            catch { }
-
-            if (element == null)
-            {
-                element = firefoxDriver.FindElement(By.XPath(elementToFind));
-            }
-
-            if (elementToFind != null)
-                element.SendKeys(text);
-            else
-                this.FailTest(new Exception("Unable to find " + elementToFind));
-
+            return uiDriver.GetTextOnControl(idOrCss);
         }
 
-        public string GetTextOnElement(By by)
+        public string GetTextOnElement(string attributeName,string attributeValue,string controlType, bool useWildCardSearch = true)
         {
-            var element = firefoxDriver.FindElement(by);
-            string rtnVal = element.Text;
-
-            if (string.IsNullOrEmpty(rtnVal))
-                rtnVal = element.GetAttribute("value");
-
-            return rtnVal;
+            return uiDriver.GetTextOnControl(attributeName, attributeValue, controlType, useWildCardSearch);
         }
 
-        public void SetValueOnDropdown(By by, string valueToSet)
-        {
-            SetValueOnDropdown(by, valueToSet, null);
-        }
-
-        public void SetValueOnDropdown(By by, string valueToSet, string stepDescription)
+        public void SetValueOnDropdown(string attributeName, string attributeValue, string valueToSet, string stepDescription = "")
         {
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription);
             }
 
-            var dropdown = (SelectElement)firefoxDriver.FindElement(by);
-            var originalValue = dropdown.SelectedOption.Text;
+            uiDriver.SetValueOnDropDown(attributeName, attributeValue, valueToSet);
+        }
 
-            dropdown.SelectByText(valueToSet);
-
-            if (originalValue == dropdown.SelectedOption.Text)
+        public void SetValueOnDropdown(string idOrCSS, string valueToSet, string stepDescription = "")
+        {
+            if (!string.IsNullOrEmpty(stepDescription))
             {
-                dropdown.SelectByValue(valueToSet);
+                this.BeginTestCaseStep(stepDescription);
             }
+
+            uiDriver.SetValueOnDropDown(idOrCSS, valueToSet);
         }
 
-        public string GetSelectedTextOnDropdown(By by)
+        public string GetSelectedTextOnDropdown(string idOrCSS)
         {
-            var dropdown = (SelectElement)firefoxDriver.FindElement(by);
-
-            return dropdown.SelectedOption.Text;
+            return uiDriver.GetTextOnDropDown(idOrCSS);
         }
 
-        public string GetSelectedValueOnDropdown(By by)
+        public string GetSelectedTextOnDropdown(string attributeName, string attributeValue)
         {
-            var dropdown = (SelectElement)this.firefoxDriver.FindElement(by);
-
-            return dropdown.SelectedOption.GetAttribute("value");
+            return uiDriver.GetTextOnDropDown(attributeName, attributeValue, "select");
         }
 
-        public void NavigateTo(string url)
+
+        public string GetSelectedValueOnDropdown(string idOrCSS)
         {
-            this.firefoxDriver.Navigate().GoToUrl(url);
-
-            this.screenCapture.ScreenToCaptureWindowsHandle = firefoxDriver.GetFirefoxWindowsHandle();
-
+            return uiDriver.GetValueOnDropDown(idOrCSS);
         }
 
-        public void NavigateTo(string url, string expectedResult)
+        public string GetSelectedValueOnDropdown(string attributeName, string attributeValue)
+        {
+            return uiDriver.GetValueOnDropDown(attributeName, attributeValue, "select");
+        }
+
+        public void NavigateTo(string url, string expectedResult = "")
         {
             if (!string.IsNullOrEmpty(expectedResult))
             {
                 this.BeginTestCaseStep("Navigate to " + url, expectedResult);
             }
 
-            firefoxDriver.Manage().Window.Maximize();
-            this.firefoxDriver.Navigate().GoToUrl(url);
+            uiDriver.MaximizeWindow();
+            uiDriver.NavigateTo(url);
             System.Threading.Thread.Sleep(3000);
         }
 
         public void Quit()
         {
-            firefoxDriver.Quit();
+            uiDriver.Dispose();
         }
-
-        public IWebDriver WebDriver
-        {
-            get
-            {
-                return firefoxDriver;
-            }
-        }
-
+        
         public string CaptureScreen(string textToWriteOnScreenCapture)
         {
             if (this.screenCapture == null)
@@ -260,15 +183,15 @@ namespace iEmosoft.Automation
             }
 
             string fileName = screenCapture.CaptureScreenToFile(textToWriteOnScreenCapture);
-            if (this.recorder != null && this.recorder.CurrentStep != null)
+            if (this.testAuthor != null && this.testAuthor.CurrentStep != null)
             {
-                this.recorder.CurrentStep.ImageFilePath = fileName;
-                this.recorder.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
+                this.testAuthor.CurrentStep.ImageFilePath = fileName;
+                this.testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
             }
 
-            if (this.recorder.CurrentStep != null)
+            if (this.testAuthor.CurrentStep != null)
             {
-                this.recorder.CurrentStep.ImageFilePath = fileName;
+                this.testAuthor.CurrentStep.ImageFilePath = fileName;
             }
             return fileName;
         }
@@ -282,30 +205,30 @@ namespace iEmosoft.Automation
      
         public bool TestCaseFailed
         {
-            get { return this.recorder != null ? recorder.TestCaseFailed : false; }
+            get { return this.testAuthor != null ? testAuthor.TestCaseFailed : false; }
         }
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult, string suppliedData)
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
+                testAuthor.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
             }
         }
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult)
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.BeginTestCaseStep(stepDescription, expectedResult);
+                testAuthor.BeginTestCaseStep(stepDescription, expectedResult);
             }
         }
 
         public void BeginTestCaseStep(string stepDescription)
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.BeginTestCaseStep(stepDescription);
+                testAuthor.BeginTestCaseStep(stepDescription);
             }
         }
 
@@ -320,101 +243,45 @@ namespace iEmosoft.Automation
 
         public void CommitTestStep()
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.CommitTestStep();
+                testAuthor.CommitCurrentTestStep();
             }
         }
 
-        public void CommitTestStep(string actualResult)
+       
+        public void CommitTestStep(string actualResult, bool wasSuccessful = true, string imageFile = "")
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.CommitTestStep(actualResult);
+                testAuthor.CommitCurrentTestStep(wasSuccessful, actualResult, imageFile);
             }
         }
-
-        public void CommitTestStep(bool wasSuccessful, string actualResult)
+      
+        public bool StartNewTestCase(TestCaseHeaderData testCaseHeader)
         {
-            if (this.recorder != null)
+            if (this.testAuthor != null)
             {
-                recorder.CommitTestStep(wasSuccessful, actualResult);
-            }
-        }
-
-        public void CommitTestStep(string actualResult, string imageFile)
-        {
-            if (this.recorder != null)
-            {
-                recorder.CommitTestStep(actualResult, imageFile);
-            }
-
-           
-        }
-
-        public void CommitTestStep(bool wasSuccessful, string actualResult, string imageFile)
-        {
-            if (this.recorder != null)
-            {
-                recorder.CommitTestStep(wasSuccessful, actualResult, imageFile);
-            }
-        }
-
-        public bool StartNewTestCase(TestCaseData testCaseHeader)
-        {
-            if (this.recorder != null)
-            {
-                return recorder.StartNewTestCase(testCaseHeader);
+                return testAuthor.StartNewTestCase(testCaseHeader);
             }
 
             return false;
         }
-
-        public void RecordStep(TestCaseStep step)
-        {
-            if (this.recorder != null)
-            {
-                recorder.RecordStep(step);
-            }
-        }
-
-        public void SaveRecordedTest()
-        {
-            string bugLink = null;
-
-            if (this.TestCaseFailed && this.BugCreator != null)
-            {
-                try
-                {
-                    bugLink = this.BugCreator.CreateBug(this.TestCaseHeader, this.RecordedSteps);
-                }
-                catch { }
-            }
-
-            if (!bugLink.IsNull())
-            {
-                recorder.SetBugRecord(bugLink, "Jira Bug Record");
-            }
-
-            if (this.recorder != null)
-            {
-                recorder.SaveRecordedTest();
-            }
-        }
+        
 
         public TestCaseStep CurrentStep
         {
             get 
             {
-                return this.recorder == null ? null : recorder.CurrentStep;
+                return this.testAuthor == null ? null : testAuthor.CurrentStep;
             }
         }
 
         public void Dispose()
         {
             this.Quit();
-            this.SaveRecordedTest();
-            this.recorder.Dispose();
+            testAuthor.SaveReport();
+            this.testAuthor.Dispose();
 
             if (this.BugCreator != null)
                 this.BugCreator.Dispose();
@@ -423,27 +290,22 @@ namespace iEmosoft.Automation
 
         public bool PageContains(string lookFor)
         {
-            return this.firefoxDriver.PageSource.Contains(lookFor);
+            return uiDriver.ScreenContains(lookFor);
         }
-
-        public void AssertPageContains(string lookFor)
+        
+        public void AssertPageContains(string lookFor, bool continueIfFails = false)
         {
-            AssertPageContains(lookFor, false);
-        }
-
-        public void AssertPageContains(string lookFor, bool continueIfFails)
-        {
-            recorder.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
+            testAuthor.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
 
             if (!this.PageContains(lookFor))
             {
                 string msg = string.Format("Unable to find '{0}' on current page, see image for details.", lookFor);
 
-                if (this.recorder.CurrentStep.ActualResult.IsNull() == false && this.recorder.CurrentStep.ActualResult.Length > 0)
-                    this.recorder.CurrentStep.ActualResult += "  ";
+                if (this.testAuthor.CurrentStep.ActualResult.IsNull() == false && this.testAuthor.CurrentStep.ActualResult.Length > 0)
+                    this.testAuthor.CurrentStep.ActualResult += "  ";
 
-                this.recorder.CurrentStep.ActualResult = msg;
-                this.recorder.CurrentStep.StepPassed = false;
+                this.testAuthor.CurrentStep.ActualResult = msg;
+                this.testAuthor.CurrentStep.StepPassed = false;
 
                 //captuer the screen with an error message
                 this.CaptureScreen(msg);
@@ -462,22 +324,22 @@ namespace iEmosoft.Automation
         }
 
 
-        public bool AmOnPage(string urlSnippet)
+        public bool AmOnScreen(string urlSnippet)
         {
-            return this.firefoxDriver.Url.ToLower().Contains(urlSnippet.ToLower());
+            return uiDriver.AmOnSceen(urlSnippet);
         }
 
-        public void AssertAmOnPage(string urlSnippet)
+        public void AssertAmOnScreen(string urlSnippet)
         {
-            if (!this.AmOnPage(urlSnippet))
+            if (!this.AmOnScreen(urlSnippet))
             {
-                if (this.recorder.CurrentStep != null)
+                if (this.testAuthor.CurrentStep != null)
                 {
-                    if (this.recorder.CurrentStep.ActualResult.Length > 0)
-                        this.recorder.CurrentStep.ActualResult += "  ";
+                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
+                        this.testAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.recorder.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
-                    this.recorder.CurrentStep.StepPassed = false;     
+                    this.testAuthor.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
+                    this.testAuthor.CurrentStep.StepPassed = false;     
                 }
 
                 this.FailTest();
@@ -491,13 +353,13 @@ namespace iEmosoft.Automation
             {
                 string msg = string.Format("Page contains text ('{0}'), that should not exist, we may not be on the page expected.", lookFor);
 
-                if (this.recorder.CurrentStep != null)
+                if (this.testAuthor.CurrentStep != null)
                 {
-                    if (this.recorder.CurrentStep.ActualResult.Length > 0)
-                        this.recorder.CurrentStep.ActualResult += "  ";
+                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
+                        this.testAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.recorder.CurrentStep.ActualResult = msg;
-                    this.recorder.CurrentStep.StepPassed = false;
+                    this.testAuthor.CurrentStep.ActualResult = msg;
+                    this.testAuthor.CurrentStep.StepPassed = false;
                 }
 
                 this.FailTest();
@@ -508,12 +370,12 @@ namespace iEmosoft.Automation
 
         public List<TestCaseStep> RecordedSteps
         {
-            get { return recorder.RecordedSteps; }
+            get { return testAuthor.RecordedSteps; }
         }
 
-        public TestCaseData TestCaseHeader
+        public TestCaseHeaderData TestCaseHeader
         {
-            get { return recorder.TestCaseHeader;  }
+            get { return testAuthor.TestCaseHeader;  }
         }
 
         private void FailTest(Exception exp)
@@ -531,16 +393,10 @@ namespace iEmosoft.Automation
             {
                 try
                 {
-                    this.BugCreator.CreateBug(recorder.TestCaseHeader, recorder.RecordedSteps);
+                    this.BugCreator.CreateBug(testAuthor.TestCaseHeader, testAuthor.RecordedSteps);
                 }
                 catch { }
             }
-        }
-
-
-        public void SetBugRecord(string bugLink, string bugLinkText)
-        {
-            recorder.SetBugRecord(bugLink, bugLinkText);
         }
     }
 }

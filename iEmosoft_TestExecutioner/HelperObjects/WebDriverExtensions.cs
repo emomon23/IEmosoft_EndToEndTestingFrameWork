@@ -5,12 +5,11 @@ using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
-using iEmosoft.Automation.Helpers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 
-namespace iEmosoft.Automation
+namespace iEmosoft.Automation.HelperObjects
 {
     public static class WebDriverExtensions
     {

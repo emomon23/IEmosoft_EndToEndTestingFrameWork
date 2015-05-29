@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace iEmosoft.Automation
+namespace iEmosoft.Automation.HelperObjects
 {
     public class ScreenCapture 
     {

@@ -28,7 +28,7 @@ namespace iEmosoft.PatientMgmtTests
             catch { }
         }
 
-        public override string CreateBug(TestCaseData header, List<TestCaseStep> steps)
+        public override string CreateBug(TestCaseHeaderData header, List<TestCaseStep> steps)
         {
             string url = null;
             try

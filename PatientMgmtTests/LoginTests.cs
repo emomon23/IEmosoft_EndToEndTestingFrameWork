@@ -8,12 +8,12 @@ namespace iEmosoft.PatientMgmtTests
     [TestClass]
     public class LoginTests
     {
-        TestCaseData testCaseHeader = null;
+        TestCaseHeaderData testCaseHeader = null;
         
         [TestInitialize]
         public void InitializerTestCase()
         {
-            testCaseHeader = new TestCaseData()
+            testCaseHeader = new TestCaseHeaderData()
             {
                 ExecutedByName = "PatientMgmtTests.LoginTests",
                 ExecutedOnDate = DateTime.Now.ToShortDateString(),

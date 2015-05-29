@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using iEmosoft;
+using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Model;
 using iEmosoft.Automation.Interfaces;
 using OpenQA.Selenium;
@@ -237,6 +238,28 @@ namespace iEmosoft.Automation.UIDrivers
         public void Pause(int milliseconds)
         {
             Thread.Sleep(milliseconds);
+        }
+
+        public IWebDriver RawWebDriver
+        {
+            get { return firefoxDriver; }
+        }
+
+
+        public string CurrentFormName_OrPageURL
+        {
+            get { return firefoxDriver.Url; }
+        }
+
+
+        public void MaximizeWindow()
+        {
+            firefoxDriver.Manage().Window.Maximize();
+        }
+
+        public void Dispose()
+        {
+            firefoxDriver.Quit();
         }
     }
 }

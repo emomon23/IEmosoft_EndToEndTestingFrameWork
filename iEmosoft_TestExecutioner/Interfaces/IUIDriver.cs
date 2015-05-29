@@ -5,7 +5,7 @@ using System.Text;
 
 namespace iEmosoft.Automation.Interfaces
 {
-    public interface IUIDriver
+    public interface IUIDriver : IDisposable
     {
         bool ScreenContains(string lookFor);
         
@@ -44,9 +44,13 @@ namespace iEmosoft.Automation.Interfaces
         string GetValueOnDropDown(string attributeName, string attributeValue, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10);
 
+        string CurrentFormName_OrPageURL { get; }
+
         void NavigateTo(string windowNameOrUri);
         void Launch(string appNameOrUri);
 
         void Pause(int milliseconds);
+
+        void MaximizeWindow();
     }
 }

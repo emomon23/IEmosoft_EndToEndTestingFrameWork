@@ -1,0 +1,144 @@
+<style type="text/css">
+     .testNumber {
+        width: 25%;
+        height: 50px
+    }
+
+     th {
+         text-align: left;    
+     }
+
+     .failTestNumber {
+          background-color: darkred;
+     }
+
+    .failColor {
+        background-color: red;
+    }
+
+    .passTestNumber {
+        background-color: darkgreen
+    }
+
+    .passColor {
+        background-color: green
+    }
+
+    .bold {
+        font-weight:  bold
+    }
+
+    th{
+        font-weight:  bold
+    }
+
+    .spaceDown {
+        margin-top:15px
+    }
+
+    .spaceDownBig {
+        margin-top:50px
+    }
+
+    .centerText {
+        text-align: center;
+    }
+
+    .evenRow {
+        background-color: khaki
+    }
+
+    .oddRow {
+        background-color: bisque
+    }
+</style>
+
+<html>
+    <body>
+
+    <table width="95%">
+    <tr><td>
+    <table border="1px" width="100%">
+	   <tr>
+	       <td class='bold centerText testNumber [TEST_NUMBER_CLASS]'>[TEST_NUMBER]</td>
+           <td class='bold centerText [PASS_FAIL_CLASS]'>[PASS_FAIL]</td>
+	   </tr>
+	</table>
+
+    <table border="1" width="100%" class="spaceDown">
+        <tr>
+            <td width="150px">Prereqs: </td>
+            <td colspan="3">You need to do something</td>
+        </tr>
+
+        <tr>
+            <td>Test Title: </td>
+            <td colspan="3">New Hospital Creation</td>
+        </tr>
+
+        <tr>
+            <td>
+                Priority
+            </td>
+            <td>
+                High
+            </td>
+            <td width="150px">
+                Author
+            </td>
+            <td>
+                Mike Emo
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                Executed By
+            </td>
+            <td>
+                Test Automation
+            </td>
+            <td>
+                Executed Date
+            </td>
+            <td>
+                1/1/20015 2:15 am
+            </td>
+        </tr>
+    </table>
+
+    <hr class="spaceDown"/>
+
+    <div class='centerText bold evenRow spaceDown'>Description</div>
+        <div class='descriptionText'>{GIVEN_WHEN_THEN]</div>
+
+    <table id='testStepsTabel' class="spaceDownBig" width="100%">
+        <tr class="oddRow">
+            <th class='numberColumn'>Step</th>
+            <th class='stepColumn'>Test Step</th>
+            <th class='suppliedDataColumn'>Supplied Data</th>
+            <th class='expectedResultColumn'>Expected Result</th>
+            <th class='actualResultColumn'>Actual Result</th>
+            <th class='statusColumn'>Status</th>
+            <th class='imageColumn'>Image</th>
+            <th class='notesColumn'>Notes</th>
+        </tr>
+
+        <!--
+        <tr class="[ODD_EVEN_ROW]">
+            <td class='numberColumn'>[STEP_NUMBER]</td>
+            <td class='stepColumn'>[STEP_DESCRIPTION]</td>
+            <td class='suppliedDataColumn'>[STEP_SUPPLIED_DATE]</td>
+            <td class='expectedResultColumn'>[STEP_EXPECTED_RESULT]</td>
+            <td class='actualResultColumn'>[STEP_ACTUAL_RESULT]</td>
+            <td class='statusColumn'>[STEP_PASS_FAIL]</td>
+            <td class='imageColumn'><a href="[IMAGE_PATH]">Image</a></td>
+            <td class='notesColumn'>[STEP_NOTES]</td>
+        </tr>
+        -->
+
+    </table>
+
+        </td></tr></table>
+    </body>
+</html>

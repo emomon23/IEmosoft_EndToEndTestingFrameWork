@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Model;
 
 namespace iEmosoft.Automation.BaseClasses
 {
     public abstract class BugCreator : IDisposable
     {
-        protected TestCaseData header = null;
+        protected TestCaseHeaderData header = null;
         protected List<TestCaseStep> steps = null;
 
         protected string BugTitle = "";
@@ -16,9 +17,9 @@ namespace iEmosoft.Automation.BaseClasses
      
 
         //Make sure to call base.InitializeBugCreator when you override this method!
-        public abstract string CreateBug(TestCaseData header, List<TestCaseStep> steps);
+        public abstract string CreateBug(TestCaseHeaderData header, List<TestCaseStep> steps);
 
-        protected void InitializeBugCreator(TestCaseData header, List<TestCaseStep> steps)
+        protected void InitializeBugCreator(TestCaseHeaderData header, List<TestCaseStep> steps)
         {
             this.header = header;
             this.steps = steps;
@@ -30,7 +31,7 @@ namespace iEmosoft.Automation.BaseClasses
             get
             {
                 var failedStep = this.GetFailedStep();
-                if (failedStep != null && failedStep.ImageFilePath.IsNull() == false)
+                if (failedStep != null && string.IsNullOrEmpty(failedStep.ImageFilePath) == false)
                     return failedStep.ImageFilePath;
 
                 return "";
