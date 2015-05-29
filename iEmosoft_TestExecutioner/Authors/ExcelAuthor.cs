@@ -4,7 +4,7 @@ using iEmosoft.Automation.Model;
 using Excel = Microsoft.Office.Interop.Excel;
 using iEmosoft.Automation.BaseClasses;
 
-namespace iEmosoft.Automation
+namespace iEmosoft.Automation.Authors
 {
 	public class ExcelAuthor : BaseAuthor, IDisposable
 	{

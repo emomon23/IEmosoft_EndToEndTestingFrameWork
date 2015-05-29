@@ -7,9 +7,10 @@ using iEmosoft.Automation.Authors;
 using iEmosoft.Automation.BaseClasses;
 using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Interfaces;
+using iEmosoft.Automation.ScreenCaptures;
 using iEmosoft.Automation.UIDrivers;
 
-namespace iEmosoft.Automation
+namespace iEmosoft.Automation.HelperObjects
 {
     public class AutomationFactory
     {
@@ -33,7 +34,7 @@ namespace iEmosoft.Automation
             return NewUpAuthor(authorTypeName, rootPath);
         }
 
-        public IUIDriver CreateDriver()
+        public IUIDriver CreateUIDriver()
         {
             string uiDriverType = configuration.TestExecutionerUIDriverType;
             IUIDriver driver = null;
@@ -54,6 +55,30 @@ namespace iEmosoft.Automation
             }
 
             return driver;
+        }
+
+        public IScreenCapture CreateScreenCapturer(string rootPathOrURL = null)
+        {
+            IScreenCapture result = null;
+
+            switch (configuration.TestExecutionerScreenCapturer)
+            {
+                case "LOCAL":
+                    result = new LocalScreenCapture(rootPathOrURL.isNull()? configuration.ScreenCaptureLocalPath : rootPathOrURL);
+                    break;
+                case "REMOTE":
+                    result = new RemoteScreenCapture(rootPathOrURL.isNull()? configuration.ScreenCaptureRemoteServerURL : rootPathOrURL);
+                    break;
+                    
+            }
+
+            if (result == null)
+            {
+                throw new Exception(string.Format("expected configuration setting for screen capture to be 'REMOTE' or 'LOCAL'. Actual value '{0}'.  Unable to create screen capture object", configuration.TestExecutionerScreenCapturer));
+            }
+
+            return result;
+            
         }
 
         public MultipleDestinationsAuthor CreateMultiAuthor(string reportPath)

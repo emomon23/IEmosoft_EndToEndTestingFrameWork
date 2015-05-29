@@ -55,12 +55,15 @@
     <Compile Include="BaseClasses\BugCreator.cs" />
     <Compile Include="HelperObjects\AutomationConfiguration.cs" />
     <Compile Include="HelperObjects\WebDriverExtensions.cs" />
+    <Compile Include="Interfaces\IScreenCapture.cs" />
     <Compile Include="Interfaces\IUIDriver.cs" />
     <Compile Include="ModelObjects\TestCaseData.cs" />
     <Compile Include="ModelObjects\TestCaseStep.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HelperObjects\ScreenCapture.cs" />
+    <Compile Include="HelperObjects\ScreenPhotographer.cs" />
     <Compile Include="Authors\ExcelAuthor.cs" />
+    <Compile Include="ScreenCaptures\LocalScreenCapture.cs" />
+    <Compile Include="ScreenCaptures\RemoteScreenCapture.cs" />
     <Compile Include="TestExecutioner.cs" />
     <Compile Include="HelperObjects\RandomTestData.cs" />
     <Compile Include="UIDrivers\Firefox.cs" />

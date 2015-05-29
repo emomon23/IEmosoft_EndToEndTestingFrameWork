@@ -14,12 +14,11 @@ namespace iEmosoft.Automation
 {
     public class TestExecutioner : IDisposable
     {
-        
         private IUIDriver uiDriver = null;
-        private ScreenCapture screenCapture = null;
+        private IScreenCapture screenCapture = null;
         private BaseAuthor testAuthor = null;
-
-        public TestExecutioner(string testCaseNumber, string rootPath, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null)
+      
+        public TestExecutioner(string testCaseNumber, string rootPath, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
              var testCaseHeader = new TestCaseHeaderData()
             {
@@ -39,24 +38,35 @@ namespace iEmosoft.Automation
                 testCaseHeader.TestCaseFileName = string.Format("{0}.xlsx", testCaseName);
             }
 
-            this.Initialize(testCaseHeader, rootPath, uiDriver, author);
+            this.Initialize(testCaseHeader, rootPath, uiDriver, author, capture);
         }
 
-        public TestExecutioner(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver uiDriver = null, BaseAuthor author = null)
+        public TestExecutioner(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
-            this.Initialize(testCaseHeader, rootPath, uiDriver, author);
+            this.Initialize(testCaseHeader, rootPath, uiDriver, author, capture);
         }
 
-        private void Initialize(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver injectedDriver, BaseAuthor author)
+        private void Initialize(TestCaseHeaderData testCaseHeader, string rootPath, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
         {
             AutomationFactory factory = new AutomationFactory();
 
-            this.screenCapture = new ScreenCapture(rootPath + "\\ScreenCaptures");
+            if (capture != null)
+            {
+                this.screenCapture = capture;
+            }
+            else
+            {
+                if (!rootPath.isNull())
+                {
+                    rootPath += "\\ScreenCaptures";
+                }
+                this.screenCapture = factory.CreateScreenCapturer(rootPath);
+            }
 
             this.testAuthor = author == null ? factory.CreateAuthor(rootPath) : author;
             this.testAuthor.StartNewTestCase(testCaseHeader);
 
-            this.uiDriver = injectedDriver == null ? factory.CreateDriver() : injectedDriver;
+            this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
         }
 
         public BugCreator BugCreator { get; set; }
@@ -182,7 +192,11 @@ namespace iEmosoft.Automation
                 return null;
             }
 
-            string fileName = screenCapture.CaptureScreenToFile(textToWriteOnScreenCapture);
+            string fileName = string.Format("TestImage_{0}_{1}.jpg", new RandomTestData().GetRandomDigits(5),
+                DateTime.Now.Minute);
+
+            
+            screenCapture.CaptureDesktop(textToWriteOnScreenCapture);
             if (this.testAuthor != null && this.testAuthor.CurrentStep != null)
             {
                 this.testAuthor.CurrentStep.ImageFilePath = fileName;

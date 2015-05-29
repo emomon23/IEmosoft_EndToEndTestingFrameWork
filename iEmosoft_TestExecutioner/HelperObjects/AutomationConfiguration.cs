@@ -13,6 +13,9 @@ namespace iEmosoft.Automation.HelperObjects
         string[] MultiAuthor_Authors { get; }
         string TestReportFilePath { get; }
         string TestExecutionerUIDriverType { get; }
+        string TestExecutionerScreenCapturer { get; }
+        string ScreenCaptureLocalPath { get; }
+        string ScreenCaptureRemoteServerURL { get; }
     }
 
     public class AutomationConfiguration : IAutomationConfiguration
@@ -24,6 +27,24 @@ namespace iEmosoft.Automation.HelperObjects
             {
                 return GetConfigSetting("TestExecutionerAuthor").ToUpper(); 
             }
+        }
+
+        public string ScreenCaptureLocalPath
+        {
+            get { return GetConfigSetting("ScreenCaptureLocalPath"); }
+        }
+
+        public string ScreenCaptureRemoteServerURL
+        {
+            get
+            {
+                return GetConfigSetting("ScreenCaptureRemoteServerUri");
+            }
+        }
+
+        public string TestExecutionerScreenCapturer
+        {
+            get { return GetConfigSetting("TextExecutionerScreenCaptureType").ToUpper(); }
         }
 
         public string TestExecutionerUIDriverType

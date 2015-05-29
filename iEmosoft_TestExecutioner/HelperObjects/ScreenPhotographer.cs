@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace iEmosoft.Automation.HelperObjects
 {
-    public class ScreenCapture 
+    public class ScreenPhotographer 
     {
         private string baseRootFolder = "";
         private Image lastImageCaptured = null;
@@ -27,9 +24,9 @@ namespace iEmosoft.Automation.HelperObjects
             }
         }
         
-        public ScreenCapture() { }
+        public ScreenPhotographer() { }
              
-        public ScreenCapture(string rootFolder)
+        public ScreenPhotographer(string rootFolder)
         {
             this.baseRootFolder = rootFolder;
             if (!Directory.Exists(rootFolder))
@@ -45,100 +42,40 @@ namespace iEmosoft.Automation.HelperObjects
             }
         }
        
-        public Image CaptureScreen()
+        public Image CaptureScreen(string textToWriteOnImage = "")
         {
             if (this.screenToCapture == IntPtr.Zero)
                 this.screenToCapture = User32.GetDesktopWindow();
-            
+          
+            Image img = CaptureWindow(this.screenToCapture);
 
-            return CaptureWindow(this.screenToCapture);
-        }
+            if (!textToWriteOnImage.isNull())
+            {
+                WriteTextOnImage(img, textToWriteOnImage);
+            }
 
-        public Image CaptureWindow(IntPtr windowHandle, string textToWriteOnImage)
-        {
-            Image result = CaptureWindow(windowHandle);
-            this.WriteTextOnImage(result, textToWriteOnImage);
-            return result;
-        }
-               
-        public Image CaptureWindow(IntPtr windowHandle)
-        {
-            IntPtr handle = windowHandle;
-
-            // get te hDC of the target window
-            IntPtr hdcSrc = User32.GetWindowDC(handle);
-            // get the size
-            User32.RECT windowRect = new User32.RECT();
-            User32.GetWindowRect(handle, ref windowRect);
-            int width = windowRect.right - windowRect.left;
-            int height = windowRect.bottom - windowRect.top;
-            // create a device context we can copy to
-            IntPtr hdcDest = GDI32.CreateCompatibleDC(hdcSrc);
-            // create a bitmap we can copy it to,
-            // using GetDeviceCaps to get the width/height
-            IntPtr hBitmap = GDI32.CreateCompatibleBitmap(hdcSrc, width, height);
-            // select the bitmap object
-            IntPtr hOld = GDI32.SelectObject(hdcDest, hBitmap);
-            // bitblt over
-            GDI32.BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, GDI32.SRCCOPY);
-            // restore selection
-            GDI32.SelectObject(hdcDest, hOld);
-            // clean up 
-            GDI32.DeleteDC(hdcDest);
-            User32.ReleaseDC(handle, hdcSrc);
-            // get a .NET image object for it
-            Image img = Image.FromHbitmap(hBitmap);
-            // free up the Bitmap object
-            GDI32.DeleteObject(hBitmap);
-
-            
-            this.lastImageCaptured = img;
             return img;
         }
-       
-        public void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format)
-        {
-            Image img = CaptureWindow(handle);
-            img.Save(filename, format);
-        }
-
-        public void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format, string textToWriteOnImage)
-        {
-            Image img = CaptureWindow(handle);
-            this.WriteTextOnImage(img, textToWriteOnImage);
-            img.Save(filename, format);
-        }
-
-        public string CaptureScreenToFile(string textToWriteOnImage)
-        {
-            string fileName = string.Format("{0}\\Img_{1}.jpg", this.baseRootFolder, Guid.NewGuid().ToString().Substring(0, 8).Replace("-", ""));
-            this.CaptureScreenToFile(fileName, ImageFormat.Png, textToWriteOnImage);
-
-            return fileName;
-        }
-
-        public string CaptureScreenToFile()
-        {
-            return CaptureScreenToFile(string.Empty);
-        }
-
-        public void CaptureScreenToFile(string filename, ImageFormat format)
+        
+        public void CaptureScreenToFile(string filename, ImageFormat format = null, string textToWriteOnImage = "")
         {
             Image img = CaptureScreen();
-            img.Save(filename, format);
-        }
-
-        public void CaptureScreenToFile(string filename, ImageFormat format, string textToWriteOnImage)
-        {
-            Image img = CaptureScreen();
+            
             if (! textToWriteOnImage.IsNull())
             {
                 this.WriteTextOnImage(img, textToWriteOnImage);
             }
 
-            img.Save(filename, format);
-        }
+            if (format == null)
+            {
+                format = ImageFormat.Jpeg;
+            }
 
+            img.Save(filename, format);
+
+            this.lastImageCaptured = img;
+        }
+        
         public Image LastImageCaptured { get { return this.lastImageCaptured; } }
 
         public byte[] LastImageCapturedAsByteArray
@@ -172,6 +109,60 @@ namespace iEmosoft.Automation.HelperObjects
             }
         }
 
+        public Image CaptureWindow(IntPtr windowHandle, string textToWriteOnImage = "")
+        {
+            IntPtr handle = windowHandle;
+
+            // get te hDC of the target window
+            IntPtr hdcSrc = User32.GetWindowDC(handle);
+            // get the size
+            User32.RECT windowRect = new User32.RECT();
+            User32.GetWindowRect(handle, ref windowRect);
+            int width = windowRect.right - windowRect.left;
+            int height = windowRect.bottom - windowRect.top;
+            // create a device context we can copy to
+            IntPtr hdcDest = GDI32.CreateCompatibleDC(hdcSrc);
+            // create a bitmap we can copy it to,
+            // using GetDeviceCaps to get the width/height
+            IntPtr hBitmap = GDI32.CreateCompatibleBitmap(hdcSrc, width, height);
+            // select the bitmap object
+            IntPtr hOld = GDI32.SelectObject(hdcDest, hBitmap);
+            // bitblt over
+            GDI32.BitBlt(hdcDest, 0, 0, width, height, hdcSrc, 0, 0, GDI32.SRCCOPY);
+            // restore selection
+            GDI32.SelectObject(hdcDest, hOld);
+            // clean up 
+            GDI32.DeleteDC(hdcDest);
+            User32.ReleaseDC(handle, hdcSrc);
+            // get a .NET image object for it
+            Image img = Image.FromHbitmap(hBitmap);
+            // free up the Bitmap object
+            GDI32.DeleteObject(hBitmap);
+
+
+            this.lastImageCaptured = img;
+
+            if (!textToWriteOnImage.isNull())
+            {
+                this.WriteTextOnImage(img, textToWriteOnImage);
+            }
+
+            return img;
+        }
+
+        public void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format)
+        {
+            Image img = CaptureWindow(handle);
+            img.Save(filename, format);
+        }
+
+        public void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format, string textToWriteOnImage)
+        {
+            Image img = CaptureWindow(handle);
+            this.WriteTextOnImage(img, textToWriteOnImage);
+            img.Save(filename, format);
+        }
+        
         /// <summary>
         /// Helper class containing Gdi32 API functions
         /// </summary>
