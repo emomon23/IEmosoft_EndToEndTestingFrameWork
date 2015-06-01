@@ -65,11 +65,6 @@ namespace iEmosoft.Automation.Authors
         {
             if (base.fileIsDirty)
             {
-                if (this.currentTestCaseStep != null)
-                {
-                    base.CommitCurrentTestStep();
-                }
-                
                 WriteTestCaseHeaderToExcelDocument();
                 WriteStepsToExcel();
                 UpdatePassFailStatusForWholeTest();
@@ -179,7 +174,6 @@ namespace iEmosoft.Automation.Authors
 
 			if (!step.StepPassed)
 			{
-				this.TestCaseFailed = true;
 				this.SetCellsBackColor(statusRow, RED);
 			}
 			else

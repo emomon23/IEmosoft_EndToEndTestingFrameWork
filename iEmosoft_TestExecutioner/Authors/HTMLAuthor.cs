@@ -35,11 +35,6 @@ namespace iEmosoft.Automation.Authors
 
             if (base.fileIsDirty)
             {
-                if (this.currentTestCaseStep != null)
-                {
-                    base.CommitCurrentTestStep();
-                }
-
                 WriteTestCaseHeaderToHTMLDocument();
                 WriteStepsToHTMLDocument();
                 UpdatePassFailStatusForWholeTest();
@@ -53,7 +48,7 @@ namespace iEmosoft.Automation.Authors
             SaveReport();
             Dispose();
 
-            bool result = base.InitialzieNewTestCase(testCaseHeader);
+            bool result = base.InitialzieNewTestCase(headerData);
 
             if (result)
             {
@@ -72,6 +67,7 @@ namespace iEmosoft.Automation.Authors
             rawHTMLTemplate = rawHTMLTemplate.Replace("[AUTHOR]", base.testCaseHeader.TestWriter);
             rawHTMLTemplate = rawHTMLTemplate.Replace("[EXECUTED_BY]", base.testCaseHeader.ExecutedByName);
             rawHTMLTemplate = rawHTMLTemplate.Replace("[EXECUTED_DATE]", base.testCaseHeader.ExecutedOnDate);
+            rawHTMLTemplate = rawHTMLTemplate.Replace("[GIVEN_WHEN_THEN]", base.testCaseHeader.TestDescription);
         }
 
         private void WriteStepsToHTMLDocument()
@@ -90,7 +86,7 @@ namespace iEmosoft.Automation.Authors
         {
             string evenOddRowText = isEvenRow ? "evenRow" : "oddRow";
             string newStepRowHTML = rawUnattachedStepRowHTML.Replace("[ODD_EVEN_ROW]", evenOddRowText);
-
+                        
             newStepRowHTML = newStepRowHTML.Replace("[STEP_NUMBER]", base.GetNextStepSequenceNumberString());
             newStepRowHTML = newStepRowHTML.Replace("[STEP_DESCRIPTION]", step.StepDescription);
             newStepRowHTML = newStepRowHTML.Replace("[STEP_SUPPLIED_DATE]", step.SuppliedData);
@@ -98,6 +94,12 @@ namespace iEmosoft.Automation.Authors
             newStepRowHTML = newStepRowHTML.Replace("[STEP_ACTUAL_RESULT]", step.ActualResult);
             newStepRowHTML = newStepRowHTML.Replace("[STEP_PASS_FAIL]", step.StepPassed? "PASS" : "FAIL");
             newStepRowHTML = newStepRowHTML.Replace("[IMAGE_PATH]", step.ImageFilePath);
+
+            if (string.IsNullOrEmpty(step.ImageFilePath))
+            {
+                newStepRowHTML = newStepRowHTML.Replace(">Image<", "><");
+            }
+
             newStepRowHTML = newStepRowHTML.Replace("[STEP_NOTES]", step.Notes);
 
             string replaceText = string.Format("{0}{1}{2}", newStepRowHTML, Environment.NewLine, unattachedRowCommentFrontDelimiter);
@@ -121,10 +123,12 @@ namespace iEmosoft.Automation.Authors
 
         private void UpdatePassFailStatusForWholeTest()
         {
+            bool testcaseFailed = base.TestCaseFailed;
+
             rawHTMLTemplate = rawHTMLTemplate.Replace("[TEST_NUMBER]", base.testCaseHeader.TestNumber);
-            rawHTMLTemplate = rawHTMLTemplate.Replace("[TEST_NUMBER_CLASS]", base.TestCaseFailed ? "failTestNumber" : "passTestNumber");
-            rawHTMLTemplate = rawHTMLTemplate.Replace("[PASS_FAIL]", base.TestCaseFailed ? "FAIL" : "PASS");
-            rawHTMLTemplate = rawHTMLTemplate.Replace("[PASS_FAIL_CLASS]", base.TestCaseFailed ? "failColor" : "passColor");
+            rawHTMLTemplate = rawHTMLTemplate.Replace("[TEST_NUMBER_CLASS]", testcaseFailed ? "failTestNumber" : "passTestNumber");
+            rawHTMLTemplate = rawHTMLTemplate.Replace("[PASS_FAIL]", testcaseFailed ? "FAIL" : "PASS");
+            rawHTMLTemplate = rawHTMLTemplate.Replace("[PASS_FAIL_CLASS]", testcaseFailed ? "failColor" : "passColor");
             
         }
 

@@ -31,7 +31,7 @@ namespace iEmosoft.Automation.HelperObjects
 
         public string ScreenCaptureLocalPath
         {
-            get { return GetConfigSetting("ScreenCaptureLocalPath"); }
+            get { return System.IO.Path.Combine(GetConfigSetting("TestReportFilePath"), "ScreenCapture"); }
         }
 
         public string ScreenCaptureRemoteServerURL
@@ -44,7 +44,7 @@ namespace iEmosoft.Automation.HelperObjects
 
         public string TestExecutionerScreenCapturer
         {
-            get { return GetConfigSetting("TextExecutionerScreenCaptureType").ToUpper(); }
+            get { return GetConfigSetting("TestExecutionerScreenCaptureType").ToUpper(); }
         }
 
         public string TestExecutionerUIDriverType
@@ -69,11 +69,11 @@ namespace iEmosoft.Automation.HelperObjects
         {
             try
             {
-                return System.Configuration.ConfigurationManager.AppSettings[settingName];
+                return System.Configuration.ConfigurationManager.AppSettings[settingName].ToString();
             }
             catch
             {
-                throw new Exception(string.Format("Unable to find '{0}' in the config file, this is required"));
+                throw new Exception(string.Format("Unable to find '{0}' in the config file, this is required", settingName));
             }
         }
 

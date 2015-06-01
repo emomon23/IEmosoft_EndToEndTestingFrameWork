@@ -62,5 +62,11 @@ namespace iEmosoft.Automation.ScreenCaptures
             {
             }
         }
+
+
+        public string NewFileName
+        {
+            get { return "Dosnt really matter"; }
+        }
     }
 }

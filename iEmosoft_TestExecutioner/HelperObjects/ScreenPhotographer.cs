@@ -23,6 +23,14 @@ namespace iEmosoft.Automation.HelperObjects
                 this.screenToCapture = value;
             }
         }
+
+        public string RootPath
+        {
+            get
+            {
+                return baseRootFolder;
+            }
+        }
         
         public ScreenPhotographer() { }
              

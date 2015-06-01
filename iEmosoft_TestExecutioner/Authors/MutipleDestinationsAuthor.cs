@@ -65,23 +65,7 @@ namespace iEmosoft.Automation.Authors
                 author.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
             }
         }
-
-        public void CommitCurrentTestStep(bool wasSuccessful = true, string actualResult = "", string imageFile = "")
-        {
-            foreach (var author in Authors)
-            {
-                author.CommitCurrentTestStep(wasSuccessful, actualResult, imageFile);
-            }
-        }
-
-        public void FailCurrentTestStep(string actualResult = "", string imageFile = "")
-        {
-            foreach (var author in Authors)
-            {
-                author.FailCurrentTestStep(actualResult, imageFile);
-            }
-        }
-
+               
         public TestCaseStep CurrentStep
         {
             get

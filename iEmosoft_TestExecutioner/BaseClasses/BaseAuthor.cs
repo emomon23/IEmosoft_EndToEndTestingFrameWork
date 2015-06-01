@@ -21,8 +21,25 @@ namespace iEmosoft.Automation.BaseClasses
 
         protected bool fileIsDirty = false;
         protected bool templateWasFound = true;
-        
-        public bool TestCaseFailed { get; protected set; }
+
+        public bool TestCaseFailed
+        {
+            get
+            {
+                bool result = false;
+
+                for (var i = 0; i < recordedSteps.Count; i++)
+                {
+                    if (recordedSteps[i].StepPassed == false)
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+
+                return result;
+            }
+        }
 
         //** ABSTRACT METHODS **
         public abstract void SaveReport();
@@ -45,10 +62,7 @@ namespace iEmosoft.Automation.BaseClasses
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "")
         {
-            if (this.currentTestCaseStep != null)
-            {
-                this.RecordStep(this.currentTestCaseStep);
-            }
+            this.fileIsDirty = true;
 
             this.currentTestCaseStep = new TestCaseStep()
             {
@@ -60,26 +74,7 @@ namespace iEmosoft.Automation.BaseClasses
 
             this.recordedSteps.Add(currentTestCaseStep);
         }
-        
-        public void CommitCurrentTestStep(bool wasSuccessful = true, string actualResult = "", string imageFile = "")
-        {
-            currentTestCaseStep.StepPassed = wasSuccessful;
-            currentTestCaseStep.ActualResult = actualResult;
-            currentTestCaseStep.ImageFilePath = imageFile;
-
-            if (!wasSuccessful)
-            {
-                this.TestCaseFailed = true;
-            }
-
-            this.RecordStep(currentTestCaseStep);
-        }
-
-        public void FailCurrentTestStep(string actualResult = "", string imageFile = "")
-        {
-            CommitCurrentTestStep(false, actualResult,imageFile);
-        }
-
+   
         public TestCaseStep CurrentStep
         {
             get { return this.currentTestCaseStep; }
@@ -93,8 +88,7 @@ namespace iEmosoft.Automation.BaseClasses
 
             string subFolder = string.IsNullOrEmpty(testCaseHeader.SubFolder) ? "" : "\\" + testCaseHeader.SubFolder;
             this.newTestCasePath = string.Format("{0}{1}", this.rootTestCasesFolder, subFolder);
-            this.TestCaseFailed = false;
-
+      
             this.templateWasFound = File.Exists(testCaseTemplatePath);
             if (!templateWasFound)
             {
@@ -139,15 +133,7 @@ namespace iEmosoft.Automation.BaseClasses
             nextStepNumber += 1;
             return (nextStepNumber*10).ToString();
         }
-
-        private void RecordStep(TestCaseStep step)
-        {
-            this.recordedSteps.Add(step);
-            this.currentTestCaseStep = null;
-            this.fileIsDirty = true;
-        }
-
-
+               
         public void Dispose()
         {
            //Subclasses can hide this and implement their own dispose if they wish

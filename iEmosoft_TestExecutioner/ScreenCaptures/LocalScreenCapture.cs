@@ -10,7 +10,7 @@ namespace iEmosoft.Automation.ScreenCaptures
     public class LocalScreenCapture : IScreenCapture
     {
         private ScreenPhotographer photographer = null;
-
+       
         public LocalScreenCapture(string rootPath)
         {
             photographer = new ScreenPhotographer(rootPath);
@@ -29,5 +29,15 @@ namespace iEmosoft.Automation.ScreenCaptures
 
         public void Dispose()
         {}
+
+
+        public string NewFileName
+        {
+            get
+            {
+                return System.IO.Path.Combine(photographer.RootPath, string.Format("TestImage_{0}_{1}.jpg", new RandomTestData().GetRandomDigits(5),
+                DateTime.Now.Minute));
+            }
+        }
     }
 }

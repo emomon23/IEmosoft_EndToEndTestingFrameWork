@@ -190,12 +190,12 @@ namespace iEmosoft.Automation.HelperObjects
 
             for (var i = 0; i < retryAttemps; i++)
             {
-                query = string.Format("{0}[{1}='{2}'", controlType, attributeName, attributeValue);
+                query = string.Format("{0}[{1}='{2}']", controlType, attributeName, attributeValue);
                 result = QueryForElement(driver, By.CssSelector(query));
 
                 if (result == null && useWildCardSearch)
                 {
-                    query = string.Format("{0}[{1}*='{2}'", controlType, attributeName, attributeValue);
+                    query = string.Format("{0}[{1}*='{2}']", controlType, attributeName, attributeValue);
                     result = QueryForElement(driver, By.CssSelector(query));
                 }
 
