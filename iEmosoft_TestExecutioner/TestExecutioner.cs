@@ -359,6 +359,23 @@ namespace iEmosoft.Automation
         {
             return uiDriver.ScreenContains(lookFor);
         }
+
+        public bool IsCheckBoxChecked(string idOrCss)
+        {
+            return uiDriver.IsCheckBoxChecked(idOrCss);
+        }
+
+        public bool IsCheckBoxChecked(string idOrCss, bool value)
+        {
+            bool existingValue = uiDriver.IsCheckBoxChecked(idOrCss);
+
+            if (existingValue != value)
+            {
+                uiDriver.ClickControl(idOrCss);
+            }
+
+            return uiDriver.IsCheckBoxChecked(idOrCss);
+        }
         
         public void AssertPageContains(string lookFor, bool continueIfFails = false)
         {

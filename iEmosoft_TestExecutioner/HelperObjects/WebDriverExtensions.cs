@@ -149,6 +149,27 @@ namespace iEmosoft.Automation.HelperObjects
             return result;
         }
 
+        public static List<IWebElement> MineForElements(this IWebElement element, string attributeName, string attributeValue, string elementName = "")
+        {
+            string query = string.Format("{0}[{1}*='{2}']", elementName, attributeName, attributeValue);
+            
+            for (int i=0; i<10; i++){
+                try
+                {
+                    var results = element.FindElements(By.CssSelector(query));
+                    if (results != null && results.Count > 0)
+                    {
+                        return results.ToList();
+                    }
+                }
+                catch { }
+
+                Thread.Sleep(200);
+            }
+
+            return new List<IWebElement>();
+        }
+
         public static IWebElement MineForElement(this IWebDriver driver, string idOrCssSelector,
             int retryForSeconds = 10)
         {
@@ -176,6 +197,15 @@ namespace iEmosoft.Automation.HelperObjects
             }
 
             return rtnVal;
+        }
+
+        public static string InnerHTML(this IWebDriver driver, IWebElement element)
+        {
+            if (element.GetAttribute("id").isNull())
+                return null;
+
+            string script = string.Format("return $('#{0}').innerHTML()'", element.GetAttribute("id"));
+            return driver.ExecuteScript(script).ToString();
         }
 
         public static IWebElement MineForElement(this IWebDriver driver, string attributeName, string attributeValue,
@@ -221,13 +251,37 @@ namespace iEmosoft.Automation.HelperObjects
 
             for (var i = 0; i <= retryIfCountIsZeroHowManyTimes; i++)
             {
-                var query = string.Format("{0}[{1}='{2}'", controlType, attributeName, attributeValue);
+                var query = string.Format("{0}[{1}='{2}']", controlType, attributeName, attributeValue);
                 rtnVal = QueryForElements(driver, By.CssSelector(query));
 
                 if ((rtnVal == null || rtnVal.Count == 0) && useWildCardSearch)
                 {
-                    query = string.Format("{0}[{1}*='{2}'", controlType, attributeName, attributeValue);
+                    query = string.Format("{0}[{1}*='{2}']", controlType, attributeName, attributeValue);
                     rtnVal = QueryForElements(driver, By.CssSelector(query));
+                }
+
+                if ((rtnVal == null || rtnVal.Count == 0) && controlType.isNull() == false && i > 6 && useWildCardSearch)
+                {
+                    //Sometimes the *= doesn't really work
+                    var tempList = QueryForElements(driver, By.TagName(controlType));
+                    if (tempList != null)
+                    {
+                        var attLower = attributeValue.ToLower();
+
+                        for (var j = tempList.Count - 1; j >= tempList.Count; j--)
+                        {
+                            string checkValue = tempList[j].GetAttribute(attributeName);
+                            if (checkValue.isNull() || checkValue.ToLower().Contains(attLower) == false)
+                            {
+                                tempList.RemoveAt(j);
+                            }
+                        }
+
+                        if (tempList.Count > 0)
+                        {
+                            return tempList;
+                        }
+                    }
                 }
 
                 if (rtnVal != null && rtnVal.Count > 0)
