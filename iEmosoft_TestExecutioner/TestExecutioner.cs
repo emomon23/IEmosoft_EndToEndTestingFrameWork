@@ -259,18 +259,15 @@ namespace iEmosoft.Automation
 
             string fileName = screenCapture.NewFileName;
 
-            
+            uiDriver.MaximizeWindow();
+
             screenCapture.CaptureDesktop(fileName, null, textToWriteOnScreenCapture);
             if (this.testAuthor != null && this.testAuthor.CurrentStep != null)
             {
                 this.testAuthor.CurrentStep.ImageFilePath = fileName;
                 this.testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
             }
-
-            if (this.testAuthor.CurrentStep != null)
-            {
-                this.testAuthor.CurrentStep.ImageFilePath = fileName;
-            }
+                     
             return fileName;
         }
 

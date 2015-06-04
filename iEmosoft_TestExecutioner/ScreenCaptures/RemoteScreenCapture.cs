@@ -68,5 +68,25 @@ namespace iEmosoft.Automation.ScreenCaptures
         {
             get { return "Dosnt really matter"; }
         }
+
+        void IScreenCapture.CaptureDesktop(string fileName, System.Drawing.Imaging.ImageFormat format, string textToOverlay)
+        {
+            throw new NotImplementedException();
+        }
+
+        byte[] IScreenCapture.LastImageCapturedAsByteArray
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        string IScreenCapture.NewFileName
+        {
+            get { throw new NotImplementedException(); }
+        }
+               
+        void IDisposable.Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

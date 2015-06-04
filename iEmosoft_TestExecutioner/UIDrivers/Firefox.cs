@@ -251,6 +251,10 @@ namespace iEmosoft.Automation.UIDrivers
             get { return firefoxDriver.Url; }
         }
 
+        public void ShowWindow()
+        {
+            firefoxDriver.Manage().Window.Maximize();
+        }
 
         public void MaximizeWindow()
         {

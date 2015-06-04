@@ -9,5 +9,6 @@ namespace iEmosoft.Automation.Interfaces
         void CaptureDesktop(string fileName, ImageFormat format = null, string textToOverlay = "");
         byte[] LastImageCapturedAsByteArray { get; }
         string NewFileName { get; }
+       
     }
 }
