@@ -8,7 +8,10 @@ namespace iEmosoft.Automation.Interfaces
     public interface IUIDriver : IDisposable
     {
         bool ScreenContains(string lookFor);
-        
+
+        string DriverType { get;  }
+        List<string> FailedBrowsers { get; }
+
         void SetTextOnControl(string controlIdOrCssSelector, string textToSet);
         void SetTextOnControl(string attributeName, string attributeValue, string textToSet, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10);

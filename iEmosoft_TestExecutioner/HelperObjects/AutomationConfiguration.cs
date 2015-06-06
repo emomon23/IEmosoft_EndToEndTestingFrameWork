@@ -12,7 +12,7 @@ namespace iEmosoft.Automation.HelperObjects
         string TestExecutionerAuthorTypeName { get; }
         string[] MultiAuthor_Authors { get; }
         string TestReportFilePath { get; }
-        string TestExecutionerUIDriverType { get; }
+        string[] TestExecutionerUIDriverType { get; }
         string TestExecutionerScreenCapturer { get; }
         string ScreenCaptureLocalPath { get; }
         string ScreenCaptureRemoteServerURL { get; }
@@ -56,11 +56,11 @@ namespace iEmosoft.Automation.HelperObjects
             }
         }
 
-        public string TestExecutionerUIDriverType
+        public string[] TestExecutionerUIDriverType
         {
             get
             {
-                return GetConfigSetting("TestExecutionerUIDriver").ToUpper();
+                return GetConfigSetting("TestExecutionerUIDriver").ToUpper().Split(',');
             }
         }
 
