@@ -16,6 +16,7 @@ namespace iEmosoft.Automation.HelperObjects
         string TestExecutionerScreenCapturer { get; }
         string ScreenCaptureLocalPath { get; }
         string ScreenCaptureRemoteServerURL { get; }
+        string RemoteAuthorURL { get; }
     }
 
     public class AutomationConfiguration : IAutomationConfiguration
@@ -45,6 +46,14 @@ namespace iEmosoft.Automation.HelperObjects
         public string TestExecutionerScreenCapturer
         {
             get { return GetConfigSetting("TestExecutionerScreenCaptureType").ToUpper(); }
+        }
+
+        public string RemoteAuthorURL
+        {
+            get
+            {
+                return GetConfigSetting("RemoteAuthorURL");
+            }
         }
 
         public string TestExecutionerUIDriverType

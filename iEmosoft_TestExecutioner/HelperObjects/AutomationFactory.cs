@@ -117,7 +117,7 @@ namespace iEmosoft.Automation.HelperObjects
                     result = new ExcelAuthor(reportPath);
                     break;
                 case "REMOTE":
-                    result = new RemoteAuthor();
+                    result = new RemoteAuthor("");
                     break;
                 case "HTML":
                     result = new HTMLAuthor(reportPath);
