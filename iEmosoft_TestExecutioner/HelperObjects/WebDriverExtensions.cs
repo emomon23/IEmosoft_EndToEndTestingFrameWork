@@ -149,6 +149,17 @@ namespace iEmosoft.Automation.HelperObjects
             return result;
         }
 
+        public static IWebElement MineForElement(this IWebElement element, string attributeName, string attributeValue, string elementName = "")
+        {
+            try
+            {
+                return element.MineForElements(attributeName, attributeValue, elementName)[0];
+            }
+            catch { }
+
+            return null;
+        }
+
         public static List<IWebElement> MineForElements(this IWebElement element, string attributeName, string attributeValue, string elementName = "")
         {
             string query = string.Format("{0}[{1}*='{2}']", elementName, attributeName, attributeValue);

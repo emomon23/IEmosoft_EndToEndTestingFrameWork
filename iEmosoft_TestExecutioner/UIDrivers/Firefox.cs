@@ -26,11 +26,12 @@ namespace iEmosoft.Automation.UIDrivers
         {
             IWebElement element = firefoxDriver.MineForElement(controlIdOrCssSelector);
 
-            if (textToSet == string.Empty)
+            if (! textToSet.StartsWith("+="))
             {
                 element.Clear();
             }
-            else
+
+            if (! textToSet.isNull())
             {
                 element.SendKeys(textToSet);
             }
@@ -42,13 +43,25 @@ namespace iEmosoft.Automation.UIDrivers
             IWebElement element = firefoxDriver.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
 
-            if (textToSet == string.Empty)
+            if (element == null)
             {
-                element.Clear();
+                throw new Exception(string.Format("Unable to find {0}[{1}='{2}']", element, attributeName, attributeValue));
             }
-            else
+
+            if (textToSet.isNull() || textToSet.StartsWith("+=") == false){
+                try
+                {
+                    element.Clear();
+                }
+                catch { }
+            }
+
+            if (!textToSet.isNull())
             {
-                element.SendKeys(textToSet);
+                if (element.Displayed)
+                {
+                    element.SendKeys(textToSet);
+                }
             }
         }
 
@@ -101,17 +114,26 @@ namespace iEmosoft.Automation.UIDrivers
         public void SetValueOnDropDown(string attributeName, string attributeValue, string valueToSet,
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            var dropdown =
-                (SelectElement)
-                    firefoxDriver.MineForElement(attributeName, attributeValue, "select", useWildCardSearch,
+           
+            var selectElement = firefoxDriver.MineForElement(attributeName, attributeValue, "select", useWildCardSearch,
                         retryForSeconds);
-            var originalValue = dropdown.SelectedOption.Text;
 
-            dropdown.SelectByText(valueToSet);
-
-            if (originalValue == dropdown.SelectedOption.Text)
+            try
             {
-                dropdown.SelectByValue(valueToSet);
+                var dropdown = (SelectElement)selectElement;
+                var originalValue = dropdown.SelectedOption.Text;
+
+                dropdown.SelectByText(valueToSet);
+
+                if (originalValue == dropdown.SelectedOption.Text)
+                {
+                    dropdown.SelectByValue(valueToSet);
+                }
+            }
+            catch 
+            {
+                selectElement.SendKeys(valueToSet + Keys.Enter);
+               
             }
         }
 
