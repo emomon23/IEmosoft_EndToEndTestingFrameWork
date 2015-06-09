@@ -36,17 +36,35 @@ namespace iEmosoft.Automation.HelperObjects
 
         public IUIDriver CreateUIDriver()
         {
-            string uiDriverType = configuration.TestExecutionerUIDriverType;
+            string []browserNames = configuration.TestExecutionerUIDriverType;
             IUIDriver driver = null;
 
-            switch (uiDriverType)
+            if (browserNames.Length > 1)
             {
-                case "WEB":
-                    driver = new Firefox();
+                if (browserNames[0] == "WPF")
+                {
+                    return new WindowsWhite();
+                }
+
+                return new MultiBrowser(configuration);
+            }
+
+            switch (browserNames[0])
+            {
+                case "FIREFOX":
+                    driver = new BrowserDriver();
+                    break;
+                case "IE":
+                    driver = new BrowserDriver(BrowserDriver.BrowserDriverEnumeration.IE);
+                    break;
+                case "CHROME":
+                    driver = new BrowserDriver(BrowserDriver.BrowserDriverEnumeration.Chome);
                     break;
                 case "WPF":
                     driver = new WindowsWhite();
                     break;
+                default:
+                    throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHOME', 'IE','FIREFOX'");
             }
 
             if (driver == null)

@@ -19,6 +19,10 @@ namespace iEmosoft.Automation.UIDrivers
             throw new NotImplementedException();
         }
 
+        public string DriverType { get { return "White"; } }
+
+        public List<string> FailedBrowsers { get { return new List<string> { this.DriverType }; } }
+
         public void SetTextOnControl(string controlIdOrCssSelector, string textToSet)
         {
             throw new NotImplementedException();

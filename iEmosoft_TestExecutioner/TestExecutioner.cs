@@ -68,7 +68,7 @@ namespace iEmosoft.Automation
 
         public object ExecuteJavaScript(string script)
         {
-            var fireFoxDriver = uiDriver as iEmosoft.Automation.UIDrivers.Firefox;
+            var fireFoxDriver = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
             return fireFoxDriver.RawWebDriver.ExecuteScript(script);
         }
 
@@ -182,7 +182,7 @@ namespace iEmosoft.Automation
         {
             get
             {
-                var fireFox = uiDriver as iEmosoft.Automation.UIDrivers.Firefox;
+                var fireFox = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
                 return fireFox.RawWebDriver;
             }
         }
