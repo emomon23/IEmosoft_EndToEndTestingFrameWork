@@ -69,7 +69,7 @@ namespace iEmosoft.Automation.HelperObjects
 
             if (driver == null)
             {
-                throw new Exception("Unable to create UI driver, configuration setting should be WPF or WEB, actual value: " + uiDriverType);
+              //  throw new Exception("Unable to create UI driver, configuration setting should be WPF or WEB, actual value: " + uiDriverType);
             }
 
             return driver;

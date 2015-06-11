@@ -94,18 +94,7 @@ namespace iEmosoft.Automation.HelperObjects
             return rtnVal;
         }
 
-        public static void SetValueOnDropdown(this IWebDriver driver, By by, string valueToSet)
-        {
-            var dropdown = (SelectElement)driver.FindElement(by);
-            var originalValue = dropdown.SelectedOption.Text;
-
-            dropdown.SelectByText(valueToSet);
-
-            if (originalValue == dropdown.SelectedOption.Text){
-                dropdown.SelectByValue(valueToSet);
-            }
-        }
-
+      
         public static string GetSelectedTextOnDropdown(this IWebDriver driver, By by){
             var dropdown = (SelectElement)driver.FindElement(by);
 

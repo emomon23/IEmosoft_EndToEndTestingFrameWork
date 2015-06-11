@@ -144,11 +144,9 @@ namespace iEmosoft.Automation.UIDrivers
         public void SetValueOnDropDown(string attributeName, string attributeValue, string valueToSet,
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-           
-            var selectElement = firefoxDriver.MineForElement(attributeName, attributeValue, "select", useWildCardSearch,
-                    browser.MineForElement(attributeName, attributeValue, "select", useWildCardSearch,
-                        retryForSeconds);
 
+            var selectElement = browser.MineForElement(attributeName, attributeValue, "select", true);
+            
             try
             {
                 var dropdown = (SelectElement)selectElement;
