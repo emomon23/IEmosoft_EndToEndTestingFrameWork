@@ -46,7 +46,7 @@ namespace iEmosoft.Automation.HelperObjects
             return result;
         }
 
-        public static bool ElementExists(this IWebDriver driver, By by)
+        public static bool DoesElementExist(this IWebDriver driver, By by)
         {
             try
             {
@@ -58,9 +58,9 @@ namespace iEmosoft.Automation.HelperObjects
             }
         }
 
-        public static bool ElementExists(this IWebDriver driver, string elementID)
+        public static bool DoesElementExist(this IWebDriver driver, string elementID)
         {
-            return ElementExists(driver, By.Id(elementID));
+            return DoesElementExist(driver, By.Id(elementID));
         }
 
         public static void SetTextOnElement(this IWebDriver driver, string elementToFind, string text)

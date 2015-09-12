@@ -109,7 +109,7 @@ namespace iEmosoft.Automation.HelperObjects
             return list[rnd.Next(0, list.Count -1)];
         }
 
-        public string GetRandomPhoneNumber(string desiredAreaCode, string desiredPrefix, string desiredFourDigits)
+        public string GetRandomPhoneNumber(string desiredAreaCode = null, string desiredPrefix = null, string desiredFourDigits = null)
         {
             if (desiredAreaCode.isNull())
                 desiredAreaCode = GetRandomDigits(3);
@@ -158,15 +158,26 @@ namespace iEmosoft.Automation.HelperObjects
                 Country = this.GetRandomCountry(),
                 PostalCode = this.GetRandomPostalCode(),
                 State = this.GetRandomState(),
-                Street1 = this.GetRandomDigits(2, 5)
+                Street1 = string.Format("{0} {1} {2}", GetRandomDigits(2, 5), GetRandomLastName(), GetRandomStreetType()),
+                Street2 = "# " + rnd.Next(1, 3000)
             };
+            
+            return result;
+        }
 
-            if (this.GetRandomBoolean())
-            {
-                result.Street2 = "# " + rnd.Next(1, 3000);
-            }
+        private string GetRandomStreetType()
+        {
+            string result = GetRandomStringFromListOfStrings(new string[] { "Ave", "St", "Cir", "Plc", "Terrace", "Court", "Lane", "Dr" });
+            result+= " " + GetRandomStringFromListOfStrings(new string[] {"N", "S", "E", "W", "NE", "NW", "SE", "SW" });
 
             return result;
+        }
+
+        public string GetRandomStringFromListOfStrings(string[] sources)
+        {
+            int randomIndex = rnd.Next(0, sources.Length - 1);
+
+            return sources[randomIndex];
         }
 
         public CompanyData GetRandomCompany()

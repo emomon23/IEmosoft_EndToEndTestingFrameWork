@@ -66,6 +66,45 @@ namespace iEmosoft.Automation
             this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
         }
 
+        public bool DoesElementExist(string attributeName, string attributeValue, string elementName = "", int mineForSeconds = 10)
+        {
+            try
+            {
+                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(attributeName, attributeValue, elementName, true, mineForSeconds) != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool WaitForElementToVanish(string idOrCSSSelector, int mineForSeconds = 10)
+        {
+            bool result = false;
+
+            for (int i = 0; i < mineForSeconds; i++)
+            {
+                if (! DoesElementExist(idOrCSSSelector, 1)){
+                    result = true;
+                    break; 
+                }
+            }
+
+            return result;
+        }
+
+        public bool DoesElementExist(string idOrCSSSelector, int mineForSeconds = 10)
+        {
+            try
+            {
+                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCSSSelector, mineForSeconds) != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public object ExecuteJavaScript(string script)
         {
             var fireFoxDriver = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
@@ -76,7 +115,14 @@ namespace iEmosoft.Automation
 
         public bool ClickElement(string idOrCss, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
         {
-            uiDriver.ClickControl(idOrCss);
+            bool result = false;
+
+            try
+            {
+                uiDriver.ClickControl(idOrCss);
+                result = true;
+            }
+            catch { }
            
             if (!string.IsNullOrEmpty(stepDescription))
             {
@@ -87,9 +133,9 @@ namespace iEmosoft.Automation
             {
               this.CaptureScreen();
             }
-            
 
-            return true;
+
+            return result;
         }
 
         public bool ClickElement(string attributeName, string attributeValue, string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true)
@@ -127,11 +173,21 @@ namespace iEmosoft.Automation
             SetTextOnElement(idOrCSSSelector, text, null);
         }
 
+        public void Pause(int milliseconds)
+        {
+            System.Threading.Thread.Sleep(milliseconds);
+        }
+
         public void SetTextOnElement(string idOrCSSSelector, string text, string stepDescription)
         {
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription);
+            }
+
+            if (text == null)
+            {
+                text = "";
             }
 
             uiDriver.SetTextOnControl(idOrCSSSelector, text);
@@ -285,20 +341,24 @@ namespace iEmosoft.Automation
 
         public void FailCurrentStep(string expectedResult, string actualResult)
         {
+            
             var currentStep = this.CurrentStep;
-            currentStep.StepPassed = false;
-
-            if (!expectedResult.isNull())
+            if (currentStep != null)
             {
-                currentStep.ExpectedResult = expectedResult;
-            }
+                currentStep.StepPassed = false;
 
-            if (!actualResult.isNull())
-            {
-                currentStep.ActualResult = actualResult;
-            }
+                if (!expectedResult.isNull())
+                {
+                    currentStep.ExpectedResult = expectedResult;
+                }
 
-            this.CaptureScreen(actualResult);
+                if (!actualResult.isNull())
+                {
+                    currentStep.ActualResult = actualResult;
+                }
+
+                this.CaptureScreen(actualResult);
+            }
         }
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "", bool captureImage = true)
@@ -351,6 +411,23 @@ namespace iEmosoft.Automation
                 this.BugCreator.Dispose();
         }
 
+        public bool WaitForURLChange(string urlSnippet, int waitSeconds = 20)
+        {
+            bool result = false;
+
+            for (int i = 0; i <= (waitSeconds *2); i++)
+            {
+                if (this.CurrentFormName_OrURL.Contains(urlSnippet))
+                {
+                    result = true;
+                    break;
+                }
+
+                Pause(500);
+            }
+
+            return result;
+        }
 
         public bool PageContains(string lookFor)
         {

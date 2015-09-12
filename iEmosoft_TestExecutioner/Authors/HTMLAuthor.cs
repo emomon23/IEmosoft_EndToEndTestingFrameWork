@@ -67,7 +67,9 @@ namespace iEmosoft.Automation.Authors
             rawHTMLTemplate = rawHTMLTemplate.Replace("[AUTHOR]", base.testCaseHeader.TestWriter);
             rawHTMLTemplate = rawHTMLTemplate.Replace("[EXECUTED_BY]", base.testCaseHeader.ExecutedByName);
             rawHTMLTemplate = rawHTMLTemplate.Replace("[EXECUTED_DATE]", base.testCaseHeader.ExecutedOnDate);
-            rawHTMLTemplate = rawHTMLTemplate.Replace("[GIVEN_WHEN_THEN]", base.testCaseHeader.TestDescription);
+
+            string description = base.testCaseHeader.TestDescription.Replace("When", "<br/>When").Replace("WHEN", "<br/>WHEN").Replace("Then", "<br/>Then").Replace("THEN", "<br/>THEN").Replace("And", "<br/>&nbsp;&nbsp;&nbsp;And");
+            rawHTMLTemplate = rawHTMLTemplate.Replace("[GIVEN_WHEN_THEN]", description);
         }
 
         private void WriteStepsToHTMLDocument()

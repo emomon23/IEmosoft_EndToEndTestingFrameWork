@@ -55,16 +55,7 @@ namespace iEmosoft.Automation.UIDrivers
         public void SetTextOnControl(string controlIdOrCssSelector, string textToSet)
         {
             IWebElement element = browser.MineForElement(controlIdOrCssSelector);
-
-            if (! textToSet.StartsWith("+="))
-            {
-                element.Clear();
-            }
-
-            if (! textToSet.isNull())
-            {
-                element.SendKeys(textToSet);
-            }
+            SetTextOnControl(element, textToSet);
         }
 
         public void SetTextOnControl(string attributeName, string attributeValue, string textToSet,
@@ -78,7 +69,13 @@ namespace iEmosoft.Automation.UIDrivers
                 throw new Exception(string.Format("Unable to find {0}[{1}='{2}']", element, attributeName, attributeValue));
             }
 
-            if (textToSet.isNull() || textToSet.StartsWith("+=") == false){
+            SetTextOnControl(element, textToSet);
+        }
+
+        private  void SetTextOnControl(IWebElement element, string textToSet)
+        {
+            if (textToSet.isNull() || textToSet.StartsWith("+=") == false)
+            {
                 try
                 {
                     element.Clear();
