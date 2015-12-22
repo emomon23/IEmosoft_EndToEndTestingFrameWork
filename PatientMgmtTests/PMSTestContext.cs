@@ -2,7 +2,6 @@
 using System.Linq;
 using iEmosoft.Automation;
 using iEmosoft.Automation.UIDrivers;
-using OpenQA.Selenium;
 
 namespace iEmosoft.PatientMgmtTests
 {
