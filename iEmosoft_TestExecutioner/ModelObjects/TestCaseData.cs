@@ -9,6 +9,8 @@ namespace iEmosoft.Automation.Model
     public class TestCaseHeaderData
     {
         private string fileName="";
+        private string testName;
+
         public TestCaseHeaderData()
         {
             this.ExecutedOnDate = DateTime.Now.ToString();
@@ -19,7 +21,26 @@ namespace iEmosoft.Automation.Model
 
         public string TestNumber { get; set; }
         public string Prereqs { get; set; }
-        public string TestName { get; set; }
+        public string TestName
+        {
+            get
+            {
+                string result = testName;
+
+                if (string.IsNullOrEmpty(result))
+                {
+                    int index = this.TestDescription.ToUpper().IndexOf("THAN");
+                    if (index > 0)
+                    {
+                        result = result.Substring(index + 5);
+                    }
+                }
+
+                return result;
+            }
+            set { testName = value; }
+        }
+
         public string Priority { get; set; }
         public string TestWriter { get; set; }
         public string ExecutedByName { get; set; }

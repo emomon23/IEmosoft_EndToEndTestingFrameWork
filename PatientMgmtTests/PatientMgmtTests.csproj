@@ -36,11 +36,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="WebDriver">
-      <HintPath>..\iEmosoft_TestExecutioner\SeleniumLibs\WebDriver.dll</HintPath>
+    <Reference Include="System.Drawing" />
+    <Reference Include="WebDriver, Version=2.47.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.47.0\lib\net40\WebDriver.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver.Support">
-      <HintPath>..\iEmosoft_TestExecutioner\SeleniumLibs\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.47.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.47.0\lib\net40\WebDriver.Support.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <Choose>
@@ -56,20 +59,20 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="MulitipleBugLogger.cs" />
+    <Compile Include="AuthenticationTests\Given_Authentication_Tests.cs" />
+    <Compile Include="Pages\LoginPage.cs" />
+    <Compile Include="Pages\PMSSession.cs" />
     <Compile Include="PMSTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LoginTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iEmosoft_TestExecutioner\EmoTestAutomation.csproj">
       <Project>{7fbe108d-df8c-4d3a-b4da-da86d17370b9}</Project>
-      <Name>RecordableBrowser</Name>
+      <Name>EmoTestAutomation</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestRecorderModel\TestRecorderModel.csproj">
-      <Project>{233ed5a7-cca2-4051-a89e-d35e07117a67}</Project>
-      <Name>TestRecorderModel</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

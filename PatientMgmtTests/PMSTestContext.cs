@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
-using iEmosoft.RecordableBrowser;
-using iEmosoft.RecordableBrowser.BaseClasses;
-using iEmosoft.TestRecorderModel;
+using iEmosoft.Automation;
+using iEmosoft.Automation.UIDrivers;
 using OpenQA.Selenium;
 
 namespace iEmosoft.PatientMgmtTests
 {
-    public class PMSTestContext : IDisposable
+    public class PMSTestContext 
     {
-        private string url = "http://localhost/PMS/default.html";
+     /*   private string url = "http://localhost/PMS/default.html";
         private string testReportFolder = @"C:\PatientMgmtSystemTestsResults";
         BugCreator bugCreator = new MulitipleBugLogger();
 
@@ -105,5 +104,6 @@ namespace iEmosoft.PatientMgmtTests
         {
             testRecorder.Dispose();
         }
+      */
     }
 }
