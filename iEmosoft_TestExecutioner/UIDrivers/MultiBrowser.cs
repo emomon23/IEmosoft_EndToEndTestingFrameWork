@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OpenQA.Selenium;
 using iEmosoft.Automation.Interfaces;
 using iEmosoft.Automation.Model;
 using iEmosoft.Automation.HelperObjects;
@@ -37,6 +38,8 @@ namespace iEmosoft.Automation.UIDrivers
         }
 
         public string DriverType { get { return "MultiBrowser"; } }
+
+        public IWebDriver RawWebDriver { get { return null; } }
 
         public List<string> FailedBrowsers { get { return this.browsersThatFailed;  } }
 

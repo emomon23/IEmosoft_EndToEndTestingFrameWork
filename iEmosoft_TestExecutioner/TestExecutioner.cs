@@ -38,10 +38,17 @@ namespace iEmosoft.Automation
             this.Initialize(testCaseHeader, uiDriver, author, capture);
         }
 
-        public TestExecutioner()
+        public TestExecutioner(bool useConfigFile = true)
         {
             reportingEnabled = false;
-            Initialize(null, null, null, null);
+            if (useConfigFile)
+            {
+                Initialize(null, null, null, null);
+            }
+            else
+            {
+                this.uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
+            }
         }
 
         private void Initialize(TestCaseHeaderData testCaseHeader, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
@@ -73,28 +80,20 @@ namespace iEmosoft.Automation
         }
 
         public BugCreator BugCreator { get; set; }
+               
 
-        public bool ClickElement(string idOrCss, string stepDescription, string expectedResult, bool snapScreenBeforeClick)
+        public bool ClickElement(string IdOrAttributeName, string attributeValue = "", string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, bool waitForURLChange = false)
         {
-            uiDriver.ClickControl(idOrCss);
+            string currentPageOrUrl = uiDriver.CurrentFormName_OrPageURL;
+
+            if (string.IsNullOrEmpty(attributeValue))
+            {
+                attributeValue = IdOrAttributeName;
+                IdOrAttributeName = "id";
+            }
+
            
-            if (!string.IsNullOrEmpty(stepDescription))
-            {
-                this.BeginTestCaseStep(stepDescription, expectedResult);
-            }
-
-            if (snapScreenBeforeClick)
-            {
-              this.CaptureScreen();
-            }
-            
-
-            return true;
-        }
-
-        public bool ClickElement(string attributeName, string attributeValue, string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true)
-        {
-            uiDriver.ClickControl(attributeName, attributeValue, elementName);
+            uiDriver.ClickControl(IdOrAttributeName, attributeValue, elementName);
 
             if (!string.IsNullOrEmpty(stepDescription))
             {
@@ -106,7 +105,17 @@ namespace iEmosoft.Automation
                 this.CurrentStep.ImageFilePath = this.CaptureScreen();
             }
 
-
+            if (waitForURLChange)
+            {
+                for (int i = 0; i < 50; i++)
+                {
+                    System.Threading.Thread.Sleep(200);
+                    if (currentPageOrUrl != uiDriver.CurrentFormName_OrPageURL)
+                    {
+                        break;
+                    }
+                }
+            }
             return true;
         }
 
@@ -114,11 +123,7 @@ namespace iEmosoft.Automation
         {
             return this.ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
         }
-
-        public bool ClickElement(string elementSearch)
-        {
-            return this.ClickElement(elementSearch, null, null, false);
-        }
+              
 
         public string CurrentFormName_OrURL { get { return uiDriver.CurrentFormName_OrPageURL; } }
         
@@ -354,6 +359,12 @@ namespace iEmosoft.Automation
 
         public bool PageContains(string lookFor)
         {
+            try
+            {
+                var element = uiDriver.RawWebDriver.FindElement(By.TagName("body"));
+            }
+            catch { };
+
             return uiDriver.ScreenContains(lookFor);
         }
 

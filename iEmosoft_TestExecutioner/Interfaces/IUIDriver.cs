@@ -55,5 +55,7 @@ namespace iEmosoft.Automation.Interfaces
         void Pause(int milliseconds);
 
         void MaximizeWindow();
+
+        OpenQA.Selenium.IWebDriver RawWebDriver { get; }
     }
 }

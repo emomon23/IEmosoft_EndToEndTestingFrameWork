@@ -161,8 +161,7 @@ namespace iEmosoft.Automation.UIDrivers
             }
             catch 
             {
-                selectElement.SendKeys(valueToSet + Keys.Enter);
-               
+                selectElement.SendKeys(valueToSet);
             }
         }
 
@@ -291,12 +290,7 @@ namespace iEmosoft.Automation.UIDrivers
             Thread.Sleep(milliseconds);
         }
 
-        public IWebDriver RawWebDriver
-        {
-            get { return browser; }
-        }
-
-
+     
         public string CurrentFormName_OrPageURL
         {
             get { return browser.Url; }
@@ -316,5 +310,7 @@ namespace iEmosoft.Automation.UIDrivers
         {
             browser.Quit();
         }
+
+        public IWebDriver RawWebDriver { get { return browser; } }
     }
 }

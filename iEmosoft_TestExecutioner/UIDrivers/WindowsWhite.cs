@@ -48,6 +48,8 @@ namespace iEmosoft.Automation.UIDrivers
             throw new NotImplementedException();
         }
 
+        public IWebDriver RawWebDriver { get { return null; } }
+
         public string GetTextOnControl(string attributeName, string attributeValue, string controlType = "", bool useWildCardSearch = true, int retryForSeconds = 10)
         {
             throw new NotImplementedException();
