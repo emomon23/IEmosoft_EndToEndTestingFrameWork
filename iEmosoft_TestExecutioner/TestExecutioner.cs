@@ -119,15 +119,7 @@ namespace iEmosoft.Automation
         }
 
         public BugCreator BugCreator { get; set; }
-               
-            bool result = false;
-
-            try
-            {
-                uiDriver.ClickControl(idOrCss);
-                result = true;
-            }
-            catch { }
+           
 
         public bool ClickElement(string IdOrAttributeName, string attributeValue = "", string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, bool waitForURLChange = false)
         {
@@ -138,10 +130,7 @@ namespace iEmosoft.Automation
                 attributeValue = IdOrAttributeName;
                 IdOrAttributeName = "id";
             }
-
-           
-            return result;
-
+                    
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription, expectedResult);
