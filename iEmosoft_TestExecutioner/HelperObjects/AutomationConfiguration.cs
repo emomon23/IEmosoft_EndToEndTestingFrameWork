@@ -10,18 +10,21 @@ namespace iEmosoft.Automation.HelperObjects
     public interface IAutomationConfiguration
     {
         string TestExecutionerAuthorTypeName { get; }
-        string[] MultiAuthor_Authors { get; }
         string TestReportFilePath { get; }
-        string[] TestExecutionerUIDriverType { get; }
-        string TestExecutionerScreenCapturer { get; }
         string ScreenCaptureLocalPath { get; }
-        string ScreenCaptureRemoteServerURL { get; }
-        string RemoteAuthorURL { get; }
+        string FTPUploadURL { get; }
+        string FTPUploadUserName { get; }
+        string FTPUploadPassword { get; }
+        string PostUploadWebAPIServiceURL { get; }
+        string ApplicationUnderTest { get; }
+        bool FTPFilesInTestProcess { get; }
+        bool FTPUpload_DeleteLocalFilesAfterUploadComplete { get; }
+
+        string TestExecutionerUIDriverType { get; }
     }
 
     public class AutomationConfiguration : IAutomationConfiguration
     {
-
         public string TestExecutionerAuthorTypeName
         {
             get
@@ -35,40 +38,85 @@ namespace iEmosoft.Automation.HelperObjects
             get { return System.IO.Path.Combine(GetConfigSetting("TestReportFilePath"), "ScreenCapture"); }
         }
 
-        public string ScreenCaptureRemoteServerURL
+        public bool FTPFilesInTestProcess
         {
             get
             {
-                return GetConfigSetting("ScreenCaptureRemoteServerUri");
+                bool result = false;
+                bool.TryParse(GetConfigSetting("FTPFilesInTestProcess", "false"), out result);
+                return result;
             }
         }
-
-        public string TestExecutionerScreenCapturer
-        {
-            get { return GetConfigSetting("TestExecutionerScreenCaptureType").ToUpper(); }
-        }
-
-        public string RemoteAuthorURL
+        public string ApplicationUnderTest
         {
             get
             {
-                return GetConfigSetting("RemoteAuthorURL");
+                return GetConfigSetting("ApplicationIdUnderTest");
             }
         }
 
-        public string[] TestExecutionerUIDriverType
+        public string FTPUploadURL
         {
             get
             {
-                return GetConfigSetting("TestExecutionerUIDriver").ToUpper().Split(',');
+                //ftp://www.serverURL.com|userName|password|true
+                return GetConfigSetting("FTPUploadURLAndCredentials").Split('|')[0].Trim(); ;
             }
         }
 
-        public string [] MultiAuthor_Authors
+      
+        public string FTPUploadUserName
         {
-            get { return GetConfigSetting("MultiAuthor_Authors").Replace(" ", "").ToUpper().Split(','); }
+            get
+            {
+                //ftp://www.serverURL.com|userName|password|true
+                return GetConfigSetting("FTPUploadURLAndCredentials").Split('|')[1].Trim();
+            }
         }
 
+        public bool FTPUpload_DeleteLocalFilesAfterUploadComplete
+        {
+            get
+            {
+                bool result = false;
+
+                //ftp://www.serverURL.com|userName|password|true
+                string [] temp = GetConfigSetting("FTPUploadURLAndCredentials").Split('|');
+                if (temp.Length > 2)
+                {
+                    bool.TryParse(temp[3], out result);
+                }
+
+                return result;
+            }
+        }
+        public string FTPUploadPassword
+        {
+            get
+            {
+                //ftp://www.serverURL.com|userName|password|true
+                return GetConfigSetting("FTPUploadURLAndCredentials").Split('|')[2].Trim(); ;
+            }
+        }
+
+        public string TestExecutionerUIDriverType
+        {
+            get
+            {
+                //Browse or WindowsWhite
+                return GetConfigSetting("TestExecutionerUIDriver").ToUpper();
+            }
+        }
+
+        public string PostUploadWebAPIServiceURL
+        {
+            get
+            {
+                return GetConfigSetting("PostUploadWebAPIServiceURL");
+            }
+        }
+         
+               
         public string TestReportFilePath
         {
             get { return GetConfigSetting("TestReportFilePath"); }
@@ -78,9 +126,10 @@ namespace iEmosoft.Automation.HelperObjects
         {
             try
             {
-                return System.Configuration.ConfigurationManager.AppSettings[settingName].ToString();
+                var result = System.Configuration.ConfigurationManager.AppSettings[settingName];
+                return result.ToString();
             }
-            catch
+            catch (Exception exp)
             {
                 throw new Exception(string.Format("Unable to find '{0}' in the config file, this is required", settingName));
             }

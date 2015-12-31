@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>iEmosoft.Automation</RootNamespace>
     <AssemblyName>EmoTestAutomation</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,13 +30,19 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ftp, Version=2.0.15314.1407, Culture=neutral, PublicKeyToken=6dc438ab78a525b3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ftp.dll.2.0.15314.1407\lib\Net45\Ftp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,10 +58,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FTP\ReportUploader.cs" />
     <Compile Include="HelperObjects\AutomationFactory.cs" />
     <Compile Include="Authors\HTMLAuthor.cs" />
-    <Compile Include="Authors\MutipleDestinationsAuthor.cs" />
-    <Compile Include="Authors\RemoteAuthor.cs" />
     <Compile Include="BaseClasses\BaseAuthor.cs" />
     <Compile Include="BaseClasses\BugCreator.cs" />
     <Compile Include="HelperObjects\AutomationConfiguration.cs" />
@@ -67,11 +74,9 @@
     <Compile Include="HelperObjects\ScreenPhotographer.cs" />
     <Compile Include="Authors\ExcelAuthor.cs" />
     <Compile Include="ScreenCaptures\LocalScreenCapture.cs" />
-    <Compile Include="ScreenCaptures\RemoteScreenCapture.cs" />
     <Compile Include="TestExecutioner.cs" />
     <Compile Include="HelperObjects\RandomTestData.cs" />
     <Compile Include="UIDrivers\BrowserDriver.cs" />
-    <Compile Include="UIDrivers\MultiBrowser.cs" />
     <Compile Include="UIDrivers\WindowsWhite.cs" />
     <Compile Include="UIQuery.cs" />
   </ItemGroup>
@@ -116,6 +121,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
