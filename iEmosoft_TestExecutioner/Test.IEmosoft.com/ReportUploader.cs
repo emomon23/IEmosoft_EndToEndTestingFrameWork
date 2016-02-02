@@ -7,7 +7,7 @@ using System.IO;
 using Limilabs.FTP.Client;
 using iEmosoft.Automation.HelperObjects;
 
-namespace iEmosoft.Automation.FTP
+namespace iEmosoft.Automation.Test.IEmosoft.com
 {
     public class ReportUploader : IReportUploader
     {

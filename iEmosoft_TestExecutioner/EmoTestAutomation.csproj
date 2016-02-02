@@ -42,6 +42,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Windows\Microsoft.NET\Framework\System.Net.Http.Formatting.DLL</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -58,7 +63,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FTP\ReportUploader.cs" />
+    <Compile Include="BaseClasses\BaseTestClass.cs" />
+    <Compile Include="Test.IEmosoft.com\ReportUploader.cs" />
     <Compile Include="HelperObjects\AutomationFactory.cs" />
     <Compile Include="Authors\HTMLAuthor.cs" />
     <Compile Include="BaseClasses\BaseAuthor.cs" />
@@ -74,6 +80,7 @@
     <Compile Include="HelperObjects\ScreenPhotographer.cs" />
     <Compile Include="Authors\ExcelAuthor.cs" />
     <Compile Include="ScreenCaptures\LocalScreenCapture.cs" />
+    <Compile Include="Test.IEmosoft.com\RestClient.cs" />
     <Compile Include="TestExecutioner.cs" />
     <Compile Include="HelperObjects\RandomTestData.cs" />
     <Compile Include="UIDrivers\BrowserDriver.cs" />

@@ -9,7 +9,7 @@ using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Interfaces;
 using iEmosoft.Automation.ScreenCaptures;
 using iEmosoft.Automation.UIDrivers;
-using iEmosoft.Automation.FTP;
+using iEmosoft.Automation.Test.IEmosoft.com;
 
 namespace iEmosoft.Automation.HelperObjects
 {

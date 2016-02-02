@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PMS", "PMS\PMS.csproj", "{A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatientMgmtTests", "PatientMgmtTests\PatientMgmtTests.csproj", "{A2440235-7365-4230-BAA0-32098BDC97B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUploaderConsoleApp", "TestUploaderConsoleApp\TestUploaderConsoleApp.csproj", "{DFB47F14-CB17-4E2E-9E75-C9AE83E7498D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{A2440235-7365-4230-BAA0-32098BDC97B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2440235-7365-4230-BAA0-32098BDC97B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2440235-7365-4230-BAA0-32098BDC97B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFB47F14-CB17-4E2E-9E75-C9AE83E7498D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFB47F14-CB17-4E2E-9E75-C9AE83E7498D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFB47F14-CB17-4E2E-9E75-C9AE83E7498D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFB47F14-CB17-4E2E-9E75-C9AE83E7498D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
