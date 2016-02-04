@@ -37,12 +37,12 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
-    <Reference Include="WebDriver, Version=2.47.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.47.0\lib\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.50.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.50.1\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver.Support, Version=2.47.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.2.47.0\lib\net40\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.50.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.50.1\lib\net40\WebDriver.Support.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -60,10 +60,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AuthenticationTests\Given_Authentication_Tests.cs" />
-    <Compile Include="Pages\LoginPage.cs" />
-    <Compile Include="Pages\PMSSession.cs" />
+    <Compile Include="HospitalTests\HospitalProvisioningTests.cs" />
+    <Compile Include="PMSFeatures\AuthenticationFeature.cs" />
+    <Compile Include="PMSFeatures\BaseFeature.cs" />
+    <Compile Include="PMSFeatures\HospitalProvisioningFeature.cs" />
+    <Compile Include="PMSFeatures\NavigationFeature.cs" />
+    <Compile Include="PMSFeatures\PMSApplication.cs" />
     <Compile Include="PMSTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestData\DataState.cs" />
+    <Compile Include="TestData\HospitalModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\iEmosoft_TestExecutioner\EmoTestAutomation.csproj">

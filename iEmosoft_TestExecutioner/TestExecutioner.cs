@@ -4,6 +4,7 @@ using iEmosoft.Automation.Authors;
 using iEmosoft.Automation.BaseClasses;
 using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Interfaces;
+using iEmosoft.Automation.Test.IEmosoft.com;
 using iEmosoft.Automation.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
@@ -18,6 +19,10 @@ namespace iEmosoft.Automation
         private IScreenCapture screenCapture = null;
         private BaseAuthor testAuthor = null;
         private bool reportingEnabled = true;
+        private bool testPassed = true;
+        private DateTime startTime;
+        private DateTime disposeTime;
+        private List<string> allTestFiles = new List<string>();
 
         public TestExecutioner(string testCaseNumber, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
@@ -71,6 +76,7 @@ namespace iEmosoft.Automation
             }
              
             this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
+            this.startTime = DateTime.Now;
         }
 
         public bool DoesElementExist(string attributeName, string attributeValue, string elementName = "", int mineForSeconds = 10)
@@ -129,8 +135,9 @@ namespace iEmosoft.Automation
             {
                 attributeValue = IdOrAttributeName;
                 IdOrAttributeName = "id";
+                
             }
-                    
+                     
             if (!string.IsNullOrEmpty(stepDescription))
             {
                 this.BeginTestCaseStep(stepDescription, expectedResult);
@@ -140,6 +147,8 @@ namespace iEmosoft.Automation
             {
                 this.CurrentStep.ImageFilePath = this.CaptureScreen();
             }
+
+            uiDriver.ClickControl(IdOrAttributeName, attributeValue, elementName);
 
             if (waitForURLChange)
             {
@@ -318,7 +327,8 @@ namespace iEmosoft.Automation
                 this.testAuthor.CurrentStep.ImageFilePath = fileName;
                 this.testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
             }
-                     
+
+            allTestFiles.Add(fileName);
             return fileName;
         }
 
@@ -336,7 +346,7 @@ namespace iEmosoft.Automation
 
         public void FailCurrentStep(string expectedResult, string actualResult)
         {
-            
+            this.testPassed = false;
             var currentStep = this.CurrentStep;
             if (currentStep != null)
             {
@@ -390,11 +400,14 @@ namespace iEmosoft.Automation
 
         public void Dispose()
         {
+            this.disposeTime = DateTime.Now;
+
             this.Quit();
 
             if (testAuthor != null && reportingEnabled)
             {
-                testAuthor.SaveReport();
+               string reportFile = testAuthor.SaveReport();
+               allTestFiles.Add(reportFile);
             }
 
             if (testAuthor != null)
@@ -404,6 +417,33 @@ namespace iEmosoft.Automation
 
             if (this.BugCreator != null)
                 this.BugCreator.Dispose();
+
+            string ftpReportPath = FTPReport();
+            CallRestService(ftpReportPath);
+        }
+
+        private string FTPReport()
+        {
+            ReportUploader uploader = new ReportUploader(new AutomationConfiguration());
+            var testName = this.TestCaseHeader.TestName;
+            return uploader.UploadReport(testName, allTestFiles);
+
+        }
+
+        private void CallRestService(string ftpReportPath)
+        {
+            TestRunDTO dto = new TestRunDTO()
+            {
+                ApplicationId = new AutomationConfiguration().ApplicationUnderTest,
+                FTPPath = ftpReportPath,
+                Status = this.testPassed ? (int)TestRunDTO.TestRunStatusEnumeration.Passed : (int)TestRunDTO.TestRunStatusEnumeration.Failed,
+                TestNumber = TestCaseHeader.TestNumber,
+                TestTime = disposeTime - startTime,
+                RunDate = startTime
+            };
+
+            RestClient restClient = new RestClient();
+            restClient.RecordTestRun(dto);
         }
 
         public bool WaitForURLChange(string urlSnippet, int waitSeconds = 20)
@@ -473,6 +513,7 @@ namespace iEmosoft.Automation
                 {
                     throw new Exception(msg);
                 }
+                this.testPassed = false;
             }
             else
             {
@@ -500,6 +541,7 @@ namespace iEmosoft.Automation
                     this.testAuthor.CurrentStep.StepPassed = false;     
                 }
 
+                this.testPassed = false;
                 throw new Exception("Am not on the expected page.  Url does not contain '" + urlSnippet + "'");
             }
         }
@@ -519,6 +561,7 @@ namespace iEmosoft.Automation
                     this.testAuthor.CurrentStep.StepPassed = false;
                 }
 
+                this.testPassed = false;
                throw new Exception(msg);
             }
         }
@@ -539,6 +582,7 @@ namespace iEmosoft.Automation
             this.BeginTestCaseStep("Un expected error occurred", "", "");
             this.CurrentStep.ActualResult = exp.Message;
             this.CurrentStep.StepPassed = false;
+            this.testPassed = false;
         }
                
     }

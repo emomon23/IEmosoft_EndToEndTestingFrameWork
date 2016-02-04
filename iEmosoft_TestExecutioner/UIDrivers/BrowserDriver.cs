@@ -22,7 +22,7 @@ namespace iEmosoft.Automation.UIDrivers
             IE
         }
 
-        private IWebDriver browser = null;
+        private OpenQA.Selenium.IWebDriver browser = null;
 
         public string DriverType { get; private set; }
 
@@ -33,7 +33,7 @@ namespace iEmosoft.Automation.UIDrivers
             switch (browserVendor)
             {
                 case BrowserDriverEnumeration.Firefox:
-                    browser = new FirefoxDriver();
+                    browser = new OpenQA.Selenium.Firefox.FirefoxDriver();
                     this.DriverType = "FireFox";
                     break;
                 case BrowserDriverEnumeration.Chome:

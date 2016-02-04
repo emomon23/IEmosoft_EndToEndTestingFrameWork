@@ -28,8 +28,10 @@ namespace iEmosoft.Automation.Authors
             this.testCaseTemplatePath = string.Format("{0}\\Resources\\TestReportTemplate.html", AppDomain.CurrentDomain.BaseDirectory);
         }
 
-        public override void SaveReport()
+        public override string SaveReport()
         {
+            string result = "";
+
             rawHTMLTemplate = File.ReadAllText(base.testCaseTemplatePath);
             rawUnattachedStepRowHTML = GetUnattachedHTMLStepRow();
 
@@ -38,9 +40,11 @@ namespace iEmosoft.Automation.Authors
                 WriteTestCaseHeaderToHTMLDocument();
                 WriteStepsToHTMLDocument();
                 UpdatePassFailStatusForWholeTest();
-                SaveNewHTMLFileToDisk();
+                result = SaveNewHTMLFileToDisk();
                 base.fileIsDirty = false;
             }
+
+            return result;
         }
 
         public override bool StartNewTestCase(TestCaseHeaderData headerData)
@@ -134,10 +138,11 @@ namespace iEmosoft.Automation.Authors
             
         }
 
-        private void SaveNewHTMLFileToDisk()
+        private string SaveNewHTMLFileToDisk()
         {
            string newFileName = GetNextFileName();
            File.WriteAllText(newFileName, rawHTMLTemplate);
+           return newFileName;
         }
     }
     

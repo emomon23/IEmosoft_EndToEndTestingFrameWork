@@ -21,6 +21,8 @@ namespace iEmosoft.Automation.Model
 
         public string TestNumber { get; set; }
         public string Prereqs { get; set; }
+
+        public string TestFamily { get; set; }
         public string TestName
         {
             get

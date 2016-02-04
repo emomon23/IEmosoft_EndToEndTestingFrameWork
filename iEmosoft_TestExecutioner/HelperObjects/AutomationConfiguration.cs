@@ -82,7 +82,7 @@ namespace iEmosoft.Automation.HelperObjects
 
                 //ftp://www.serverURL.com|userName|password|true
                 string [] temp = GetConfigSetting("FTPUploadURLAndCredentials").Split('|');
-                if (temp.Length > 2)
+                if (temp.Length > 3)
                 {
                     bool.TryParse(temp[3], out result);
                 }

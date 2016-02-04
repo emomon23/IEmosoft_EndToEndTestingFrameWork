@@ -61,16 +61,20 @@ namespace iEmosoft.Automation.Authors
             return result;
        	}
         
-        public override void SaveReport()
+        public override string SaveReport()
         {
+            string result = "";
+
             if (base.fileIsDirty)
             {
                 WriteTestCaseHeaderToExcelDocument();
                 WriteStepsToExcel();
                 UpdatePassFailStatusForWholeTest();
-                SaveExcelFileToDisk();
+                result = SaveExcelFileToDisk();
                 base.fileIsDirty = false;
             }
+
+            return result;
         }
 
 	    public void Dispose()
@@ -185,10 +189,11 @@ namespace iEmosoft.Automation.Authors
             this.currentTestCaseStep = null;
 		}
 
-	    private void SaveExcelFileToDisk()
+	    private string SaveExcelFileToDisk()
 	    {
             string newFileName = GetNextFileName();
             this.workbook.SaveAs(newFileName, MISSING, MISSING, MISSING, MISSING, MISSING, Excel.XlSaveAsAccessMode.xlExclusive, 2, MISSING, MISSING, MISSING, MISSING);
+            return newFileName;
         }
 
         private void UpdatePassFailStatusForWholeTest(){

@@ -42,7 +42,7 @@ namespace iEmosoft.Automation.BaseClasses
         }
 
         //** ABSTRACT METHODS **
-        public abstract void SaveReport();
+        public abstract string SaveReport();
         public abstract bool StartNewTestCase(TestCaseHeaderData headerData);
         
         public List<TestCaseStep> RecordedSteps
