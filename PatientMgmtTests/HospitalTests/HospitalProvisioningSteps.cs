@@ -26,8 +26,7 @@ namespace PatientMgmtTests.HospitalTests
         //We need the PMSApplication instance in the assertion (Then methods).
         PMSApplication pmsApplication = null;
 
-        //The user we'll use to log in
-        LoggedInUser userTestData = null;
+        PMSDataState pmsDataState = new PMSDataState();
 
         public HospitalProvisioningSteps(TestCaseHeaderData testcaseHeader)
         {
@@ -38,26 +37,22 @@ namespace PatientMgmtTests.HospitalTests
         //Given -> When -> Then
         public void GivenAnExistingRandomlySelectedHospital()
         {
-            hospitalTestData = PMSDataState.FetchARandomHospitalFromDatabase();
+            hospitalTestData = pmsDataState.FetchARandomHospitalFromDatabase();
         }
 
         public void GivenTheLoggedInUserIsAPhysician()
         {
-            this.userTestData = PMSDataState.FetchUser("Physician");
+             pmsDataState.FetchUser("Physician");
         }
 
         public void GivenTheLoggedInUserIsASystemAdministrator()
         {
-            this.userTestData = PMSDataState.FetchUser("SysAdmin");
+            pmsDataState.FetchUser("SysAdmin");
         }
 
         public void WhenTheExistingHospitalIsUpdated()
         {
-            if (userTestData == null)
-            {
-                //The test never specified a particular user (eg GivenTheLoggedInUserIsAPhysician), so use the defualt
-                userTestData = PMSDataState.FetchDefaultUser();
-            }
+         
 
             //Specify the altered values we will use for this test
             hospitalTestData.State = randomRawData.GetRandomState();
@@ -65,7 +60,7 @@ namespace PatientMgmtTests.HospitalTests
             hospitalTestData.City = randomRawData.GetRandomCity();
 
             //New up the PMSApplication and log into the system
-            pmsApplication = new PMSApplication(this.testCaseHeader, userTestData.UserName, userTestData.Password);
+            pmsApplication = new PMSApplication(this.testCaseHeader, pmsDataState.TestUser.UserName, pmsDataState.TestUser.Password);
 
             pmsApplication.NavigationFeature.NavigateToExistingHosptialEdit(hospitalTestData.HospitalName);
             pmsApplication.HospitalProvisioningFeature.EditCurrentlySelectedHospital(hospitalTestData);
@@ -92,6 +87,7 @@ namespace PatientMgmtTests.HospitalTests
 
         public void Dispose()
         {
+            pmsDataState.RollbackHospital(hospitalTestData);
             pmsApplication.Dispose();
         }
     }

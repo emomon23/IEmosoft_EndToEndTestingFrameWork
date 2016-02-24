@@ -9,30 +9,50 @@ using iEmosoft.Automation.HelperObjects;
 
 namespace PatientMgmtTests.TestData
 {
-    public static class PMSDataState
+    public class PMSDataState
     {
-        static RandomTestData randomData = new RandomTestData();
+        RandomTestData randomData = new RandomTestData();
+        LoggedInUser testUser = null;
 
         #region LoggedInUserModel
-        public static LoggedInUser FetchUser(string role)
+
+        public LoggedInUser TestUser
         {
-            return new LoggedInUser() { UserName = "validUserName", Password = "validPassword", Role = role };
+            get
+            {
+                if (testUser == null)
+                {
+                    FetchDefaultUser();
+                }
+
+                return testUser;
+            }
+        }
+        public void FetchUser(string role)
+        {
+            testUser=  new LoggedInUser() { UserName = "validUserName", Password = "validPassword", Role = role };
         }
 
-        public static LoggedInUser FetchInvalidUser()
+        public void FetchInvalidUser()
         {
-            return new LoggedInUser() { UserName = "invalidUserName", Password = "invalidPassword", Role = "Doesn't Matter" };
+            testUser = new LoggedInUser() { UserName = "invalidUserName", Password = "invalidPassword", Role = "Doesn't Matter" };
         }
 
-        public static LoggedInUser FetchDefaultUser()
+        private void FetchDefaultUser()
         {
-            return FetchUser("Lab Technicain");
+            FetchUser("Lab Technicain");
         }
 
         #endregion
 
         #region HospitalModel
-        public static HospitalModel GenerateRandomHosptialModel()
+
+        public void RollbackHospital(HospitalModel model)
+        {
+            string sql = string.Format("Update Hospital SET HospitalName = '{0}', Address='{1}' .... WHERE id = '{2}'", model.OrigialValues.HospitalName, model.OrigialValues.Address, model.OrigialValues.HospitalId);
+            //ExecuteSQL(sql);
+        }
+        public HospitalModel GenerateRandomHosptialModel()
         {
             HospitalModel result = new HospitalModel()
             {
@@ -46,7 +66,7 @@ namespace PatientMgmtTests.TestData
             return result;
         }
 
-        public static HospitalModel FetchARandomHospitalFromDatabase()
+        public HospitalModel FetchARandomHospitalFromDatabase()
         {
             //HERE IS AN EXAMPLE WHO HOW WE WOULD DO THIS
             //string sql = "SELECT TOP 100 FROM Hospital";
@@ -59,7 +79,7 @@ namespace PatientMgmtTests.TestData
 
         }
 
-        public static HospitalModel FetchHospitalFromDatabase_ById(Guid id)
+        public HospitalModel FetchHospitalFromDatabase_ById(Guid id)
         {
             //string sql = "Select * from Hosptial where HospitalId = " + id;
             //return GetRandomHospitalFromSQLStatement(sql);
@@ -77,7 +97,7 @@ namespace PatientMgmtTests.TestData
             return result;
         }
 
-        public static HospitalModel FetchHospitalFromDatabase_ByName(string name)
+        public HospitalModel FetchHospitalFromDatabase_ByName(string name)
         {
             //string sql = "Select * from Hospital where name = " + name;
             //return GetRandomHospitalFromSQLStatement(sql);
@@ -93,7 +113,7 @@ namespace PatientMgmtTests.TestData
         }
 
        
-        public static HospitalModel FetchHospitalRandomFromDatabase_ByState(string state)
+        public HospitalModel FetchHospitalRandomFromDatabase_ByState(string state)
         {
             //string sql = "select * from hosptial where state = " + state;
             //return GetRandomHosptialFromSQLStatement(sql);
@@ -110,7 +130,7 @@ namespace PatientMgmtTests.TestData
             return result;
         }
 
-        public static HospitalModel FetchAReallyReallyBigHosptial()
+        public HospitalModel FetchAReallyReallyBigHosptial()
         {
             //string sql = "SELECT h.* FROM Hosptial h INNER JOIN blb bal WHERE COUNT(PATIENTS) > 1000000;
             //return GetRandomHospitalFromSQLStatement(sql);
