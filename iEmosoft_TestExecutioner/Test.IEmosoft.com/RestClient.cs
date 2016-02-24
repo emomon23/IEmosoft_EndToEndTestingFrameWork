@@ -17,10 +17,10 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
             applicationUnderTest = System.Configuration.ConfigurationManager.AppSettings["ApplicationIdUnderTest"];
 
         }
-        public void RegisterTest(string testNumber, string testFamily, string testName, string testDescription)
+        public void RegisterTest(string testNumber, string testFamily, string testName, string testDescription, DateTime? eta)
         {
             
-            RegistationTestDTO dto = new RegistationTestDTO() { ApplicationId = applicationUnderTest, TestDescription = testDescription, TestFamily = testFamily, TestName = testName, TestNumber = testNumber };
+            RegistationTestDTO dto = new RegistationTestDTO() { ApplicationId = applicationUnderTest, TestDescription = testDescription, TestFamily = testFamily, TestName = testName, TestNumber = testNumber, ETA = eta};
 
             using (var client = this.CreateHttpClient())
             {
@@ -75,6 +75,8 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         public string TestName { get; set; }
 
         public string TestDescription { get; set; }
+
+        public DateTime? ETA { get; set; }
     }
 
     public class TestRunDTO

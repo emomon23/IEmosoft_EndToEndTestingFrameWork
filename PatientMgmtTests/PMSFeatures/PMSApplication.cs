@@ -65,6 +65,22 @@ namespace PatientMgmtTests.PMSFeatures
             }
         }
 
+        public HospitalListScreenScrapper HospitalListScreenScraper
+        {
+            get
+            {
+                return new HospitalListScreenScrapper(this.executioner);
+            }
+        }
+
+        public HospitalProvisioningFeature HospitalProvisioningFeature
+        {
+            get
+            {
+                return new HospitalProvisioningFeature(this.executioner);
+            }
+        }
+
         public AuthenticationFeature AuthFeature
         {
             get

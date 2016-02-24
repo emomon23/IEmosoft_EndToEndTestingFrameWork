@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.BaseClasses;
+using iEmosoft.Automation.Model;
 
 namespace PatientMgmtTests.HospitalTests
 {
@@ -9,15 +10,25 @@ namespace PatientMgmtTests.HospitalTests
     public class HospitalProvisioningTests : BaseTestClass
     {
         [TestMethod]
-        public void HOS10_Create_New_Hospital()
+        public void HOS10_UpdateExistingHospitalValue()
         {
-            RegisterTestUnderDevelopment("HOS10", "Create A New Hospital", "Given unique random data, When a new hosptial is created, Then toast should appear and hospital should be added to the list of hospitals.", "Basic Provisioning");
+            TestCaseHeaderData testDescription = new TestCaseHeaderData()
+            {
+                TestNumber = "HOS10",
+                TestDescription = "Given an existing hospital, When the hospital data is altered, Then the hospital record should be updated accordingly",
+                TestFamily = "Hospital Tests",
+                TestName = "UpdateAnExistingHospital",
+                Prereqs = "None"
+            };
+                      
+            using (var testSteps = new HospitalProvisioningSteps(testDescription))
+            {
+                testSteps.GivenAnExistingRandomlySelectedHospital();
+                testSteps.WhenTheExistingHospitalIsUpdated();
+                testSteps.ThenTheHospitalShouldBeUpdatedAccordingly();
+            }
+          
         }
-
-        [TestMethod]
-        public void HOS20_HospitalValdiation()
-        {
-            RegisterTestUnderDevelopment("HOS20", "New Hospital Data Validation", "Given bad hospital data, When the user tries to create the hospital, Then error messages should appear", "Basic Provisioning");
-        }
+      
     }
 }

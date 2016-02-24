@@ -25,6 +25,23 @@ namespace PatientMgmtTests.PMSFeatures
             return url.EndsWith("hospital");
         }
 
+        public void NavigateToHospitalList()
+        {
+            this.executioner.ClickElement("lnk_Hospitals", "", "", "Click on the Hospital menu item", "Should be taken to the list of hospitals",true, true);
+        }
+
+        public void NavigateToExistingHosptialEdit(string hosptialName)
+        {
+            //This is a good example of where there isn't a good clean way to access an html element, and 
+            //you, as the test automator can't go to the devs and say 'add an id here'
+            //In this example I'm trying to get the anchor tag for the Edit button for a specified hosptial
+
+            //For example: $('div[ng-repeat*="hospital" h3:contains("Childrens") a')
+            JQuerySelector script = new JQuerySelector("$('div[ng-repeat*=\"hospital\"] h3:contains(\"" + hosptialName + "\") a')");
+            executioner.ClickElement(script, "Click the Edit button for " + hosptialName + " hospital", "Should be taken to the hospital edit screen");
+            executioner.Pause(500);
+        }
+
         public void AssertURLIsWhereExpected(string url, string description)
         {
             executioner.BeginTestCaseStep(description);

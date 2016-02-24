@@ -59,16 +59,18 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="AuthenticationTests\Given_Authentication_Tests.cs" />
+    <Compile Include="HospitalTests\HospitalProvisioningSteps.cs" />
     <Compile Include="HospitalTests\HospitalProvisioningTests.cs" />
     <Compile Include="PMSFeatures\AuthenticationFeature.cs" />
     <Compile Include="PMSFeatures\BaseFeature.cs" />
+    <Compile Include="PMSFeatures\HospitalListScreenScrapper.cs" />
     <Compile Include="PMSFeatures\HospitalProvisioningFeature.cs" />
     <Compile Include="PMSFeatures\NavigationFeature.cs" />
     <Compile Include="PMSFeatures\PMSApplication.cs" />
     <Compile Include="PMSTestContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestData\DataState.cs" />
+    <Compile Include="TestData\LoggedInUser.cs" />
+    <Compile Include="TestData\PMSDataState.cs" />
     <Compile Include="TestData\HospitalModel.cs" />
   </ItemGroup>
   <ItemGroup>

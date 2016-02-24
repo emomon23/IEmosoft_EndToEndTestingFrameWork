@@ -168,6 +168,12 @@ namespace iEmosoft.Automation
         {
             return this.ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
         }
+
+        public bool ClickElement(JQuerySelector script, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, bool waitForURLToChange = false)
+        {
+            string newId = this.CreateRandomIdAttributeOnSelector(script);
+            return this.ClickElement(newId, "", "", stepDescription, expectedResult, snapScreenBeforeClick, waitForURLToChange);
+        }
               
 
         public string CurrentFormName_OrURL { get { return uiDriver.CurrentFormName_OrPageURL; } }
@@ -202,6 +208,12 @@ namespace iEmosoft.Automation
            this.SetTextOnElement(query.AttributeName, query.AttributeValue, valueToSet, query.ControlTypeName, stepDescription);
         }
 
+        public void SetTextOnElement(JQuerySelector selector, string valueToSet, string stepDescription = "")
+        {
+            var newId = this.CreateRandomIdAttributeOnSelector(selector );
+            this.SetTextOnElement(newId, valueToSet, stepDescription);
+        }
+
         public void SetTextOnElement(string attributeName, string attributeValue, string textToSet,
             string elementName = "", string stepDescription = "", bool useWildCard = true)
         {
@@ -221,6 +233,12 @@ namespace iEmosoft.Automation
         public string GetTextOnElement(string attributeName,string attributeValue,string controlType, bool useWildCardSearch = true)
         {
             return uiDriver.GetTextOnControl(attributeName, attributeValue, controlType, useWildCardSearch);
+        }
+
+        public string GetTextOnElement(JQuerySelector selector)
+        {
+            var newId = this.CreateRandomIdAttributeOnSelector(selector);
+            return uiDriver.GetTextOnControl(newId);
         }
 
         public string GetTextOnElement(UIQuery query)
@@ -293,7 +311,7 @@ namespace iEmosoft.Automation
             return GetSelectedValueOnDropdown(query.AttributeName, query.AttributeValue);
         }
 
-        public void NavigateTo(string url, string expectedResult = "")
+        public void  NavigateTo(string url, string expectedResult = "")
         {
             if (!string.IsNullOrEmpty(expectedResult) && this.reportingEnabled)
             {
@@ -575,6 +593,15 @@ namespace iEmosoft.Automation
         public TestCaseHeaderData TestCaseHeader
         {
             get { return testAuthor.TestCaseHeader;  }
+        }
+
+        private string CreateRandomIdAttributeOnSelector(JQuerySelector seletor)
+        {
+            string newId = Guid.NewGuid().ToString().Replace("-", "");
+            string script = string.Format("$({0}).attr('id', '{1}')", seletor.jQuerySelectorScript, newId);
+            
+            this.ExecuteJavaScript(script);
+            return newId;
         }
 
         private void FailTest(Exception exp)

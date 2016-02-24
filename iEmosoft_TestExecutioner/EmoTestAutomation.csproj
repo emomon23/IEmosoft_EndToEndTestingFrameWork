@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClasses\BaseTestClass.cs" />
+    <Compile Include="JQuerySelector.cs" />
     <Compile Include="Test.IEmosoft.com\ReportUploader.cs" />
     <Compile Include="HelperObjects\AutomationFactory.cs" />
     <Compile Include="Authors\HTMLAuthor.cs" />

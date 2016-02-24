@@ -10,15 +10,27 @@ namespace iEmosoft.Automation.BaseClasses
 {
     public abstract class BaseTestClass
     {
-        protected void RegisterTestUnderDevelopment(string testNumber, string testName, string testDescription, string testFamily)
+        protected void RegisterTestUnderDevelopment(string testNumber, string testName, string testDescription, string testFamily, string etaDate)
         {
             RestClient restClient = new RestClient();
-            restClient.RegisterTest(testNumber, testFamily, testName, testDescription);
+
+            DateTime? eta = null;
+            if (!string.IsNullOrEmpty(etaDate))
+            {
+                DateTime temp;
+                if (!DateTime.TryParse(etaDate, out temp))
+                {
+                    throw new Exception("etaDate must be a valid date (eg. '1/1/2020')");
+                }
+
+                eta = temp;
+            }
+            restClient.RegisterTest(testNumber, testFamily, testName, testDescription, eta);
         }
 
-        protected void RegisterTestUnderDevelopment(TestCaseHeaderData headerData)
+        protected void RegisterTestUnderDevelopment(TestCaseHeaderData headerData, string etaDate)
         {
-            RegisterTestUnderDevelopment(headerData.TestNumber, headerData.TestName, headerData.TestDescription, headerData.TestFamily);
+            RegisterTestUnderDevelopment(headerData.TestNumber, headerData.TestName, headerData.TestDescription, headerData.TestFamily, etaDate);
         }
     }
 }

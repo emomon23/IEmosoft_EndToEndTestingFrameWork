@@ -22,12 +22,26 @@ namespace PatientMgmtTests.PMSFeatures
         {
             if (this.navigationFeature.NavigateToNewPatientPage())
             {
-                testExecutioner.SetTextOnElement("hospitalName", hospitalData.HospitalName);
-                testExecutioner.SetTextOnElement("street", hospitalData.Address);
-                testExecutioner.SetTextOnElement("city", hospitalData.City);
-                testExecutioner.SetTextOnElement("state", hospitalData.State);
-                testExecutioner.ClickElement("saveBtn", "", "", "Enter hospital data, and click 'Save'", "Hospital data should be saved", true, true);
+                this.UpdateHospitalEditForm(hospitalData);
             }
+        }
+
+        public void EditCurrentlySelectedHospital(HospitalModel model)
+        {
+            if (this.testExecutioner.AmOnScreen("Hospital"))
+            {
+                UpdateHospitalEditForm(model);
+            }
+        }
+
+        private void UpdateHospitalEditForm(HospitalModel hospitalData)
+        {
+            testExecutioner.SetTextOnElement("hospitalName", hospitalData.HospitalName);
+            testExecutioner.SetTextOnElement("street", hospitalData.Address);
+            testExecutioner.SetTextOnElement("city", hospitalData.City);
+            testExecutioner.SetTextOnElement("state", hospitalData.State);
+            testExecutioner.ClickElement("saveBtn", "", "", "Enter hospital data, and click 'Save'", "Hospital data should be saved", true, true);
+
         }
     }
 }

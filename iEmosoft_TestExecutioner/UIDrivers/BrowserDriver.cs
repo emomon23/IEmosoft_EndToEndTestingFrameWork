@@ -25,6 +25,7 @@ namespace iEmosoft.Automation.UIDrivers
         private OpenQA.Selenium.IWebDriver browser = null;
 
         public string DriverType { get; private set; }
+               
 
         public List<string> FailedBrowsers { get { return new List<string> { this.DriverType }; } }
 
