@@ -13,6 +13,7 @@ namespace PatientMgmtTests.PMSFeatures
     {
         private TestExecutioner executioner;
         private string loginURL = "http://localhost/PMS/default.html";
+        private string landingPage = "http://localhost/PMS/default.html#/HospitalList";
 
         public PMSApplication(string testNumber, string testName = "", string testDescription = "", string testFamily = "", string userName = "", string password = "")
         {
@@ -23,28 +24,34 @@ namespace PatientMgmtTests.PMSFeatures
                 TestDescription = testDescription
             };
 
-            executioner = new TestExecutioner(tcHeader);
-            executioner.NavigateTo(loginURL);
+            executioner = TestExecutionerPool.GetTestExecutioner(tcHeader, userName, password, landingPage);
 
-            if (!(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(password)))
+            if (!executioner.PoolState.WasAlreadyInPool)
             {
-                this.IsAuthenticated = AuthFeature.LoginToPMS(userName, password);
-            }
+                executioner.NavigateTo(loginURL, "Navigate to Patitnet management system's login page");
 
+                if (!(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(password)))
+                {
+                    this.IsAuthenticated = AuthFeature.LoginToPMS(userName, password);
+                }
+            }
         }
 
         public PMSApplication(TestCaseHeaderData headerData, string userName = "", string password = "")
         {
-            executioner = new TestExecutioner(headerData);
-            executioner.NavigateTo(loginURL, "Navigate to Patitnet management system's login page");
+            executioner = TestExecutionerPool.GetTestExecutioner(headerData, userName, password, landingPage);
 
-            if (!(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(password)))
+            if (! executioner.PoolState.WasAlreadyInPool)
             {
-                this.IsAuthenticated = AuthFeature.LoginToPMS(userName, password);
+                executioner.NavigateTo(loginURL, "Navigate to Patitnet management system's login page");
+
+                if (!(string.IsNullOrEmpty(userName) && string.IsNullOrEmpty(password)))
+                {
+                    this.IsAuthenticated = AuthFeature.LoginToPMS(userName, password);
+                }
             }
         }
-
-
+              
         public void Assertion(bool shouldBeTrue, string description, bool isHardFailure = true)
         {
             if (!shouldBeTrue)
@@ -91,7 +98,14 @@ namespace PatientMgmtTests.PMSFeatures
 
         public void Dispose()
         {
-            executioner.Dispose();
+            if (executioner.PoolState.IsPartOfTestExecutionerPool)
+            {
+                executioner.ReleaseFromPool();
+            }
+            else
+            {
+                executioner.Dispose();
+            }
         }
 
         public bool IsAuthenticated { get; set; }

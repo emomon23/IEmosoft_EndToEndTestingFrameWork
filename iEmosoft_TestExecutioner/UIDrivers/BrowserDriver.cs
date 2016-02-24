@@ -10,6 +10,7 @@ using iEmosoft.Automation.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.Remote;
 
 namespace iEmosoft.Automation.UIDrivers
 {
@@ -19,7 +20,8 @@ namespace iEmosoft.Automation.UIDrivers
         {
             Chome,
             Firefox,
-            IE
+            IE, 
+            SauceLabs
         }
 
         private OpenQA.Selenium.IWebDriver browser = null;
@@ -29,7 +31,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public List<string> FailedBrowsers { get { return new List<string> { this.DriverType }; } }
 
-        public BrowserDriver(BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Firefox)
+        public BrowserDriver( IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Firefox)
         {
             switch (browserVendor)
             {
@@ -45,7 +47,42 @@ namespace iEmosoft.Automation.UIDrivers
                     //Tony: browser = new IEDriver() (eg google Selenium with IE)
                     this.DriverType = "IE";
                     break;
+                case BrowserDriverEnumeration.SauceLabs:
+                    DesiredCapabilities capabilities = GetDesiredCapabilities(configuration);
+                    var url = new Uri("http://" + configuration.SauceLabsKey + "@ondemand.saucelabs.com:80/wd/hub");
+                    browser = new OpenQA.Selenium.Remote.RemoteWebDriver(url, capabilities);
+                    break;
             }
+        }
+
+        private DesiredCapabilities GetDesiredCapabilities(IAutomationConfiguration config){
+            DesiredCapabilities result;
+
+            switch (config.SauceLabsBrowser)
+            {
+                case "IE":
+                    result = DesiredCapabilities.InternetExplorer();
+                    break;
+
+                case "Chrome":
+                    result = DesiredCapabilities.Chrome();
+                    break;
+                default:
+                    result = DesiredCapabilities.Firefox();
+                    break;
+            }
+
+            string [] usernameKey = config.SauceLabsKey.Split(':');
+
+            if (usernameKey.Length != 2)
+            {
+                throw new Exception(string.Format("SauceLabsKey found in config file is not as expected.  Expected username:key in the value attribute"));
+            }
+
+            result.SetCapability("username", usernameKey[0]);
+            result.SetCapability("accessKey", usernameKey[1]);
+            result.SetCapability("platform", config.SauceLabsPlatform);
+            return result;
         }
 
         public bool ScreenContains(string lookFor)

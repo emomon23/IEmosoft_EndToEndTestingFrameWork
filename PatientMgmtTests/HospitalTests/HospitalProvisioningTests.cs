@@ -29,6 +29,27 @@ namespace PatientMgmtTests.HospitalTests
             }
           
         }
+
+
+        [TestMethod]
+        public void HOS20_UpdateExistingHospitalName()
+        {
+            TestCaseHeaderData testDescription = new TestCaseHeaderData()
+            {
+                TestNumber = "HOS20",
+                TestDescription = "Given an existing hospital, When the hospital name is altered, Then the hospital record should be updated accordingly",
+                TestFamily = "Hospital Tests",
+                TestName = "UpdateAnExistingHospital",
+                Prereqs = "None"
+            };
+
+            using (var testSteps = new HospitalProvisioningSteps(testDescription))
+            {
+                testSteps.GivenAnExistingRandomlySelectedHospital();
+                testSteps.WhenTheHospitalNameIsUpdated();
+                testSteps.ThenTheHospitalShouldBeUpdatedAccordingly();
+            }
+        }
       
     }
 }

@@ -84,6 +84,7 @@
     <Compile Include="Test.IEmosoft.com\RestClient.cs" />
     <Compile Include="TestExecutioner.cs" />
     <Compile Include="HelperObjects\RandomTestData.cs" />
+    <Compile Include="TestExecutionerPool.cs" />
     <Compile Include="UIDrivers\BrowserDriver.cs" />
     <Compile Include="UIDrivers\WindowsWhite.cs" />
     <Compile Include="UIQuery.cs" />

@@ -43,13 +43,16 @@ namespace iEmosoft.Automation.HelperObjects
             switch (browserName)
             {
                 case "FIREFOX":
-                    driver = new BrowserDriver();
+                    driver = new BrowserDriver(configuration);
                     break;
                 case "IE":
-                    driver = new BrowserDriver(BrowserDriver.BrowserDriverEnumeration.IE);
+                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.IE);
                     break;
                 case "CHROME":
-                    driver = new BrowserDriver(BrowserDriver.BrowserDriverEnumeration.Chome);
+                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.Chome);
+                    break;
+                case "SAUCELABS":
+                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.SauceLabs);
                     break;
                 case "WPF":
                     driver = new WindowsWhite();

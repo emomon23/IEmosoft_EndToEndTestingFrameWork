@@ -164,6 +164,7 @@ angular.module("PMSApp")
 
    		$scope.editHospital = function (hospital) {
    		    $scope.data.editHospital = hospital;
+   		    $scope.data.editHospital.isEdit = true;
    		    $location.path("/Hospital");
    		}
 
@@ -183,7 +184,10 @@ angular.module("PMSApp")
    		}
 
    		$scope.saveHospital = function () {
-   		    $scope.data.addHospital($scope.data.editHospital);
+   		    if (! $scope.data.editHospital.isEdit) {
+   		        $scope.data.addHospital($scope.data.editHospital);
+   		    }
+
    		    $scope.data.editHospital = {};
    		}
 

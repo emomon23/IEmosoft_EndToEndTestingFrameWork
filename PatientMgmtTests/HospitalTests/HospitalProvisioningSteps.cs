@@ -52,36 +52,40 @@ namespace PatientMgmtTests.HospitalTests
 
         public void WhenTheExistingHospitalIsUpdated()
         {
-         
-
             //Specify the altered values we will use for this test
             hospitalTestData.State = randomRawData.GetRandomState();
             hospitalTestData.Address = randomRawData.GetRandomAddress().Street1;
             hospitalTestData.City = randomRawData.GetRandomCity();
 
+            this.UpdateTheHosptialRecord();
+        }
+
+        public void WhenTheHospitalNameIsUpdated(){
+            hospitalTestData.OrigialValues.HospitalName = "Amplats";
+            hospitalTestData.HospitalName = randomRawData.GetRandomCompanyName();
+
+            this.UpdateTheHosptialRecord();
+        }
+
+        private void UpdateTheHosptialRecord()
+        {
             //New up the PMSApplication and log into the system
             pmsApplication = new PMSApplication(this.testCaseHeader, pmsDataState.TestUser.UserName, pmsDataState.TestUser.Password);
 
-            pmsApplication.NavigationFeature.NavigateToExistingHosptialEdit(hospitalTestData.HospitalName);
+            pmsApplication.NavigationFeature.NavigateToExistingHosptialEdit(hospitalTestData.OrigialValues.HospitalName);
             pmsApplication.HospitalProvisioningFeature.EditCurrentlySelectedHospital(hospitalTestData);
             pmsApplication.NavigationFeature.NavigateToHospitalList();
 
             this.postTestScreenScrappedHospital = pmsApplication.HospitalListScreenScraper.GetHospitalAddressFromHospitalList(hospitalTestData.HospitalName);
-           
+     
         }
 
         public void ThenTheHospitalShouldBeUpdatedAccordingly()
         {
             string assertionMessage = "Assert that the data displayed on the hospital list has been udpated";
 
-            //Assert that the values have been altered
-            pmsApplication.Assertion(hospitalTestData.Address != hospitalTestData.OrigialValues.Address, assertionMessage);
-            pmsApplication.Assertion(hospitalTestData.City != hospitalTestData.OrigialValues.City, assertionMessage);
-            pmsApplication.Assertion(hospitalTestData.State != hospitalTestData.OrigialValues.State, assertionMessage);
-
-            //Assert that the altered values are displayed on the screen as expected
             pmsApplication.Assertion(postTestScreenScrappedHospital.CombinedAddressString == hospitalTestData.CombinedAddressString, assertionMessage);
-           
+            pmsApplication.Assertion(postTestScreenScrappedHospital.HospitalName == hospitalTestData.HospitalName, assertionMessage);
         }
 
 

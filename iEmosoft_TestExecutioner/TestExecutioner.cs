@@ -23,6 +23,7 @@ namespace iEmosoft.Automation
         private DateTime startTime;
         private DateTime disposeTime;
         private List<string> allTestFiles = new List<string>();
+        private PoolState poolState = new PoolState() { IsAvailable = true, IsPartOfTestExecutionerPool = false };
 
         public TestExecutioner(string testCaseNumber, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
@@ -52,7 +53,19 @@ namespace iEmosoft.Automation
             }
             else
             {
-                this.uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
+                this.uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(new AutomationConfiguration(), UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
+            }
+        }
+
+        public PoolState PoolState
+        {
+            get
+            {
+                return poolState;
+            }
+            set
+            {
+                poolState = value;
             }
         }
 
@@ -396,17 +409,7 @@ namespace iEmosoft.Automation
                 this.CaptureScreen();
             }
         }
-              
-        public bool StartNewTestCase(TestCaseHeaderData testCaseHeader)
-        {
-            if (this.testAuthor != null)
-            {
-                return testAuthor.StartNewTestCase(testCaseHeader);
-            }
-
-            return false;
-        }
-        
+         
 
         public TestCaseStep CurrentStep
         {
@@ -416,16 +419,41 @@ namespace iEmosoft.Automation
             }
         }
 
+        public void ReleaseFromPool()
+        {
+            if (this.poolState.IsPartOfTestExecutionerPool)
+            {
+                ProcessTestResults();
+                poolState.WasAlreadyInPool = true;
+              
+                if (!poolState.LangingPageURL.isNull())
+                {
+                    this.NavigateTo(poolState.LangingPageURL);
+                }
+                poolState.IsAvailable = true;
+            }
+            else
+            {
+                this.Dispose();
+            }
+        }
+
         public void Dispose()
         {
-            this.disposeTime = DateTime.Now;
-
+            ProcessTestResults();
+          
+            //Close the browser
             this.Quit();
+        }
 
+        private void ProcessTestResults()
+        {
+            this.disposeTime = DateTime.Now;
+           
             if (testAuthor != null && reportingEnabled)
             {
-               string reportFile = testAuthor.SaveReport();
-               allTestFiles.Add(reportFile);
+                string reportFile = testAuthor.SaveReport();
+                allTestFiles.Add(reportFile);
             }
 
             if (testAuthor != null)
@@ -590,6 +618,15 @@ namespace iEmosoft.Automation
             get { return testAuthor.RecordedSteps; }
         }
 
+        public void StartNewTestCase(TestCaseHeaderData header)
+        {
+            if (testAuthor != null)
+            {
+                testAuthor.StartNewTestCase(header);
+                this.startTime = DateTime.Now;
+            }
+        }
+
         public TestCaseHeaderData TestCaseHeader
         {
             get { return testAuthor.TestCaseHeader;  }
@@ -612,5 +649,15 @@ namespace iEmosoft.Automation
             this.testPassed = false;
         }
                
+    }
+
+    public class PoolState
+    {
+        public bool IsPartOfTestExecutionerPool { get; set; }
+        public bool IsAvailable { get; set; }
+
+        public bool WasAlreadyInPool { get; set; }
+
+        public string LangingPageURL { get; set; }
     }
 }

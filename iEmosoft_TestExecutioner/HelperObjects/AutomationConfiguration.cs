@@ -19,7 +19,9 @@ namespace iEmosoft.Automation.HelperObjects
         string ApplicationUnderTest { get; }
         bool FTPFilesInTestProcess { get; }
         bool FTPUpload_DeleteLocalFilesAfterUploadComplete { get; }
-
+        string SauceLabsKey { get; }
+        string SauceLabsBrowser { get; }
+        string SauceLabsPlatform { get; }
         string TestExecutionerUIDriverType { get; }
     }
 
@@ -38,6 +40,28 @@ namespace iEmosoft.Automation.HelperObjects
             get { return System.IO.Path.Combine(GetConfigSetting("TestReportFilePath"), "ScreenCapture"); }
         }
 
+        public string SauceLabsKey
+        {
+            get
+            {
+                return GetConfigSetting("SauceLabsKey");
+            }
+        }
+
+        public string SauceLabsBrowser
+        {
+            get
+            {
+                return GetConfigSetting("SauceLabsBrowser", "Firefox");
+            }
+        }
+        public string SauceLabsPlatform
+        {
+            get
+            {
+                return GetConfigSetting("SauceLabsPlatform", "Windows 7");
+            }
+        }
         public bool FTPFilesInTestProcess
         {
             get
