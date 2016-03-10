@@ -312,9 +312,19 @@ namespace iEmosoft.Automation
                 this.BeginTestCaseStep(stepDescription);
             }
 
+            string script = "";
+
             if (this.DoesElementExist(idOrCSS))
             {
-                var script = string.Format("angular.element(\"#{0}\").val('{1}').change();", idOrCSS, valueToSet);
+                if (this.IsAngularApp)
+                {
+                    script = string.Format("angular.element(\"#{0}\").val('{1}').change();", idOrCSS, valueToSet);
+                }
+                else
+                {
+                    script = string.Format("$(\"#{0}\").val('{1}').change();", idOrCSS, valueToSet);
+                }
+
                 this.ExecuteJavaScript(script);
             }
           
