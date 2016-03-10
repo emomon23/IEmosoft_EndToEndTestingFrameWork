@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Linq;
+using System.Runtime.InteropServices;
 using iEmosoft.Automation.Authors;
 using iEmosoft.Automation.BaseClasses;
 using iEmosoft.Automation.HelperObjects;
@@ -69,6 +73,20 @@ namespace iEmosoft.Automation
             }
         }
 
+        public bool LoadJQuery()
+        {
+            try
+            {
+                string script = "if (!window.jQuery) { var jq = document.createElement('script'); jq.type = 'text/javascript'; jq.src = 'https://code.jquery.com/jquery-2.2.1.min.js'; document.getElementsByTagName('head')[0].appendChild(jq);";
+                this.ExecuteJavaScript(script);
+                return true;
+            }
+            catch (Exception exp)
+            {
+                return false;
+            }
+        }
+
         private void Initialize(TestCaseHeaderData testCaseHeader, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
         {
             AutomationFactory factory = new AutomationFactory();
@@ -131,6 +149,10 @@ namespace iEmosoft.Automation
             }
         }
 
+        public void RefreshWebPage()
+        {
+            this.RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Refresh();
+        }
         public object ExecuteJavaScript(string script)
         {
             var fireFoxDriver = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
@@ -156,7 +178,7 @@ namespace iEmosoft.Automation
                 this.BeginTestCaseStep(stepDescription, expectedResult);
             }
 
-            if (snapScreenBeforeClick && this.reportingEnabled)
+            if (snapScreenBeforeClick && this.reportingEnabled && this.CurrentStep != null)
             {
                 this.CurrentStep.ImageFilePath = this.CaptureScreen();
             }
@@ -290,7 +312,12 @@ namespace iEmosoft.Automation
                 this.BeginTestCaseStep(stepDescription);
             }
 
-            uiDriver.SetValueOnDropDown(idOrCSS, valueToSet);
+            if (this.DoesElementExist(idOrCSS))
+            {
+                var script = string.Format("angular.element(\"#{0}\").val('{1}').change();", idOrCSS, valueToSet);
+                this.ExecuteJavaScript(script);
+            }
+          
         }
 
         public string GetSelectedTextOnDropdown(string idOrCSS)
@@ -349,6 +376,13 @@ namespace iEmosoft.Automation
             }
 
             string fileName = screenCapture.NewFileName;
+
+            var process = Process.GetProcesses().FirstOrDefault(x => x.MainWindowTitle.Contains(this.RawSeleniumWebDriver_AvoidCallingDirectly.Title));
+
+            if (process != null)
+            {
+                BringToFront(process.MainWindowHandle);
+            }
 
             uiDriver.MaximizeWindow();
 
@@ -440,8 +474,12 @@ namespace iEmosoft.Automation
 
         public void Dispose()
         {
-            ProcessTestResults();
-          
+            try
+            {
+                ProcessTestResults();
+            }
+            catch { }
+
             //Close the browser
             this.Quit();
         }
@@ -641,12 +679,42 @@ namespace iEmosoft.Automation
             return newId;
         }
 
+        private bool IsAngularApp
+        {
+            get
+            {
+                string script = "return angular == null ? 'FALSE' : 'TRUE'";
+                object result = this.ExecuteJavaScript(script);
+
+                return result.ToString() == "TRUE";
+            }
+        }
+
+        private string GetNgModelAttribute(string idOrCss)
+        {
+            var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCss);
+            string ngModelValue = element.GetAttribute("ng-model");
+
+            return ngModelValue;
+        }
         private void FailTest(Exception exp)
         {
             this.BeginTestCaseStep("Un expected error occurred", "", "");
             this.CurrentStep.ActualResult = exp.Message;
             this.CurrentStep.StepPassed = false;
             this.testPassed = false;
+        }
+
+        [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
+        private static extern IntPtr FindWindow(String lpClassName, String lpWindowName);
+
+        [DllImport("USER32.DLL")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        private static void BringToFront(IntPtr handle)
+        {
+            // Make Calculator the foreground application
+            SetForegroundWindow(handle);
         }
                
     }

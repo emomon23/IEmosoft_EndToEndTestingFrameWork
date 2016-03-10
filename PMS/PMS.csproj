@@ -82,7 +82,7 @@
     <Content Include="Css\bootstrap-theme.css" />
     <Content Include="Css\bootstrap.css" />
     <Content Include="Css\site.css" />
-    <Content Include="default.html" />
+    <Content Include="default.htm" />
     <Content Include="Global.asax" />
     <Content Include="HTML\Hospital.html" />
     <Content Include="HTML\HospitalList.html" />
