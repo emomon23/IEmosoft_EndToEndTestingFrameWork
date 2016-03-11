@@ -209,6 +209,24 @@ namespace iEmosoft.Automation
             string newId = this.CreateRandomIdAttributeOnSelector(script);
             return this.ClickElement(newId, "", "", stepDescription, expectedResult, snapScreenBeforeClick, waitForURLToChange);
         }
+
+        public bool DoesElementExist(JQuerySelector script, int seconds = 10)
+        {
+            bool exists = false;
+
+            for (int i = 0; i < seconds; i++)
+            {
+                string newId = this.CreateRandomIdAttributeOnSelector(script);
+                exists = DoesElementExist(newId, 1);
+                if (exists)
+                {
+                    break;
+                }
+            }
+
+            return exists;
+          
+        }
               
 
         public string CurrentFormName_OrURL { get { return uiDriver.CurrentFormName_OrPageURL; } }
@@ -726,7 +744,14 @@ namespace iEmosoft.Automation
         private string CreateRandomIdAttributeOnSelector(JQuerySelector seletor)
         {
             string newId = Guid.NewGuid().ToString().Replace("-", "");
-            string script = string.Format("$({0}).attr('id', '{1}')", seletor.jQuerySelectorScript, newId);
+            string jqSelector = seletor.jQuerySelectorScript;
+            
+            if (!jqSelector.StartsWith("$"))
+            {
+                jqSelector = jqSelector.Replace("'", "\"");
+                jqSelector = "$('" + jqSelector + "')";
+            }
+            string script = string.Format("{0}.attr('id', '{1}')", jqSelector, newId);
             
             this.ExecuteJavaScript(script);
             return newId;
