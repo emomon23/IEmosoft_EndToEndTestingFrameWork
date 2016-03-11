@@ -288,7 +288,12 @@ namespace iEmosoft.Automation
                 this.BeginTestCaseStep(stepDescription);
             }
 
-            uiDriver.SetValueOnDropDown(attributeName, attributeValue, valueToSet);
+            if (DoesElementExist(attributeName, attributeValue ))
+            {
+                string script = string.Format("$('[{0}*='{1}']').val('{2}').change();", attributeName, attributeValue, valueToSet);
+                ExecuteJavaScript(script);
+            }
+
         }
 
         public IWebDriver RawSeleniumWebDriver_AvoidCallingDirectly
@@ -330,30 +335,68 @@ namespace iEmosoft.Automation
           
         }
 
-        public string GetSelectedTextOnDropdown(string idOrCSS)
+        public string GetSelectedTextOnDropdown(string elementId)
         {
-            return uiDriver.GetTextOnDropDown(idOrCSS);
+            object objResult = "";
+
+            if (DoesElementExist(elementId))
+            {
+                string script = string.Format("return $('#{0} :selected').text()", elementId);
+
+                objResult = ExecuteJavaScript(script);
+            }
+
+            return objResult.ToString();
         }
 
         public string GetSelectedTextOnDropdown(string attributeName, string attributeValue)
         {
-            return uiDriver.GetTextOnDropDown(attributeName, attributeValue, "select");
+            object objResult = "";
+
+            if (DoesElementExist(attributeName, attributeValue))
+            {
+                string script = string.Format("return $('[{0}*=\"{1}\"] :selected').text()", attributeName,
+                    attributeValue);
+
+                objResult = ExecuteJavaScript(script);
+            }
+
+            return objResult.ToString();
         }
 
         public string GetSelectedTextOnDropdown(UIQuery query)
         {
-            return GetSelectedTextOnDropdown(query.AttributeName, query.AttributeValue);
+            return this.GetSelectedTextOnDropdown(query.AttributeName, query.AttributeValue);
         }
 
 
-        public string GetSelectedValueOnDropdown(string idOrCSS)
+        public string GetSelectedValueOnDropdown(string elementId)
         {
-            return uiDriver.GetValueOnDropDown(idOrCSS);
+            object objResult = "";
+
+            if (DoesElementExist(elementId))
+            {
+                string script = string.Format("return $('#{0}').val();", elementId);
+
+                objResult = ExecuteJavaScript(script);
+            }
+
+            return objResult.ToString();
         }
 
         public string GetSelectedValueOnDropdown(string attributeName, string attributeValue)
         {
-            return uiDriver.GetValueOnDropDown(attributeName, attributeValue, "select");
+            object objResult = "";
+
+            if (DoesElementExist(attributeName, attributeValue))
+            {
+                string script = string.Format("return $('[{0}*=\"{1}\"]').val()", attributeName,
+                    attributeValue);
+
+                objResult = ExecuteJavaScript(script);
+            }
+
+            return objResult.ToString();
         }
 
         public string GetSelectedValueOnDropdown(UIQuery query)
