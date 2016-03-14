@@ -69,8 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClasses\BaseTestClass.cs" />
-    <Compile Include="Baseline\BaselineLogic.cs" />
+    <Compile Include="Baseline\BaselineModels.cs" />
     <Compile Include="BaseClasses\BaseTestResult.cs" />
+    <Compile Include="Baseline\BaselineTester.cs" />
     <Compile Include="JQuerySelector.cs" />
     <Compile Include="Test.IEmosoft.com\ReportUploader.cs" />
     <Compile Include="HelperObjects\AutomationFactory.cs" />

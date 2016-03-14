@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
 using System.Web.Script.Serialization;
-using System.Xml;
-using iEmosoft.Automation.Interfaces;
-using iEmosoft.Automation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 
 namespace iEmosoft.Automation
 {
@@ -20,7 +16,7 @@ namespace iEmosoft.Automation
         private bool baselineFileExists = false;
 
         private List<BaseTestResult> baselineTestResults = new List<BaseTestResult>();
-        private List<BaseTestResult> newTestResultsNotInBaseline = new List<BaseTestResult>(); 
+        private List<BaseTestResult> newTestResultsNotInBaseline = new List<BaseTestResult>();
         private List<BaselineDescrepencyCheck> descrepencies = new List<BaselineDescrepencyCheck>();
         private Type concreateTestResultType;
 
@@ -83,7 +79,7 @@ namespace iEmosoft.Automation
 
                 if (newTestResultsNotInBaseline.Count > 0)
                 {
-                    string newResultsFile = string.Format("{0}\\New_{1}_{2}.{3}",baselinePath, this.concreateTestResultType.ToString(),
+                    string newResultsFile = string.Format("{0}\\New_{1}_{2}.{3}", baselinePath, this.concreateTestResultType.ToString(),
                         Guid.NewGuid().ToString().Substring(0, 5), Path.GetExtension(baselineFileName));
 
                     WriteListOfTestResults(newTestResultsNotInBaseline, newResultsFile);
@@ -95,7 +91,7 @@ namespace iEmosoft.Automation
 
                 if (descrepencies.Count > 0)
                 {
-                    string descrpencyFilePath = string.Format("{0}\\Descrepencies_{1}_{2}.{3}",baselinePath, this.concreateTestResultType.ToString(),
+                    string descrpencyFilePath = string.Format("{0}\\Descrepencies_{1}_{2}.{3}", baselinePath, this.concreateTestResultType.ToString(),
                         Guid.NewGuid().ToString().Substring(0, 5), Path.GetExtension(baselineFileName));
 
                     WriteDescrepencies(descrpencyFilePath);
@@ -117,7 +113,7 @@ namespace iEmosoft.Automation
 
         private void ReadBaselineFile()
         {
-            string [] jsonRecords = File.ReadAllText(baselineFileName).Split('\n');
+            string[] jsonRecords = File.ReadAllText(baselineFileName).Split('\n');
             foreach (string jsonRecord in jsonRecords)
             {
                 var objTestResult = (BaseTestResult)Activator.CreateInstance(concreateTestResultType);
@@ -128,7 +124,7 @@ namespace iEmosoft.Automation
 
         }
 
-        private void WriteListOfTestResults(List<BaseTestResult> resultsToWrite, string fileName )
+        private void WriteListOfTestResults(List<BaseTestResult> resultsToWrite, string fileName)
         {
             string jsonSeperator = "\n";
             string jsonString = "";
@@ -141,48 +137,11 @@ namespace iEmosoft.Automation
 
             File.WriteAllText(fileName, jsonString);
         }
-        
+
         private void WriteDescrepencies(string fileName)
         {
             var jsonString = new JavaScriptSerializer().Serialize(descrepencies);
             File.WriteAllText(fileName, jsonString);
         }
-    }
-
-    public class BaselineDescrepencyCheck
-    {
-        public string Key { get; set; }
-        public BaselineDescrepencyCheck()
-        {
-            this.Mismatches = new List<Mismatch>();
-        }
-        
-        public List<Mismatch> Mismatches { get; set; }
-
-        public void InsertMismatch(string fieldName, string expectedValue, string actualValule, bool append = true)
-        {
-            var mismatch = new Mismatch()
-            {
-                ActualValue = actualValule,
-                ExpectedValue = expectedValue,
-                PropertyName = fieldName
-            };
-
-            if (append)
-            {
-                this.Mismatches.Add(mismatch);
-            }
-            else
-            {
-                this.Mismatches.Insert(0, mismatch);
-            }
-        }
-    }
-
-    public class Mismatch
-    {
-        public string PropertyName { get; set; }
-        public string ExpectedValue { get; set; }
-        public string ActualValue { get; set; }
     }
 }
