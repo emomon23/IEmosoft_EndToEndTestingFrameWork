@@ -37,6 +37,10 @@
       <HintPath>..\packages\Ftp.dll.2.0.15314.1407\lib\Net45\Ftp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -47,6 +51,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Windows\Microsoft.NET\Framework\System.Net.Http.Formatting.DLL</HintPath>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -64,6 +69,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClasses\BaseTestClass.cs" />
+    <Compile Include="Baseline\BaselineLogic.cs" />
+    <Compile Include="BaseClasses\BaseTestResult.cs" />
     <Compile Include="JQuerySelector.cs" />
     <Compile Include="Test.IEmosoft.com\ReportUploader.cs" />
     <Compile Include="HelperObjects\AutomationFactory.cs" />
