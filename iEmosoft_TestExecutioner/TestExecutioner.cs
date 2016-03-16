@@ -10,6 +10,7 @@ using iEmosoft.Automation.HelperObjects;
 using iEmosoft.Automation.Interfaces;
 using iEmosoft.Automation.Test.IEmosoft.com;
 using iEmosoft.Automation.Model;
+using Microsoft.VisualStudio.QualityTools;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
@@ -135,6 +136,19 @@ namespace iEmosoft.Automation
             }
 
             return result;
+        }
+
+        public bool IsElementDisplaying(string id, int mineForSeconds = 10)
+        {
+            try
+            {
+                var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(id, mineForSeconds);
+                return element != null && element.Displayed;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public bool DoesElementExist(string idOrCSSSelector, int mineForSeconds = 10)
@@ -350,6 +364,10 @@ namespace iEmosoft.Automation
 
                 this.ExecuteJavaScript(script);
             }
+            else
+            {
+                throw new Exception("Unable to find " + idOrCSS);
+            }
           
         }
 
@@ -480,7 +498,7 @@ namespace iEmosoft.Automation
             get { return this.testAuthor != null ? testAuthor.TestCaseFailed : false; }
         }
 
-        public void FailCurrentStep(string expectedResult, string actualResult)
+        public void FailCurrentStep(string expectedResult, string actualResult, bool isShowStoppingError = false)
         {
             this.testPassed = false;
             var currentStep = this.CurrentStep;
@@ -499,6 +517,11 @@ namespace iEmosoft.Automation
                 }
 
                 this.CaptureScreen(actualResult);
+            }
+
+            if (isShowStoppingError)
+            {
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
             }
         }
 
@@ -549,7 +572,10 @@ namespace iEmosoft.Automation
             {
                 ProcessTestResults();
             }
-            catch { }
+            catch (Exception exp)
+            {
+                throw exp;
+            }
 
             //Close the browser
             this.Quit();

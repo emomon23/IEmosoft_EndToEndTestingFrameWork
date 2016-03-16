@@ -81,7 +81,9 @@ namespace iEmosoft.Automation.HelperObjects
 
         public string GetRandomEmailAddress(string firstName, string lastName)
         {
-            return string.Format("{0}.{1}@{2}{3}.not{4}", firstName, lastName, GetRandomCompanyName(), rnd.Next(11, 99), GetRandomDomain());
+            string company = GetRandomCompanyName().Replace(" ", "").Replace("-", "").Replace(".", "");
+            string email = string.Format("{0}.{1}@{2}{3}{4}", firstName, lastName, company , rnd.Next(11, 99), GetRandomDomain());
+            return email.Replace("..", ".");
         }
 
         public string GetRandomDate(int minYear, int maxYear)

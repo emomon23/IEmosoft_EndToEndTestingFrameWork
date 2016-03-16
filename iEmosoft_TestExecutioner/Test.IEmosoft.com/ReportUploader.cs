@@ -38,7 +38,7 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
             this.testName = testName;
             this.fileManager = new ReportFilesManager(filesToUpload, configuration.TestReportFilePath);
             
-            return UploadLocalFilesFromALists(deleteFilesAfterUpload.Value);
+             return UploadLocalFilesFromALists(deleteFilesAfterUpload.Value);
             
         }
 
@@ -82,15 +82,22 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
 
         private string UploadReportFiles()
         {
-            string result = "";
-
-            ConnectToServer();
-            foreach (string rptFile in this.fileManager.ReportFiles)
+            try
             {
-                result = UploadFile(rptFile);
-            }
+                string result = "";
 
-            return result;
+                ConnectToServer();
+                foreach (string rptFile in this.fileManager.ReportFiles)
+                {
+                    result = UploadFile(rptFile);
+                }
+
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw exp;
+            }
         }
 
         private void UploadImageFiles()
