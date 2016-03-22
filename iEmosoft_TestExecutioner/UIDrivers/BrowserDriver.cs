@@ -33,10 +33,13 @@ namespace iEmosoft.Automation.UIDrivers
 
         public BrowserDriver( IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Firefox)
         {
+            DesiredCapabilities dc = new DesiredCapabilities();
+            dc.SetCapability(CapabilityType.UnexpectedAlertBehavior, "ignore");
+
             switch (browserVendor)
             {
                 case BrowserDriverEnumeration.Firefox:
-                    browser = new OpenQA.Selenium.Firefox.FirefoxDriver();
+                    browser = new OpenQA.Selenium.Firefox.FirefoxDriver(dc);
                     this.DriverType = "FireFox";
                     break;
                 case BrowserDriverEnumeration.Chome:
@@ -133,7 +136,7 @@ namespace iEmosoft.Automation.UIDrivers
         public void ClickControl(string controlIdOrCssSelector)
         {
             IWebElement element = browser.MineForElement(controlIdOrCssSelector);
-            element.Click();
+            ClickElement(element);
         }
 
         public void ClickControl(string attributeName, string attributeValue, string controlType = "",
@@ -141,9 +144,38 @@ namespace iEmosoft.Automation.UIDrivers
         {
             IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
-            element.Click();
+            ClickElement(element);
         }
 
+        private void ClickElement(IWebElement element)
+        {
+            
+
+            try
+            {
+                element.Click();
+            }
+            catch (UnhandledAlertException alertExp)
+            {
+                HandleUnexpectedAlertModal(alertExp);  
+            }
+        }
+
+        private void HandleUnexpectedAlertModal(UnhandledAlertException exp)
+        {
+            string alertText = "";
+            try
+            {
+                var alert = browser.SwitchTo().Alert();
+                alertText = alert.Text;
+                alert.Accept();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(
+                    string.Format("Unable to accept alert from selenium driver.  Alert Text: {0}", alertText), e);
+            }
+        }
         public string GetTextOnControl(string controlIdOrCssSelector)
         {
             IWebElement element = browser.MineForElement(controlIdOrCssSelector);
@@ -328,7 +360,17 @@ namespace iEmosoft.Automation.UIDrivers
      
         public string CurrentFormName_OrPageURL
         {
-            get { return browser.Url; }
+            get
+            {
+                try { 
+                    return browser.Url;
+                }
+                catch (UnhandledAlertException alertExp)
+                {
+                    HandleUnexpectedAlertModal(alertExp);
+                    return browser.Url;
+                }
+            }
         }
 
         public void ShowWindow()
