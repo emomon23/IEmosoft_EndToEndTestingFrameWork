@@ -623,8 +623,22 @@ namespace iEmosoft.Automation
                 RunDate = startTime
             };
 
-            RestClient restClient = new RestClient();
-            restClient.RecordTestRun(dto);
+            RestClient restClient=null;
+
+            try
+            {
+                restClient = new RestClient();
+                restClient.RecordTestRun(dto);
+            }
+            catch (Exception exp)
+            {
+                if (exp.Message.Contains("Unable to find test number"))
+                {
+                    restClient.RegisterTest(dto.TestNumber, TestCaseHeader.TestFamily, TestCaseHeader.TestName, TestCaseHeader.TestDescription, DateTime.Now);
+                    this.Pause(3000);
+                    restClient.RecordTestRun(dto);
+                }
+            }
         }
 
         public bool WaitForURLChange(string urlSnippet, int waitSeconds = 20)
