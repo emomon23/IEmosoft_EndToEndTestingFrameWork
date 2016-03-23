@@ -23,7 +23,7 @@ namespace PatientMgmtTests.PMSFeatures
             
             executioner.Pause(1000);
             
-            executioner.ClickElement("loginBtn", "", "", "Enter username and password, click the Login button", "", true, true);
+            executioner.ClickElement("loginBtn", "", "", "Enter username and password, click the Login button", "", true, 10);
 
             return executioner.DoesElementExist("ng-show", "invalidCredentials", "span", 3) == false;
         }

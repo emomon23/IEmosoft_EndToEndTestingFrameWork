@@ -40,7 +40,7 @@ namespace PatientMgmtTests.PMSFeatures
             testExecutioner.SetTextOnElement("street", hospitalData.Address);
             testExecutioner.SetTextOnElement("city", hospitalData.City);
             testExecutioner.SetTextOnElement("state", hospitalData.State);
-            testExecutioner.ClickElement("saveBtn", "", "", "Enter hospital data, and click 'Save'", "Hospital data should be saved", true, false);
+            testExecutioner.ClickElement("saveBtn", "", "", "Enter hospital data, and click 'Save'", "Hospital data should be saved", true, 10);
             testExecutioner.Pause(500);
 
         }

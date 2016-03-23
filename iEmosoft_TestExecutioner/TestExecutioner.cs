@@ -176,7 +176,7 @@ namespace iEmosoft.Automation
         public BugCreator BugCreator { get; set; }
            
 
-        public bool ClickElement(string IdOrAttributeName, string attributeValue = "", string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, bool waitForURLChange = false)
+        public bool ClickElement(string IdOrAttributeName, string attributeValue = "", string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true,  int waitForURLChangeSeconds= 0)
         {
             string currentPageOrUrl = uiDriver.CurrentFormName_OrPageURL;
 
@@ -199,9 +199,9 @@ namespace iEmosoft.Automation
 
             uiDriver.ClickControl(IdOrAttributeName, attributeValue, elementName);
 
-            if (waitForURLChange)
+            if (waitForURLChangeSeconds > 0)
             {
-                for (int i = 0; i < 50; i++)
+                for (int i = 0; i < (waitForURLChangeSeconds * 5); i++)
                 {
                     System.Threading.Thread.Sleep(200);
                     if (currentPageOrUrl != uiDriver.CurrentFormName_OrPageURL)
@@ -218,10 +218,10 @@ namespace iEmosoft.Automation
             return this.ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
         }
 
-        public bool ClickElement(JQuerySelector script, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, bool waitForURLToChange = false)
+        public bool ClickElement(JQuerySelector script, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, int waitForURLChangeSeconds = 0)
         {
             string newId = this.CreateRandomIdAttributeOnSelector(script);
-            return this.ClickElement(newId, "", "", stepDescription, expectedResult, snapScreenBeforeClick, waitForURLToChange);
+            return this.ClickElement(newId, "", "", stepDescription, expectedResult, snapScreenBeforeClick, waitForURLChangeSeconds);
         }
 
         public bool DoesElementExist(JQuerySelector script, int seconds = 10)

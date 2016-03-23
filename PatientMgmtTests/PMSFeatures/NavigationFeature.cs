@@ -19,7 +19,7 @@ namespace PatientMgmtTests.PMSFeatures
 
         public bool NavigateToNewPatientPage()
         {
-            executioner.ClickElement("lnk_createNew", "", "", "Click the 'Create Hospital' button", "Should be taken to the new hospital page", true, true);
+            executioner.ClickElement("lnk_createNew", "", "", "Click the 'Create Hospital' button", "Should be taken to the new hospital page", true, 10);
             string url = executioner.CurrentFormName_OrURL.ToString();
 
             return url.EndsWith("hospital");
@@ -27,7 +27,7 @@ namespace PatientMgmtTests.PMSFeatures
 
         public void NavigateToHospitalList()
         {
-            this.executioner.ClickElement("lnk_Hospitals", "", "", "Click on the Hospital menu item", "Should be taken to the list of hospitals",true, true);
+            this.executioner.ClickElement("lnk_Hospitals", "", "", "Click on the Hospital menu item", "Should be taken to the list of hospitals",true, 10);
         }
 
         public void NavigateToExistingHosptialEdit(string hosptialName)
