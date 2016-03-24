@@ -13,6 +13,19 @@ namespace iEmosoft.Automation.HelperObjects
 {
     public static class WebDriverExtensions
     {
+        public static string ToDeepMessage(this Exception exp)
+        {
+            string result = exp.Message;
+
+            var innerExp = exp.InnerException;
+            while (innerExp != null)
+            {
+                result += " -> " + innerExp.Message;
+                innerExp = innerExp.InnerException;
+            }
+
+            return result;
+        }
         public static void ClickElement(this IWebDriver driver, By by)
         {
             driver.FindElement(by).Click();

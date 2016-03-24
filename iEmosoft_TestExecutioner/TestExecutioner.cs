@@ -498,6 +498,19 @@ namespace iEmosoft.Automation
             get { return this.testAuthor != null ? testAuthor.TestCaseFailed : false; }
         }
 
+        public void FailCurrentStep(Exception unexpectedException)
+        {
+            if (this.CurrentStep == null)
+            {
+                this.FailTest(unexpectedException);
+            }
+            else
+            {
+                string msg = "An Unexpected error occurred. " + unexpectedException.ToDeepMessage();
+                this.FailCurrentStep(null, msg, true);
+                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(false, msg);
+            }
+        }
         public void FailCurrentStep(string expectedResult, string actualResult, bool isShowStoppingError = false)
         {
             this.testPassed = false;
@@ -815,7 +828,8 @@ namespace iEmosoft.Automation
 
             return ngModelValue;
         }
-        private void FailTest(Exception exp)
+
+        public void FailTest(Exception exp)
         {
             this.BeginTestCaseStep("Un expected error occurred", "", "");
             this.CurrentStep.ActualResult = exp.Message;
