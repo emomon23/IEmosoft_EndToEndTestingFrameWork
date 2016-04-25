@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using iEmosoft.Automation.BaseClasses;
 using iEmosoft.Automation.Model;
 
@@ -26,6 +27,7 @@ namespace iEmosoft.Automation.Authors
             }
 
             this.testCaseTemplatePath = string.Format("{0}\\Resources\\TestReportTemplate.html", AppDomain.CurrentDomain.BaseDirectory);
+           
         }
 
         public override string SaveReport()
@@ -140,7 +142,7 @@ namespace iEmosoft.Automation.Authors
 
         private string SaveNewHTMLFileToDisk()
         {
-           string newFileName = GetNextFileName();
+           var newFileName = GetNextFileName();
            File.WriteAllText(newFileName, rawHTMLTemplate);
            return newFileName;
         }

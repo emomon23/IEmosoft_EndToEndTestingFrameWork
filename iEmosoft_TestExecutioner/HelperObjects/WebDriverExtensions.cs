@@ -135,6 +135,41 @@ namespace iEmosoft.Automation.HelperObjects
             return jsExecutor.ExecuteScript(rawJavaScript);
         }
 
+        public static string MineForValue(this IWebElement element)
+        {
+            string result = "";
+
+            try
+            {
+                result = element.GetAttribute("value");
+            }
+            catch
+            {
+            }
+
+            if (result.isNull())
+            {
+                try
+                {
+                    result = element.GetAttribute("Value");
+                }
+                catch
+                {
+                }
+            }
+
+            if (result.isNull())
+            {
+                try
+                {
+                    result = element.Text;
+                }
+                catch { }
+            }
+
+            return result;
+
+        }
         public static string MineForTextValue(this IWebElement element, IJavaScriptExecutor driver)
         {
             string result = element.Text;

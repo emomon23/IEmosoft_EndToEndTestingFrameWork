@@ -7,7 +7,7 @@ namespace iEmosoft.Automation.HelperObjects
 {
     public class RandomTestData
     {
-        Random rnd = new Random(DateTime.Now.Millisecond);
+        Randomizer rnd = new Randomizer();
 
         public RandomTestData()
         {
@@ -81,8 +81,9 @@ namespace iEmosoft.Automation.HelperObjects
 
         public string GetRandomEmailAddress(string firstName, string lastName)
         {
-            string company = GetRandomCompanyName().Replace(" ", "").Replace("-", "").Replace(".", "");
-            string email = string.Format("{0}.{1}@{2}{3}{4}", firstName, lastName, company , rnd.Next(11, 99), GetRandomDomain());
+            string company = GetRandomCompanyName().Replace(" ", "").Replace("-", "").Replace(".", "").Replace(",", "");
+            string email = string.Format("{0}.{1}@{2}{3}{4}", firstName.Replace(".", "").Replace("'", ""), lastName.Replace(".", "").Replace("'", ""), company, rnd.Next(11, 99), GetRandomDomain());
+            
             return email.Replace("..", ".");
         }
 
@@ -245,6 +246,39 @@ namespace iEmosoft.Automation.HelperObjects
             return string.IsNullOrEmpty(str);
         }
 
+        public static string PutInQuotes(this string str, bool condition = true)
+        {
+            if (condition)
+            {
+                return "\"" + str + "\"";
+            }
+
+            return str;
+        }
+
+        public static string PutInSingleQuotes(this string str, bool condition = true)
+        {
+            if (condition)
+            {
+                return "'" + str + "'";
+            }
+
+            return str;
+        }
+        public static bool IsNumeric(this string str)
+        {
+            bool result;
+            double d = 0;
+            result = double.TryParse(str, out d);
+           
+            if (!result)
+            {
+                long l = 0;
+                result = long.TryParse(str, out l);
+            }
+
+            return result;
+        }
         public static DateTime ToDate(this string str)
         {
             return DateTime.Parse(str);
@@ -306,5 +340,34 @@ namespace iEmosoft.Automation.HelperObjects
         public AdddressData BillingAddress { get; set; }
         public AdddressData ShipToAddress { get; set; }
 
+    }
+
+    public class Randomizer
+    {
+        private Random rnd;
+        private int rndUseageCounter = 0;
+
+        public Randomizer()
+        {
+            ResetRnd();
+        }
+
+        public int Next(int min, int max = int.MaxValue)
+        {
+            rndUseageCounter += 1;
+            if (rndUseageCounter > 5)
+            {
+                ResetRnd();
+                rndUseageCounter = 0;
+            }
+
+            return rnd.Next(min, max);
+        }
+
+        private void ResetRnd()
+        {
+            int seed = DateTime.Now.Millisecond*DateTime.Now.Second;
+            rnd = new Random(seed);
+        }
     }
 }

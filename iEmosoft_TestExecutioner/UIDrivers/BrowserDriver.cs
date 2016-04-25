@@ -149,8 +149,6 @@ namespace iEmosoft.Automation.UIDrivers
 
         private void ClickElement(IWebElement element)
         {
-            
-
             try
             {
                 element.Click();
