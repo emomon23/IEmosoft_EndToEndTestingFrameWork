@@ -246,6 +246,11 @@ namespace iEmosoft.Automation.HelperObjects
             return string.IsNullOrEmpty(str);
         }
 
+        public static bool IsNotNull(this string str)
+        {
+            return !string.IsNullOrEmpty(str);
+        }
+
         public static string PutInQuotes(this string str, bool condition = true)
         {
             if (condition)

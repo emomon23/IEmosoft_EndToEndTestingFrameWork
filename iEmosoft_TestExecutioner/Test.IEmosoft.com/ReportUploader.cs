@@ -30,16 +30,24 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
 
         public string UploadReport(string testName, List<string> filesToUpload, bool? deleteFilesAfterUpload = null)
         {
+            if (configuration.FTPUploadURL.isNull())
+            {
+                return string.Empty;
+            }
+
             if (!deleteFilesAfterUpload.HasValue)
             {
                 deleteFilesAfterUpload = configuration.FTPUpload_DeleteLocalFilesAfterUploadComplete;
             }
-
+            
             this.testName = testName;
-            this.fileManager = new ReportFilesManager(filesToUpload, configuration.TestReportFilePath);
-            
-             return UploadLocalFilesFromALists(deleteFilesAfterUpload.Value);
-            
+            if (configuration.TestReportFilePath.IsNotNull())
+            {
+                this.fileManager = new ReportFilesManager(filesToUpload, configuration.TestReportFilePath);
+                return UploadLocalFilesFromALists(deleteFilesAfterUpload.Value);
+            }
+
+            return string.Empty;
         }
 
         public string UploadReport(string locationOfReport, string testName, bool ? deleteLocalFilesAfterUpload, string applicationId = "")

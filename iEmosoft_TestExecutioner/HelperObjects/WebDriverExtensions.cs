@@ -224,7 +224,7 @@ namespace iEmosoft.Automation.HelperObjects
             IWebElement rtnVal = null;
 
             int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
-            int retryAttemps = (seconds*1000)/200;
+            int retryAttemps = seconds < 0? 1 : (seconds*1000)/200;
 
             for (var i = 0; i < retryAttemps; i++)
             {
@@ -264,7 +264,7 @@ namespace iEmosoft.Automation.HelperObjects
             string query = "";
 
              int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
-             int retryAttemps = (seconds*1000)/200;
+             int retryAttemps = retryForSeconds < 0? 1 : (seconds*1000)/200;
 
             for (var i = 0; i < retryAttemps; i++)
             {

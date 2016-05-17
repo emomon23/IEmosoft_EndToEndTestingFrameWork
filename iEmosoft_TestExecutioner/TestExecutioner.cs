@@ -190,6 +190,41 @@ namespace iEmosoft.Automation
             this.FireChangeEvent(newId);
         }
 
+        public UIQuery WaitForElementsToAppear(int numberOfSeconds, params UIQuery[] elementsQuery)
+        {
+            DateTime begin = DateTime.Now;
+
+            while (true)
+            {
+                foreach (var uiQuery in elementsQuery)
+                {
+                    try
+                    {
+                        var element = RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(uiQuery.AttributeName,
+                            uiQuery.AttributeValue,
+                            uiQuery.ControlTypeName, true, -1);
+
+                        if (element != null)
+                        {
+                            return uiQuery;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                TimeSpan ts = DateTime.Now - begin;
+                if (ts.TotalSeconds > numberOfSeconds)
+                {
+                    break;
+                }
+                Pause(200);
+            }
+
+            return null;
+        }
+
         public bool WaitForElementToVanish(string idOrCSSSelector, int mineForSeconds = 10)
         {
             bool result = false;
@@ -481,18 +516,37 @@ namespace iEmosoft.Automation
 
         public void ClickAlert(bool clickOK)
         {
-            WebDriverWait wait = new WebDriverWait(RawSeleniumWebDriver_AvoidCallingDirectly, new TimeSpan(0,0,5));
-            wait.Until(ExpectedConditions.AlertIsPresent());
-            var alert = RawSeleniumWebDriver_AvoidCallingDirectly.SwitchTo().Alert();
+            var alert = GetAlert();
 
-            if (clickOK)
+            if (alert != null)
             {
-                alert.Accept();
+                if (clickOK)
+                {
+                    alert.Accept();
+                }
+                else
+                {
+                    alert.Dismiss();
+                }
             }
-            else
+        }
+
+        public string GetAlertText()
+        {
+            var alert = GetAlert();
+            if (alert != null)
             {
-                alert.Dismiss();
+                return alert.Text;
             }
+
+            return null;
+        }
+
+        private IAlert GetAlert()
+        {
+            WebDriverWait wait = new WebDriverWait(RawSeleniumWebDriver_AvoidCallingDirectly, new TimeSpan(0, 0, 5));
+            wait.Until(ExpectedConditions.AlertIsPresent());
+            return RawSeleniumWebDriver_AvoidCallingDirectly.SwitchTo().Alert();
         }
 
         public string GetSelectedTextOnDropdown(string elementId)
@@ -732,12 +786,13 @@ namespace iEmosoft.Automation
 
         private string ProcessTestResults()
         {
+            var config = new AutomationConfiguration();
             string reportFile = null;
             this.disposeTime = DateTime.Now;
            
             if (testAuthor != null)
             {
-                if (reportingEnabled)
+                if (reportingEnabled && config.TestReportFilePath.IsNotNull())
                 {
                     reportFile = testAuthor.SaveReport();
                     allTestFiles.Add(reportFile);
@@ -755,7 +810,11 @@ namespace iEmosoft.Automation
                 this.BugCreator.Dispose();
 
             string ftpReportPath = FTPReport();
-            CallRestService(ftpReportPath);
+            if (!ftpReportPath.isNull())
+            {
+                CallRestService(ftpReportPath);
+            }
+
             processTestResultCalled = true;
             return reportFile;
         }
@@ -768,36 +827,14 @@ namespace iEmosoft.Automation
 
         }
 
-        public static bool FailTestBeforeItEvenRan(TestCaseHeaderData testCaseHeader)
+        public static bool FailTestBeforeItEvenRan(TestCaseHeaderData testCaseHeader, string reason)
         {
             try
             {
-                TestRunDTO dto = new TestRunDTO()
+                using (var e = new TestExecutioner(testCaseHeader))
                 {
-                    ApplicationId = new AutomationConfiguration().ApplicationUnderTest,
-                    FTPPath = "",
-                    Status = (int) TestRunDTO.TestRunStatusEnumeration.Failed,
-                    TestNumber = testCaseHeader.TestNumber,
-                    TestTime = new TimeSpan(0),
-                    RunDate = DateTime.Now
-                };
-
-                RestClient restClient = null;
-
-                try
-                {
-                    restClient = new RestClient();
-                    restClient.RecordTestRun(dto);
-                }
-                catch (Exception exp)
-                {
-                    if (exp.Message.Contains("Unable to find test number"))
-                    {
-                        restClient.RegisterTest(dto.TestNumber, testCaseHeader.TestFamily, testCaseHeader.TestName,
-                            testCaseHeader.TestDescription, DateTime.Now);
-                        System.Threading.Thread.Sleep(3000);
-                        restClient.RecordTestRun(dto);
-                    }
+                    e.BeginTestCaseStep("Unable to launch test, test failed before it began");
+                    e.FailCurrentStep("", reason, true);
                 }
 
                 return true;

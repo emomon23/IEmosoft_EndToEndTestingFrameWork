@@ -95,7 +95,7 @@ namespace iEmosoft.Automation.BaseClasses
                 return false;
             }
 
-            if (!Directory.Exists(newTestCasePath))
+            if (!Directory.Exists(newTestCasePath) &&  ! string.IsNullOrEmpty(newTestCasePath))
             {
                 Directory.CreateDirectory(newTestCasePath);
             }
