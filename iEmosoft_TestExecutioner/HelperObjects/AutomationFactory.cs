@@ -1,96 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using iEmosoft.Automation.Authors;
-using iEmosoft.Automation.BaseClasses;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Interfaces;
-using iEmosoft.Automation.ScreenCaptures;
-using iEmosoft.Automation.UIDrivers;
-using iEmosoft.Automation.Test.IEmosoft.com;
+﻿using aUI.Automation.Authors;
+using aUI.Automation.BaseClasses;
+using aUI.Automation.Interfaces;
+using aUI.Automation.ScreenCaptures;
+using aUI.Automation.Test.IEmosoft.com;
+using aUI.Automation.UIDrivers;
+using System;
 
-namespace iEmosoft.Automation.HelperObjects
+namespace aUI.Automation.HelperObjects
 {
     public class AutomationFactory
     {
-        private IAutomationConfiguration configuration;
+        public IAutomationConfiguration Configuration;
 
         public AutomationFactory(IAutomationConfiguration config = null)
         {
             if (config == null)
             {
-                configuration = new AutomationConfiguration();
+                Configuration = new Config();
             }
             else
             {
-                configuration = config;
+                Configuration = config;
             }
         }
-        
+
         public BaseAuthor CreateAuthor(string rootPath = null)
         {
-            string authorTypeName = configuration.TestExecutionerAuthorTypeName;
+            string authorTypeName = Configuration.TestExecutionerAuthorTypeName;
             return NewUpAuthor(authorTypeName, rootPath);
         }
 
         public IUIDriver CreateUIDriver()
         {
-            string browserName = configuration.TestExecutionerUIDriverType;
-            IUIDriver driver = null;
-
-            switch (browserName)
+            string browserName = Configuration.TestExecutionerUIDriverType;
+            IUIDriver driver = browserName switch
             {
-                case "FIREFOX":
-                    driver = new BrowserDriver(configuration);
-                    break;
-                case "IE":
-                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.IE);
-                    break;
-                case "CHROME":
-                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.Chome);
-                    break;
-                case "SAUCELABS":
-                    driver = new BrowserDriver(configuration, BrowserDriver.BrowserDriverEnumeration.SauceLabs);
-                    break;
-                case "WPF":
-                    driver = new WindowsWhite();
-                    break;
-                default:
-                    throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHOME', 'IE','FIREFOX'");
-            }
-
+                "FIREFOX" => new BrowserDriver(Configuration),
+                "IE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.IE),
+                "CHROME" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Chrome),
+                "SAUCELABS" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.SauceLabs),
+                "WPF" => new WindowsWhite(),
+                _ => throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHOME', 'IE','FIREFOX'"),
+            };
             if (driver == null)
             {
-              //  throw new Exception("Unable to create UI driver, configuration setting should be WPF or WEB, actual value: " + uiDriverType);
+                //  throw new Exception("Unable to create UI driver, configuration setting should be WPF or WEB, actual value: " + uiDriverType);
             }
 
             return driver;
         }
 
-        public IScreenCapture CreateScreenCapturer(string rootPathOrURL = null)
+        public IScreenCapture CreateScreenCapturer(IUIDriver driver, string rootPathOrURL = null)
         {
-            return new LocalScreenCapture(rootPathOrURL.isNull() ? configuration.ScreenCaptureLocalPath : rootPathOrURL);
+            return new HeadlessScreenCapture(rootPathOrURL.isNull() ? Configuration.ScreenCaptureLocalPath : rootPathOrURL, driver);
+            //return new LocalScreenCapture(rootPathOrURL.isNull() ? configuration.ScreenCaptureLocalPath : rootPathOrURL);
         }
 
         public IReportUploader CreateReportFTPUploader()
         {
-            return new ReportUploader(this.configuration);
+            return new ReportUploader(Configuration);
         }
 
-    
+
         private BaseAuthor NewUpAuthor(string authorTypeName, string rootPath = null)
         {
             BaseAuthor result = null;
-            var reportPath = rootPath.isNull() ? configuration.TestReportFilePath : rootPath;
-            
+            var reportPath = rootPath.isNull() ? Configuration.TestReportFilePath : rootPath;
+
             switch (authorTypeName)
             {
                 case "EXCEL":
-                    result = new ExcelAuthor(reportPath);
+                    //result = new ExcelAuthor(reportPath);
                     break;
-               
+
                 case "HTML":
                     result = new HTMLAuthor(reportPath);
                     break;

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using iEmosoft.Automation.Authors;
-using iEmosoft.Automation.BaseClasses;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Interfaces;
-using iEmosoft.Automation.Model;
+using aUI.Automation.Authors;
+using aUI.Automation.BaseClasses;
+using aUI.Automation.HelperObjects;
+using aUI.Automation.Interfaces;
+using aUI.Automation.Model;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
@@ -30,12 +30,12 @@ namespace iEmosoft.Automation
                 TestWriter = "Mike Emo Automation Test Executioner"
             };
             
-            this.Initialize(testCaseHeader, uiDriver, author, capture);
+            Initialize(testCaseHeader, uiDriver, author, capture);
         }
 
         public TestExecutioner(TestCaseHeaderData testCaseHeader, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
-            this.Initialize(testCaseHeader, uiDriver, author, capture);
+            Initialize(testCaseHeader, uiDriver, author, capture);
         }
 
         public TestExecutioner(bool useConfigFile = true)
@@ -47,7 +47,7 @@ namespace iEmosoft.Automation
             }
             else
             {
-                this.uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
+                uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
             }
         }
 
@@ -59,25 +59,25 @@ namespace iEmosoft.Automation
             {
                 if (capture != null)
                 {
-                    this.screenCapture = capture;
+                    screenCapture = capture;
                 }
                 else
                 {
-                    this.screenCapture = factory.CreateScreenCapturer();
+                    screenCapture = factory.CreateScreenCapturer();
                 }
 
-                this.testAuthor = author == null ? factory.CreateAuthor() : author;
-                this.testAuthor.StartNewTestCase(testCaseHeader);
+                testAuthor = author == null ? factory.CreateAuthor() : author;
+                testAuthor.StartNewTestCase(testCaseHeader);
             }
              
-            this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
+            uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
         }
 
         public bool DoesElementExist(string attributeName, string attributeValue, string elementName = "", int mineForSeconds = 10)
         {
             try
             {
-                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(attributeName, attributeValue, elementName, true, mineForSeconds) != null;
+                return RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(attributeName, attributeValue, elementName, true, mineForSeconds) != null;
             }
             catch
             {
@@ -104,7 +104,7 @@ namespace iEmosoft.Automation
         {
             try
             {
-                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCSSSelector, mineForSeconds) != null;
+                return RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCSSSelector, mineForSeconds) != null;
             }
             catch
             {
@@ -137,7 +137,7 @@ namespace iEmosoft.Automation
            
             if (!string.IsNullOrEmpty(stepDescription))
             {
-                this.BeginTestCaseStep(stepDescription, expectedResult);
+                BeginTestCaseStep(stepDescription, expectedResult);
             }
 >>>>>>> 9eb12efafa8482b97e58c11db2825ce7cae363f4
 
@@ -159,12 +159,12 @@ namespace iEmosoft.Automation
 
             if (!string.IsNullOrEmpty(stepDescription))
             {
-                this.BeginTestCaseStep(stepDescription, expectedResult);
+                BeginTestCaseStep(stepDescription, expectedResult);
             }
 
-            if (snapScreenBeforeClick && this.reportingEnabled)
+            if (snapScreenBeforeClick && reportingEnabled)
             {
-                this.CurrentStep.ImageFilePath = this.CaptureScreen();
+                CurrentStep.ImageFilePath = CaptureScreen();
             }
 
             if (waitForURLChange)
@@ -183,7 +183,7 @@ namespace iEmosoft.Automation
 
         public bool ClickElement(UIQuery query, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true)
         {
-            return this.ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
+            return ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
         }
               
 
@@ -203,7 +203,7 @@ namespace iEmosoft.Automation
         {
             if (!string.IsNullOrEmpty(stepDescription))
             {
-                this.BeginTestCaseStep(stepDescription);
+                BeginTestCaseStep(stepDescription);
             }
 
             if (text == null)
@@ -216,7 +216,7 @@ namespace iEmosoft.Automation
 
         public void SetTextOnElement(UIQuery query, string valueToSet, string stepDescription = "")
         {
-           this.SetTextOnElement(query.AttributeName, query.AttributeValue, valueToSet, query.ControlTypeName, stepDescription);
+           SetTextOnElement(query.AttributeName, query.AttributeValue, valueToSet, query.ControlTypeName, stepDescription);
         }
 
         public void SetTextOnElement(string attributeName, string attributeValue, string textToSet,
@@ -224,9 +224,9 @@ namespace iEmosoft.Automation
         {
             uiDriver.SetTextOnControl(attributeName, attributeValue, textToSet, elementName, useWildCard);
 
-            if (!stepDescription.isNull() && this.reportingEnabled)
+            if (!stepDescription.isNull() && reportingEnabled)
             {
-                this.BeginTestCaseStep(stepDescription);
+                BeginTestCaseStep(stepDescription);
             }
         }
 
@@ -247,9 +247,9 @@ namespace iEmosoft.Automation
 
         public void SetValueOnDropdown(string attributeName, string attributeValue, string valueToSet, string stepDescription = "")
         {
-            if (!string.IsNullOrEmpty(stepDescription) && this.reportingEnabled)
+            if (!string.IsNullOrEmpty(stepDescription) && reportingEnabled)
             {
-                this.BeginTestCaseStep(stepDescription);
+                BeginTestCaseStep(stepDescription);
             }
 
             uiDriver.SetValueOnDropDown(attributeName, attributeValue, valueToSet);
@@ -271,9 +271,9 @@ namespace iEmosoft.Automation
 
         public void SetValueOnDropdown(string idOrCSS, string valueToSet, string stepDescription = "")
         {
-            if (!string.IsNullOrEmpty(stepDescription) && this.reportingEnabled)
+            if (!string.IsNullOrEmpty(stepDescription) && reportingEnabled)
             {
-                this.BeginTestCaseStep(stepDescription);
+                BeginTestCaseStep(stepDescription);
             }
 
             uiDriver.SetValueOnDropDown(idOrCSS, valueToSet);
@@ -312,9 +312,9 @@ namespace iEmosoft.Automation
 
         public void NavigateTo(string url, string expectedResult = "")
         {
-            if (!string.IsNullOrEmpty(expectedResult) && this.reportingEnabled)
+            if (!string.IsNullOrEmpty(expectedResult) && reportingEnabled)
             {
-                this.BeginTestCaseStep("Navigate to " + url, expectedResult);
+                BeginTestCaseStep("Navigate to " + url, expectedResult);
             }
 
             uiDriver.MaximizeWindow();
@@ -329,7 +329,7 @@ namespace iEmosoft.Automation
         
         public string CaptureScreen(string textToWriteOnScreenCapture)
         {
-            if (this.screenCapture == null || reportingEnabled == false)
+            if (screenCapture == null || reportingEnabled == false)
             {
                 return null;
             }
@@ -339,10 +339,10 @@ namespace iEmosoft.Automation
             uiDriver.MaximizeWindow();
 
             screenCapture.CaptureDesktop(fileName, null, textToWriteOnScreenCapture);
-            if (this.testAuthor != null && this.testAuthor.CurrentStep != null)
+            if (testAuthor != null && testAuthor.CurrentStep != null)
             {
-                this.testAuthor.CurrentStep.ImageFilePath = fileName;
-                this.testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
+                testAuthor.CurrentStep.ImageFilePath = fileName;
+                testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
             }
                      
             return fileName;
@@ -351,19 +351,19 @@ namespace iEmosoft.Automation
         public string CaptureScreen()
         {
             System.Threading.Thread.Sleep(500);
-            return this.CaptureScreen(string.Empty);
+            return CaptureScreen(string.Empty);
         }
              
      
         public bool TestCaseFailed
         {
-            get { return this.testAuthor != null ? testAuthor.TestCaseFailed : false; }
+            get { return testAuthor != null ? testAuthor.TestCaseFailed : false; }
         }
 
         public void FailCurrentStep(string expectedResult, string actualResult)
         {
             
-            var currentStep = this.CurrentStep;
+            var currentStep = CurrentStep;
             if (currentStep != null)
             {
                 currentStep.StepPassed = false;
@@ -378,26 +378,26 @@ namespace iEmosoft.Automation
                     currentStep.ActualResult = actualResult;
                 }
 
-                this.CaptureScreen(actualResult);
+                CaptureScreen(actualResult);
             }
         }
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "", bool captureImage = true)
         {
-            if (this.testAuthor != null)
+            if (testAuthor != null)
             {
                 testAuthor.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
             }
 
             if (captureImage)
             {
-                this.CaptureScreen();
+                CaptureScreen();
             }
         }
               
         public bool StartNewTestCase(TestCaseHeaderData testCaseHeader)
         {
-            if (this.testAuthor != null)
+            if (testAuthor != null)
             {
                 return testAuthor.StartNewTestCase(testCaseHeader);
             }
@@ -410,13 +410,13 @@ namespace iEmosoft.Automation
         {
             get 
             {
-                return this.testAuthor == null ? null : testAuthor.CurrentStep;
+                return testAuthor == null ? null : testAuthor.CurrentStep;
             }
         }
 
         public void Dispose()
         {
-            this.Quit();
+            Quit();
 
             if (testAuthor != null && reportingEnabled)
             {
@@ -425,11 +425,11 @@ namespace iEmosoft.Automation
 
             if (testAuthor != null)
             {
-                this.testAuthor.Dispose();
+                testAuthor.Dispose();
             }
 
-            if (this.BugCreator != null)
-                this.BugCreator.Dispose();
+            if (BugCreator != null)
+                BugCreator.Dispose();
         }
 
         public bool WaitForURLChange(string urlSnippet, int waitSeconds = 20)
@@ -438,7 +438,7 @@ namespace iEmosoft.Automation
 
             for (int i = 0; i <= (waitSeconds *2); i++)
             {
-                if (this.CurrentFormName_OrURL.Contains(urlSnippet))
+                if (CurrentFormName_OrURL.Contains(urlSnippet))
                 {
                     result = true;
                     break;
@@ -482,18 +482,18 @@ namespace iEmosoft.Automation
         {
             testAuthor.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
 
-            if (!this.PageContains(lookFor))
+            if (!PageContains(lookFor))
             {
                 string msg = string.Format("Unable to find '{0}' on current page, see image for details.", lookFor);
 
-                if (this.testAuthor.CurrentStep.ActualResult.IsNull() == false && this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                    this.testAuthor.CurrentStep.ActualResult += "  ";
+                if (testAuthor.CurrentStep.ActualResult.IsNull() == false && testAuthor.CurrentStep.ActualResult.Length > 0)
+                    testAuthor.CurrentStep.ActualResult += "  ";
 
-                this.testAuthor.CurrentStep.ActualResult = msg;
-                this.testAuthor.CurrentStep.StepPassed = false;
+                testAuthor.CurrentStep.ActualResult = msg;
+                testAuthor.CurrentStep.StepPassed = false;
 
                 //captuer the screen with an error message
-                this.CaptureScreen(msg);
+                CaptureScreen(msg);
               
                 if (! continueIfFails)
                 {
@@ -503,7 +503,7 @@ namespace iEmosoft.Automation
             else
             {
                 //No error message, capture the screen (with no error message);
-                this.CaptureScreen();
+                CaptureScreen();
             }
         }
 
@@ -515,15 +515,15 @@ namespace iEmosoft.Automation
 
         public void AssertAmOnScreen(string urlSnippet)
         {
-            if (!this.AmOnScreen(urlSnippet))
+            if (!AmOnScreen(urlSnippet))
             {
-                if (this.testAuthor.CurrentStep != null)
+                if (testAuthor.CurrentStep != null)
                 {
-                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                        this.testAuthor.CurrentStep.ActualResult += "  ";
+                    if (testAuthor.CurrentStep.ActualResult.Length > 0)
+                        testAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.testAuthor.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
-                    this.testAuthor.CurrentStep.StepPassed = false;     
+                    testAuthor.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
+                    testAuthor.CurrentStep.StepPassed = false;     
                 }
 
                 throw new Exception("Am not on the expected page.  Url does not contain '" + urlSnippet + "'");
@@ -532,17 +532,17 @@ namespace iEmosoft.Automation
 
         public void AssertPageNotContain(string lookFor)
         {
-            if (this.PageContains(lookFor))
+            if (PageContains(lookFor))
             {
                 string msg = string.Format("Page contains text ('{0}'), that should not exist, we may not be on the page expected.", lookFor);
 
-                if (this.testAuthor.CurrentStep != null)
+                if (testAuthor.CurrentStep != null)
                 {
-                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                        this.testAuthor.CurrentStep.ActualResult += "  ";
+                    if (testAuthor.CurrentStep.ActualResult.Length > 0)
+                        testAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.testAuthor.CurrentStep.ActualResult = msg;
-                    this.testAuthor.CurrentStep.StepPassed = false;
+                    testAuthor.CurrentStep.ActualResult = msg;
+                    testAuthor.CurrentStep.StepPassed = false;
                 }
 
                throw new Exception(msg);
@@ -562,9 +562,9 @@ namespace iEmosoft.Automation
 
         private void FailTest(Exception exp)
         {
-            this.BeginTestCaseStep("Un expected error occurred", "", "");
-            this.CurrentStep.ActualResult = exp.Message;
-            this.CurrentStep.StepPassed = false;
+            BeginTestCaseStep("Un expected error occurred", "", "");
+            CurrentStep.ActualResult = exp.Message;
+            CurrentStep.StepPassed = false;
         }
                
     }

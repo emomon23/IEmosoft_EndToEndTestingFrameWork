@@ -1,27 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Web.Script.Serialization;
-using System.Xml;
-using iEmosoft.Automation.Interfaces;
-using iEmosoft.Automation;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
 
-
-namespace iEmosoft.Automation
+namespace aUI.Automation.Baseline
 {
-    
+
     public class BaselineDescrepencyCheck
     {
         public string Key { get; set; }
         public BaselineDescrepencyCheck()
         {
-            this.Mismatches = new List<Mismatch>();
+            Mismatches = new List<Mismatch>();
         }
-        
+
         public List<Mismatch> Mismatches { get; set; }
 
         public void InsertMismatch(string fieldName, string expectedValue, string actualValule, bool append = true)
@@ -35,11 +24,11 @@ namespace iEmosoft.Automation
 
             if (append)
             {
-                this.Mismatches.Add(mismatch);
+                Mismatches.Add(mismatch);
             }
             else
             {
-                this.Mismatches.Insert(0, mismatch);
+                Mismatches.Insert(0, mismatch);
             }
         }
     }

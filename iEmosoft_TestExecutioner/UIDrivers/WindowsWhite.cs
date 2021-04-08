@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using iEmosoft;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Model;
-using iEmosoft.Automation.Interfaces;
+﻿using aUI.Automation.Interfaces;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.Support.UI;
-namespace iEmosoft.Automation.UIDrivers
+using System;
+using System.Collections.Generic;
+namespace aUI.Automation.UIDrivers
 {
     public class WindowsWhite : IUIDriver
     {
@@ -21,7 +13,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public string DriverType { get { return "White"; } }
 
-        public List<string> FailedBrowsers { get { return new List<string> { this.DriverType }; } }
+        public List<string> FailedBrowsers { get { return new List<string> { DriverType }; } }
 
         public void SetTextOnControl(string controlIdOrCssSelector, string textToSet)
         {
@@ -137,10 +129,11 @@ namespace iEmosoft.Automation.UIDrivers
             throw new NotImplementedException();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "<Pending>")]
         public void Dispose()
         {
             throw new NotImplementedException();
         }
-               
+
     }
 }

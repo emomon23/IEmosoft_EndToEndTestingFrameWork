@@ -1,66 +1,63 @@
-﻿using System;
+﻿using aUI.Automation.HelperObjects;
+//using Limilabs.FTP.Client;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using Limilabs.FTP.Client;
-using iEmosoft.Automation.HelperObjects;
 
-namespace iEmosoft.Automation.Test.IEmosoft.com
+namespace aUI.Automation.Test.IEmosoft.com
 {
     public class ReportUploader : IReportUploader
     {
-        IAutomationConfiguration configuration;
-        ReportFilesManager fileManager;
-        private string sessionKey = null;
-        private Ftp ftpRequest;
-        private string applicationId;
-        private string testName;
-        private string locationOfReport;
-        private string currentRemoteDirectory = "";
-       
+        IAutomationConfiguration Configuration;
+        ReportFilesManager FileManager;
+        private string SessionKey = null;
+        //private Ftp FtpRequest;
+        private string ApplicationId;
+        private string TestName;
+        private string LocationOfReport;
+        private string CurrentRemoteDirectory = "";
+
 
         public ReportUploader(IAutomationConfiguration configuration)
         {
-            this.configuration = configuration;
-            sessionKey = Guid.NewGuid().ToString();
-            this.applicationId = applicationId.isNull() ? configuration.ApplicationUnderTest : applicationId;
+            Configuration = configuration;
+            SessionKey = Guid.NewGuid().ToString();
+            ApplicationId = ApplicationId.isNull() ? configuration.ApplicationUnderTest : ApplicationId;
         }
 
         public string UploadReport(string testName, List<string> filesToUpload, bool? deleteFilesAfterUpload = null)
         {
-            if (configuration.FTPUploadURL.isNull())
+            if (Configuration.FTPUploadURL.isNull())
             {
                 return string.Empty;
             }
 
             if (!deleteFilesAfterUpload.HasValue)
             {
-                deleteFilesAfterUpload = configuration.FTPUpload_DeleteLocalFilesAfterUploadComplete;
+                deleteFilesAfterUpload = Configuration.FTPUpload_DeleteLocalFilesAfterUploadComplete;
             }
-            
-            this.testName = testName;
-            if (configuration.TestReportFilePath.IsNotNull())
+
+            TestName = testName;
+            if (Configuration.TestReportFilePath.IsNotNull())
             {
-                this.fileManager = new ReportFilesManager(filesToUpload, configuration.TestReportFilePath);
+                FileManager = new ReportFilesManager(filesToUpload, Configuration.TestReportFilePath);
                 return UploadLocalFilesFromALists(deleteFilesAfterUpload.Value);
             }
 
             return string.Empty;
         }
 
-        public string UploadReport(string locationOfReport, string testName, bool ? deleteLocalFilesAfterUpload, string applicationId = "")
+        public string UploadReport(string locationOfReport, string testName, bool? deleteLocalFilesAfterUpload, string applicationId = "")
         {
             string result = "";
 
             if (!deleteLocalFilesAfterUpload.HasValue)
             {
-                deleteLocalFilesAfterUpload = configuration.FTPUpload_DeleteLocalFilesAfterUploadComplete;
+                deleteLocalFilesAfterUpload = Configuration.FTPUpload_DeleteLocalFilesAfterUploadComplete;
             }
-                      
-            this.testName = testName;
-            this.locationOfReport = locationOfReport;
+
+            TestName = testName;
+            LocationOfReport = locationOfReport;
 
             if (GetFileNamesToBeUplaoded())
             {
@@ -82,7 +79,7 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
             }
             else
             {
-                fileManager.RestoreReportFileCotents();
+                FileManager.RestoreReportFileCotents();
             }
 
             return result;
@@ -95,33 +92,33 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
                 string result = "";
 
                 ConnectToServer();
-                foreach (string rptFile in this.fileManager.ReportFiles)
+                foreach (string rptFile in FileManager.ReportFiles)
                 {
                     result = UploadFile(rptFile);
                 }
 
                 return result;
             }
-            catch (Exception exp)
+            catch (Exception)
             {
-                throw exp;
+                throw;
             }
         }
 
         private void UploadImageFiles()
         {
             ConnectToServer(true);
-            foreach (string imgFile in this.fileManager.ImageFiles)
+            foreach (string imgFile in FileManager.ImageFiles)
             {
                 UploadFile(imgFile);
             }
         }
 
-        private void DeleteLocalFilesIfApplicable() 
+        private void DeleteLocalFilesIfApplicable()
         {
             try
             {
-                Directory.Delete(locationOfReport);
+                Directory.Delete(LocationOfReport);
             }
             catch { }
         }
@@ -129,9 +126,9 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         private bool GetFileNamesToBeUplaoded()
         {
             var localReportFiles = new List<string>();
-            if (Directory.Exists(locationOfReport))
+            if (Directory.Exists(LocationOfReport))
             {
-                foreach (string fileName in Directory.GetFiles(locationOfReport))
+                foreach (string fileName in Directory.GetFiles(LocationOfReport))
                 {
                     if (fileName.EndsWith(".xlsx", StringComparison.InvariantCultureIgnoreCase) || fileName.EndsWith(".html", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -139,7 +136,7 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
                     }
                 }
 
-                foreach (string imageName in Directory.GetFiles(locationOfReport + "\\ScreenCapture"))
+                foreach (string imageName in Directory.GetFiles(LocationOfReport + "\\ScreenCapture"))
                 {
                     localReportFiles.Add(imageName);
                 }
@@ -147,47 +144,55 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
 
             if (localReportFiles.Count > 0)
             {
-                fileManager = new ReportFilesManager(localReportFiles, configuration.TestReportFilePath);
+                FileManager = new ReportFilesManager(localReportFiles, Configuration.TestReportFilePath);
             }
             return localReportFiles.Count > 0;
         }
 
+        [Obsolete("No longer used")]
         private string ConnectToServer(bool navToScreenCapture = false)
         {
-            currentRemoteDirectory = string.Format("{0}/{1}/{2}", applicationId, testName, sessionKey);
+            CurrentRemoteDirectory = string.Format("{0}/{1}/{2}", ApplicationId, TestName, SessionKey);
             if (navToScreenCapture)
             {
-                currentRemoteDirectory += "/ScreenCapture";
+                CurrentRemoteDirectory += "/ScreenCapture";
             }
 
             DisposeFTPConnection();
-            ftpRequest = new Ftp();
-            ftpRequest.Connect(configuration.FTPUploadURL);
-            ftpRequest.Login(configuration.FTPUploadUserName, configuration.FTPUploadPassword);
-            ftpRequest.CreateFolder(currentRemoteDirectory);
+            //FtpRequest = new Ftp();
+            //FtpRequest.Connect(Configuration.FTPUploadURL);
+            //FtpRequest.Login(Configuration.FTPUploadUserName, Configuration.FTPUploadPassword);
+            //FtpRequest.CreateFolder(CurrentRemoteDirectory);
 
-            return currentRemoteDirectory;
+            return CurrentRemoteDirectory;
         }
 
+        [Obsolete("No longer used")]
         private void DisposeFTPConnection()
         {
-            if (ftpRequest != null)
+            /*
+            if (FtpRequest != null)
             {
                 try
                 {
-                    ftpRequest.Close();
-                }catch {}
+                    FtpRequest.Close();
+                }
+                catch { }
 
-                try {
-                    ftpRequest.Dispose();
+                try
+                {
+                    FtpRequest.Dispose();
                 }
                 catch { }
             }
+            */
         }
+
+        [Obsolete("No longer used")]
         private string UploadFile(string file)
         {
-            string remotePath = currentRemoteDirectory + "/" + Path.GetFileName(file);
-            ftpRequest.Upload(remotePath, file);
+            string remotePath = CurrentRemoteDirectory + "/" + Path.GetFileName(file);
+            //FtpRequest.Upload(remotePath, file);
 
             return remotePath;
         }
@@ -201,16 +206,17 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
 
     public class ReportFilesManager
     {
-        List<string> imageFilesToUpload = new List<string>();
-        List<string> reportFileNames = new List<string>();
-        List<TestReportContents> reportFiles = new List<TestReportContents>();
+        List<string> imageFilesToUpload = new();
+        List<string> reportFileNames = new();
+        List<TestReportContents> reportFiles = new();
         public ReportFilesManager(List<string> files, string replacementText)
         {
             foreach (string file in files)
             {
                 bool isReportFile = file.EndsWith("html") || file.Contains(".xls");
 
-                if (isReportFile){
+                if (isReportFile)
+                {
                     reportFileNames.Add(file);
                     var c = new TestReportContents(file, replacementText);
                     reportFiles.Add(c);
@@ -218,8 +224,8 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
                 else
                 {
                     imageFilesToUpload.Add(file);
-                }     
-            
+                }
+
             }
         }
 
@@ -227,7 +233,7 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         {
             get
             {
-                return this.imageFilesToUpload;
+                return imageFilesToUpload;
             }
         }
 
@@ -235,13 +241,13 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         {
             get
             {
-                return this.reportFileNames;
+                return reportFileNames;
             }
         }
 
         public void RestoreReportFileCotents()
         {
-            foreach (var r in this.reportFiles)
+            foreach (var r in reportFiles)
             {
                 r.RestoreReportFileContents();
             }
@@ -254,30 +260,30 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
             {
                 if (filePath.EndsWith(".html"))
                 {
-                    this.IsHTMLFile = true;
-                    this.path = filePath;
-                    this.OriginalContents = File.ReadAllText(filePath);
+                    IsHTMLFile = true;
+                    Path = filePath;
+                    OriginalContents = File.ReadAllText(filePath);
 
                     //This .html file is being uploaded to a server, it's current href="C:\\bla\bla\bla won't work
                     //need to strip the text off before uploading it, and restore the text when done uplaoding
                     if (!replaceText.isNull())
                     {
-                        string newContents = this.OriginalContents.Replace(replaceText, "");
+                        string newContents = OriginalContents.Replace(replaceText, "");
                         File.WriteAllText(filePath, newContents);
                         fileContentWasChanged = true;
                     }
                 }
             }
             public string OriginalContents { get; set; }
-            public string path { get; set; }
+            public string Path { get; set; }
 
-            public bool IsHTMLFile {get;set;}
+            public bool IsHTMLFile { get; set; }
 
             public void RestoreReportFileContents()
             {
                 if (fileContentWasChanged)
                 {
-                    File.WriteAllText(this.path, this.OriginalContents);
+                    File.WriteAllText(Path, OriginalContents);
                 }
             }
         }

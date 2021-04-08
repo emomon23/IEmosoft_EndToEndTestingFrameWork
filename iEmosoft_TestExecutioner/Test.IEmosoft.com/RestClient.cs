@@ -1,34 +1,31 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Formatting;
-using System.Threading.Tasks;
+using System.Net.Http.Json;
 
-namespace iEmosoft.Automation.Test.IEmosoft.com
+namespace aUI.Automation.Test.IEmosoft.com
 {
     public class RestClient
     {
-        private string baseURL= "";
-        private string applicationUnderTest = "";
+        private string BaseURL = "";
+        private string ApplicationUnderTest = "";
 
         public RestClient()
         {
-            baseURL = System.Configuration.ConfigurationManager.AppSettings["Test.IEmosoft.com_BaseURL"];
-            applicationUnderTest = System.Configuration.ConfigurationManager.AppSettings["ApplicationIdUnderTest"];
+            BaseURL = System.Configuration.ConfigurationManager.AppSettings["Test.IEmosoft.com_BaseURL"];
+            ApplicationUnderTest = System.Configuration.ConfigurationManager.AppSettings["ApplicationIdUnderTest"];
 
         }
         public void RegisterTest(string testNumber, string testFamily, string testName, string testDescription, DateTime? eta)
         {
-            
-            RegistationTestDTO dto = new RegistationTestDTO() { ApplicationId = applicationUnderTest, TestDescription = testDescription, TestFamily = testFamily, TestName = testName, TestNumber = testNumber, ETA = eta};
 
-            using (var client = this.CreateHttpClient())
+            var dto = new RegistationTestDTO() { ApplicationId = ApplicationUnderTest, TestDescription = testDescription, TestFamily = testFamily, TestName = testName, TestNumber = testNumber, ETA = eta };
+
+            using var client = CreateHttpClient();
+            var response = client.PostAsJsonAsync("api/Tests/RegisterTestUnderDevelopment", dto).Result;
+            if (response.IsSuccessStatusCode)
             {
-                var response = client.PostAsJsonAsync("api/Tests/RegisterTestUnderDevelopment", dto).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                   
-                }
+
             }
         }
 
@@ -36,27 +33,29 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         {
             string url = "api/Tests/RecordTestRun";
             dto.StripOfImagePathString = System.Configuration.ConfigurationManager.AppSettings["TestReportFilePath"];
-            
-            using (var client = this.CreateHttpClient())
-            {
-                var response = client.PostAsJsonAsync(url, dto).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var t = response.Content.ReadAsAsync(typeof(PostResultDTO)).Result;
-                    PostResultDTO result = (PostResultDTO)t;
 
-                    if (! result.Successful){
-                        throw new Exception(result.Payload + ".  " + result.ErrorMessage);
-                    }
-                }
+            using var client = CreateHttpClient();
+            var response = client.PostAsJsonAsync(url, dto).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                //removed as this utilizes a retured nuget reference. Update for ftp to work again
+                //                    var t = response.Content.ReadAsAsync(typeof(PostResultDTO)).Result;
+                //                    PostResultDTO result = (PostResultDTO)t;
+
+                //                    if (!result.Successful)
+                //                    {
+                //                        throw new Exception(result.Payload + ".  " + result.ErrorMessage);
+                //                    }
             }
 
         }
 
         private HttpClient CreateHttpClient()
         {
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(baseURL);
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri(BaseURL)
+            };
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -83,7 +82,7 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
     {
         public TestRunDTO()
         {
-            this.RunId = RunIdGenerator.RunId;
+            RunId = RunIdGenerator.RunId;
         }
 
         public enum TestRunStatusEnumeration
@@ -122,7 +121,8 @@ namespace iEmosoft.Automation.Test.IEmosoft.com
         {
             get
             {
-                if (string.IsNullOrEmpty(runId)){
+                if (string.IsNullOrEmpty(runId))
+                {
                     runId = Guid.NewGuid().ToString();
                 }
 

@@ -1,53 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace iEmosoft.Automation.HelperObjects
+namespace aUI.Automation.HelperObjects
 {
     public class RandomTestData
     {
-        Randomizer rnd = new Randomizer();
+        public Randomizer Rnd = new();
 
         public RandomTestData()
         {
-            this.FirstNames = new List<string>() { "Mike", "Michael", "Michelle", "Tom", "Tommy", "Thomas", "Eric", "Erick", "Jon", "John", "Jonny", "Theo", "Theodore", "Teddy", "Gretchen", "Sarah", "Sara", "Grace", "Gracie", "Evie", "Eveline", "Evelyn", "Ron", "Ronny", "Beau", "Muriel", "Pat", "Patrick", "Elizabeth", "Liz", "Julie", "Helen", "Joe", "Joesph", "Joey", "Teresa", "Alex", "Betsy", "Katie", "Kate", "Jenny", "Jennifer", "Angela", "Sadie", "Melissa", "Missy" };
-            this.LastNames = new List<string>() { "Jones", "Bridgewater", "Krammer", "Oden", "Thomason", "Jackson", "Nelson", "Wilson", "Olson", "Olsen", "Mullenham", "Emo", "Caauwe", "Mertz", "Linkert", "Washington", "Bush", "Aniston", "Montana", "Manning", "Ponder", "Bauer", "Salzwadel", "Mcguire", "Anderson", "Mulner", "Hagen", "Austin", "Williams", "Cobb", "Pucket", "Mauer", "Hurbek", "Erickson", "Walser", "Ryans", "Arnold", "Kelly", "Smith", "Johnson", "Wesson" };
-            this.CompanyNames = new List<string>() { "Mircosoft", "iEmosoft", "Apple", "Apple Computer", "General Electric", "Protolabs", "ADP", "Make Music", "Portoco", "Sorin", "Eue, Rachie and Associates", "Target", "Sears", "Kmart", "Wards", "Ebay", "Amazon", "Walmart", "Tires Plus", "Discount Tire", "Bloomingdales", "Lunds", "Super Value", "Cub Foods", "Holiday Gas", "BP", "Verizon", "ATT", "Medtronic", "Boston Science", "Remington", "Smith and Wesson", "Good Year" };
-            this.Countries = new List<string>() {"United States", "Canada", "Mexico", "Liberia", "Houndouras", "Brazil", "France", "Germany", "United Kingdom", "Russia", "Japan", "China", "Austrailia", "Sweden", "Norway" };
-            this.States = new List<string>() {"Alabama", "Alaska", "Connecticut", "Minnesota", "Wisconsin", "Illinois", "Iowa", "North Dakota", "South Dakota", "Kentucky", "Tennesee", "Texas", "New York", "California", "Wyoming", "Oregon", "Maine", "Florida" };
-            this.Cities = new List<string>() {"Jacksonville", "Minneapolis", "St. Paul", "Duluth", "Hopkins", "Hastings", "Little Falls", "Paris", "Rome", "London", "Moscow", "York", "Waconia", "Minnetonka", "Wayzata", "Jamestown", "Montgomery", "Excelsior" };
+            FirstNames = new List<string>() { "Mike", "Michael", "Michelle", "Tom", "Tommy", "Thomas", "Eric", "Erick", "Jon", "John", "Jonny", "Theo", "Theodore", "Teddy", "Gretchen", "Sarah", "Sara", "Grace", "Gracie", "Evie", "Eveline", "Evelyn", "Ron", "Ronny", "Beau", "Muriel", "Pat", "Patrick", "Elizabeth", "Liz", "Julie", "Helen", "Joe", "Joesph", "Joey", "Teresa", "Alex", "Betsy", "Katie", "Kate", "Jenny", "Jennifer", "Angela", "Sadie", "Melissa", "Missy" };
+            LastNames = new List<string>() { "Jones", "Bridgewater", "Krammer", "Oden", "Thomason", "Jackson", "Nelson", "Wilson", "Olson", "Olsen", "Mullenham", "Emo", "Caauwe", "Mertz", "Linkert", "Washington", "Bush", "Aniston", "Montana", "Manning", "Ponder", "Bauer", "Salzwadel", "Mcguire", "Anderson", "Mulner", "Hagen", "Austin", "Williams", "Cobb", "Pucket", "Mauer", "Hurbek", "Erickson", "Walser", "Ryans", "Arnold", "Kelly", "Smith", "Johnson", "Wesson" };
+            CompanyNames = new List<string>() { "Mircosoft", "iEmosoft", "Apple", "Apple Computer", "General Electric", "Protolabs", "ADP", "Make Music", "Portoco", "Sorin", "Eue, Rachie and Associates", "Target", "Sears", "Kmart", "Wards", "Ebay", "Amazon", "Walmart", "Tires Plus", "Discount Tire", "Bloomingdales", "Lunds", "Super Value", "Cub Foods", "Holiday Gas", "BP", "Verizon", "ATT", "Medtronic", "Boston Science", "Remington", "Smith and Wesson", "Good Year" };
+            Countries = new List<string>() { "United States", "Canada", "Mexico", "Liberia", "Houndouras", "Brazil", "France", "Germany", "United Kingdom", "Russia", "Japan", "China", "Austrailia", "Sweden", "Norway" };
+            States = new List<string>() { "Alabama", "Alaska", "Connecticut", "Minnesota", "Wisconsin", "Illinois", "Iowa", "North Dakota", "South Dakota", "Kentucky", "Tennesee", "Texas", "New York", "California", "Wyoming", "Oregon", "Maine", "Florida" };
+            Cities = new List<string>() { "Jacksonville", "Minneapolis", "St. Paul", "Duluth", "Hopkins", "Hastings", "Little Falls", "Paris", "Rome", "London", "Moscow", "York", "Waconia", "Minnetonka", "Wayzata", "Jamestown", "Montgomery", "Excelsior" };
 
         }
         public List<string> FirstNames { get; set; }
         public List<string> LastNames { get; set; }
         public List<string> CompanyNames { get; set; }
-        public List<string> Countries {get;set;}
-        public List<string> Cities {get;set;}
-        public List<string> States {get;set;}
-        
+        public List<string> Countries { get; set; }
+        public List<string> Cities { get; set; }
+        public List<string> States { get; set; }
+
         public string GetRandomFirstName(int appendGuidDigits = 0)
         {
-            return FirstNames[rnd.Next(0, FirstNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
+            return FirstNames[Rnd.Next(0, FirstNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
         }
 
         public string GetRandomLastName(int appendGuidDigits = 0)
         {
-            return LastNames[rnd.Next(0, LastNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
+            return LastNames[Rnd.Next(0, LastNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
         }
 
         public string GetRandomCompanyName(int appendGuidDigits = 0)
         {
-            return CompanyNames[rnd.Next(0, CompanyNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
+            return CompanyNames[Rnd.Next(0, CompanyNames.Count - 0)] + GetGuidSubString(appendGuidDigits);
         }
 
         public string GetRandomCity(int appendGuidDigits = 0)
         {
-            return Cities[rnd.Next(0, Cities.Count - 0)] + GetGuidSubString(appendGuidDigits);
+            return Cities[Rnd.Next(0, Cities.Count - 0)] + GetGuidSubString(appendGuidDigits);
         }
 
-        public string GetRandomState(){
-            return States[rnd.Next(0, States.Count - 0)];
+        public string GetRandomState()
+        {
+            return States[Rnd.Next(0, States.Count - 0)];
         }
 
         public string GetGuidSubString(int guidLength)
@@ -60,13 +59,14 @@ namespace iEmosoft.Automation.HelperObjects
             return "";
         }
 
-        public string GetRandomCountry(){
-            return Countries[rnd.Next(0, Countries.Count - 0)];
+        public string GetRandomCountry()
+        {
+            return Countries[Rnd.Next(0, Countries.Count - 0)];
         }
 
         public string GetRandomPostalCode(int appendGuidDigits = 0)
         {
-            return string.Format("{0}{1}", rnd.Next(3, 9), GetRandomDigits(4)) + GetGuidSubString(appendGuidDigits);
+            return string.Format("{0}{1}", Rnd.Next(3, 9), GetRandomDigits(4)) + GetGuidSubString(appendGuidDigits);
         }
 
         public string GetRandomEmailAddress(int appendGuidDigits = 0)
@@ -76,40 +76,41 @@ namespace iEmosoft.Automation.HelperObjects
 
         public bool GetRandomBoolean()
         {
-            return rnd.Next(0, 1) == 1;
+            return Rnd.Next(0, 1) == 1;
         }
 
         public string GetRandomEmailAddress(string firstName, string lastName)
         {
             string company = GetRandomCompanyName().Replace(" ", "").Replace("-", "").Replace(".", "").Replace(",", "");
-            string email = string.Format("{0}.{1}@{2}{3}{4}", firstName.Replace(".", "").Replace("'", ""), lastName.Replace(".", "").Replace("'", ""), company, rnd.Next(11, 99), GetRandomDomain());
-            
+            string email = string.Format("{0}.{1}@{2}{3}{4}", firstName.Replace(".", "").Replace("'", ""), lastName.Replace(".", "").Replace("'", ""), company, Rnd.Next(11, 99), GetRandomDomain());
+
             return email.Replace("..", ".");
         }
 
         public string GetRandomDate(int minYear, int maxYear)
         {
-            int year = rnd.Next(minYear, maxYear);
+            int year = Rnd.Next(minYear, maxYear);
 
             return GetRandomDate(null, null, year);
         }
 
-        public string GetRandomDate(int ? desiredMonth, int ? desiredDay, int ? desiredYear)
+        public string GetRandomDate(int? desiredMonth, int? desiredDay, int? desiredYear)
         {
             if (!desiredMonth.HasValue)
-                desiredMonth = rnd.Next(1, 12);
+                desiredMonth = Rnd.Next(1, 12);
 
             if (!desiredDay.HasValue)
-                desiredDay = rnd.Next(1, 28);
+                desiredDay = Rnd.Next(1, 28);
 
             if (!desiredYear.HasValue)
-                desiredYear = rnd.Next(1700, DateTime.Now.Year + 25);
+                desiredYear = Rnd.Next(1700, DateTime.Now.Year + 25);
 
             return new DateTime(desiredYear.Value, desiredMonth.Value, desiredDay.Value).ToShortDateString();
         }
 
-        public string GetRandomValueFromArray(List<string> list){
-            return list[rnd.Next(0, list.Count -1)];
+        public string GetRandomValueFromArray(List<string> list)
+        {
+            return list[Rnd.Next(0, list.Count - 1)];
         }
 
         public string GetRandomPhoneNumber(string desiredAreaCode = null, string desiredPrefix = null, string desiredFourDigits = null)
@@ -126,11 +127,13 @@ namespace iEmosoft.Automation.HelperObjects
             return string.Format("{0}-{1}-{2}", desiredAreaCode, desiredPrefix, desiredFourDigits);
         }
 
-        public string GetRandomDigits(int numberOfDigets){
+        public string GetRandomDigits(int numberOfDigets)
+        {
             string results = "";
 
-            for (int i=0; i<numberOfDigets; i++){
-                results += rnd.Next(1, 9).ToString();
+            for (int i = 0; i < numberOfDigets; i++)
+            {
+                results += Rnd.Next(1, 9).ToString();
             }
 
             return results;
@@ -138,47 +141,47 @@ namespace iEmosoft.Automation.HelperObjects
 
         public string GetRandomDigits(int lowDigits, int highDigets)
         {
-            int numberOfDigets = rnd.Next(lowDigits, highDigets);
+            int numberOfDigets = Rnd.Next(lowDigits, highDigets);
             return GetRandomDigits(numberOfDigets);
         }
 
         public string GetRandomDomain()
         {
-                string[] domains = new string[] { ".com", ".net", ".org", ".gov", ".tv" };
-                return domains[rnd.Next(0, domains.Length - 1)];
+            string[] domains = new string[] { ".com", ".net", ".org", ".gov", ".tv" };
+            return domains[Rnd.Next(0, domains.Length - 1)];
         }
 
         public string GetRandomDomainName()
         {
-            return this.GetRandomCompanyName().Replace(" ", "");
+            return GetRandomCompanyName().Replace(" ", "");
         }
 
         public AdddressData GetRandomAddress()
         {
-            AdddressData result = new AdddressData()
+            var result = new AdddressData()
             {
-                City = this.GetRandomCity(),
-                Country = this.GetRandomCountry(),
-                PostalCode = this.GetRandomPostalCode(),
-                State = this.GetRandomState(),
+                City = GetRandomCity(),
+                Country = GetRandomCountry(),
+                PostalCode = GetRandomPostalCode(),
+                State = GetRandomState(),
                 Street1 = string.Format("{0} {1} {2}", GetRandomDigits(2, 5), GetRandomLastName(), GetRandomStreetType()),
-                Street2 = "# " + rnd.Next(1, 3000)
+                Street2 = "# " + Rnd.Next(1, 3000)
             };
-            
+
             return result;
         }
 
         private string GetRandomStreetType()
         {
             string result = GetRandomStringFromListOfStrings(new string[] { "Ave", "St", "Cir", "Plc", "Terrace", "Court", "Lane", "Dr" });
-            result+= " " + GetRandomStringFromListOfStrings(new string[] {"N", "S", "E", "W", "NE", "NW", "SE", "SW" });
+            result += " " + GetRandomStringFromListOfStrings(new string[] { "N", "S", "E", "W", "NE", "NW", "SE", "SW" });
 
             return result;
         }
 
         public string GetRandomStringFromListOfStrings(string[] sources)
         {
-            int randomIndex = rnd.Next(0, sources.Length - 1);
+            int randomIndex = Rnd.Next(0, sources.Length - 1);
 
             return sources[randomIndex];
         }
@@ -187,10 +190,10 @@ namespace iEmosoft.Automation.HelperObjects
         {
             var result = new CompanyData()
             {
-                BillingAddress = this.GetRandomAddress(),
-                CompanyName = this.GetRandomCompanyName(),
-                HQAddress = this.GetRandomAddress(),
-                ShipToAddress = this.GetRandomAddress(),
+                BillingAddress = GetRandomAddress(),
+                CompanyName = GetRandomCompanyName(),
+                HQAddress = GetRandomAddress(),
+                ShipToAddress = GetRandomAddress(),
             };
 
             result.WebSite = string.Format("http://www.{0}.{1}", result.CompanyName.Replace(" ", ""), GetRandomDomain());
@@ -205,34 +208,35 @@ namespace iEmosoft.Automation.HelperObjects
 
             var person = new PersonData()
             {
-                DateOfBirth = this.GetRandomDate(minYear, maxYear).ToDate(),
-                DateOfDeath = this.GetRandomDate(maxYear + 2, maxYear + 8),
-                FirstName = this.GetRandomFirstName(),
-                LastName = this.GetRandomLastName(),
-                Employer = this.GetRandomCompany(),
-                EyeColor = this.GetRandomValueFromArray(new List<string>() { "Brown", "Blue", "Green" }),
-                HairColor = this.GetRandomValueFromArray(new List<string>() { "Red", "Blond", "Brown", "Black", "Dyed" }),
-                HeightFeet = rnd.Next(3, 6),
-                HeightInches = rnd.Next(1, 11),
-                HiredDate = this.GetRandomDate(maxYear + 2, maxYear + 8),
-                HomeAddress = this.GetRandomAddress(),
-                HomePhone = this.GetRandomPhoneNumber(null, "555", null),
-                IsMarried = this.GetRandomBoolean(),
-                MiddleName = this.GetRandomFirstName(),
+                DateOfBirth = GetRandomDate(minYear, maxYear).ToDate(),
+                DateOfDeath = GetRandomDate(maxYear + 2, maxYear + 8),
+                FirstName = GetRandomFirstName(),
+                LastName = GetRandomLastName(),
+                Employer = GetRandomCompany(),
+                EyeColor = GetRandomValueFromArray(new List<string>() { "Brown", "Blue", "Green" }),
+                HairColor = GetRandomValueFromArray(new List<string>() { "Red", "Blond", "Brown", "Black", "Dyed" }),
+                HeightFeet = Rnd.Next(3, 6),
+                HeightInches = Rnd.Next(1, 11),
+                HiredDate = GetRandomDate(maxYear + 2, maxYear + 8),
+                HomeAddress = GetRandomAddress(),
+                HomePhone = GetRandomPhoneNumber(null, "555", null),
+                IsMarried = GetRandomBoolean(),
+                MiddleName = GetRandomFirstName(),
                 Password = "P@ssw0rd!",
-                ShippingAddress = this.GetRandomAddress(),
-                WorkPhone = this.GetRandomPhoneNumber(null, "555", null)
+                ShippingAddress = GetRandomAddress(),
+                WorkPhone = GetRandomPhoneNumber(null, "555", null)
             };
 
-            if (person.Age > 21){
-                person.IsMarried = this.GetRandomBoolean();
+            if (person.Age > 21)
+            {
+                person.IsMarried = GetRandomBoolean();
                 if (person.IsMarried)
                 {
-                    person.MarriedDate = this.GetRandomDate(person.DateOfBirth.AddYears(19).Year, person.DateOfBirth.AddYears(21).Year).ToDate();
+                    person.MarriedDate = GetRandomDate(person.DateOfBirth.AddYears(19).Year, person.DateOfBirth.AddYears(21).Year).ToDate();
                 }
             }
 
-            person.UserName = string.Format("{0}.{1}{2}", person.FirstName, person.LastName, rnd.Next(1, 222));
+            person.UserName = string.Format("{0}.{1}{2}", person.FirstName, person.LastName, Rnd.Next(1, 222));
             person.EmailAddress = GetRandomEmailAddress(person.FirstName, person.LastName);
 
             return person;
@@ -273,13 +277,11 @@ namespace iEmosoft.Automation.HelperObjects
         public static bool IsNumeric(this string str)
         {
             bool result;
-            double d = 0;
-            result = double.TryParse(str, out d);
-           
+            result = double.TryParse(str, out _);
+
             if (!result)
             {
-                long l = 0;
-                result = long.TryParse(str, out l);
+                result = long.TryParse(str, out _);
             }
 
             return result;
@@ -289,7 +291,8 @@ namespace iEmosoft.Automation.HelperObjects
             return DateTime.Parse(str);
         }
 
-        public static DateTime AddYears(this DateTime dt, int years){
+        public static DateTime AddYears(this DateTime dt, int years)
+        {
             return dt.AddDays(years * 365);
         }
 
@@ -306,7 +309,7 @@ namespace iEmosoft.Automation.HelperObjects
         public string EmailAddress { get; set; }
         public string HiredDate { get; set; }
         public bool IsMarried { get; set; }
-        public DateTime MarriedDate {get;set;}
+        public DateTime MarriedDate { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
         public string DateOfDeath { get; set; }
@@ -314,7 +317,7 @@ namespace iEmosoft.Automation.HelperObjects
         {
             get
             {
-                double  days = (this.DateOfBirth - DateTime.Now).TotalDays;
+                double days = (DateOfBirth - DateTime.Now).TotalDays;
                 return (int)(days * (double)365.4);
             }
         }
@@ -328,7 +331,8 @@ namespace iEmosoft.Automation.HelperObjects
         public CompanyData Employer { get; set; }
     }
 
-    public class AdddressData {
+    public class AdddressData
+    {
         public string Street1 { get; set; }
         public string Street2 { get; set; }
         public string City { get; set; }
@@ -371,7 +375,7 @@ namespace iEmosoft.Automation.HelperObjects
 
         private void ResetRnd()
         {
-            int seed = DateTime.Now.Millisecond*DateTime.Now.Second;
+            int seed = DateTime.Now.Millisecond * DateTime.Now.Second;
             rnd = new Random(seed);
         }
     }

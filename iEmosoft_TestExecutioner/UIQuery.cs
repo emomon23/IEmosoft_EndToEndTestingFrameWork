@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace iEmosoft.Automation
+﻿namespace aUI.Automation
 {
     public class UIQuery
     {
         public UIQuery(string elementId, string controlType = "input")
         {
-            this.AttributeName = "id";
-            this.AttributeValue = elementId;
-            this.ControlTypeName = controlType;
+            AttributeName = "id";
+            AttributeValue = elementId;
+            ControlTypeName = controlType;
         }
 
         public UIQuery(string controlTypeName, string attributeName, string attributeValue)
         {
-            this.ControlTypeName = controlTypeName;
-            this.AttributeValue = attributeValue;
-            this.AttributeName = attributeName;
+            ControlTypeName = controlTypeName;
+            AttributeValue = attributeValue;
+            AttributeName = attributeName;
         }
 
         public UIQuery() { }

@@ -1,43 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.Linq;
-using System.Runtime.InteropServices;
-using iEmosoft.Automation.Authors;
-using iEmosoft.Automation.BaseClasses;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Interfaces;
-using iEmosoft.Automation.Test.IEmosoft.com;
-using iEmosoft.Automation.Model;
-using Microsoft.VisualStudio.QualityTools;
+﻿using aUI.Automation.BaseClasses;
+using aUI.Automation.Elements;
+using aUI.Automation.HelperObjects;
+using aUI.Automation.Interfaces;
+using aUI.Automation.ModelObjects;
+using aUI.Automation.Test.IEmosoft.com;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 
-
-namespace iEmosoft.Automation
+namespace aUI.Automation
 {
     public class TestExecutioner : IDisposable
     {
-        private IUIDriver uiDriver = null;
-        private IScreenCapture screenCapture = null;
-        private BaseAuthor testAuthor = null;
-        private bool reportingEnabled = true;
-        private bool testPassed = true;
-        private DateTime startTime;
-        private DateTime disposeTime;
-        private List<string> allTestFiles = new List<string>();
-        private PoolState poolState = new PoolState() { IsAvailable = true, IsPartOfTestExecutionerPool = false };
-        private bool processTestResultCalled = false;
+        private IUIDriver UiDriver = null;
+        private IScreenCapture ScreenCapture = null;
+        private BaseAuthor TestAuthor = null;
+        private bool ReportingEnabled = true;
+        private bool TestPassed = true;
+        private DateTime StartTime;
+        private DateTime DisposeTime;
+        private List<string> AllTestFiles = new();
+        private PoolState poolState = new() { IsAvailable = true, IsPartOfTestExecutionerPool = false };
+        private bool ProcessTestResultCalled = false;
+        private Config Config = new();
+        public RandomTestData Rand = new();
+        public ElementActions Action;
+        public AssertHelp Assert;
 
         public delegate void ReportSavedEventCallback_Delegate(string locationOfReport);
         public ReportSavedEventCallback_Delegate reportSavedCallback { get; set; }
 
-        public TestExecutioner(string testCaseNumber, string testCaseName="", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
+        public TestExecutioner(string testCaseNumber, string testCaseName = "", IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
-             var testCaseHeader = new TestCaseHeaderData()
+            var testCaseHeader = new TestCaseHeaderData()
             {
                 ExecutedByName = "Mike Emo Automation Test Executioner",
                 ExecutedOnDate = DateTime.Now.ToShortDateString(),
@@ -45,26 +44,32 @@ namespace iEmosoft.Automation
                 TestNumber = testCaseNumber,
                 TestWriter = "Mike Emo Automation Test Executioner"
             };
-            
-            this.Initialize(testCaseHeader, uiDriver, author, capture);
+
+            Initialize(testCaseHeader, uiDriver, author, capture);
+            Action = new ElementActions(this);
+            Assert = new AssertHelp(this);
         }
 
         public TestExecutioner(TestCaseHeaderData testCaseHeader, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
-            this.Initialize(testCaseHeader, uiDriver, author, capture);
+            Initialize(testCaseHeader, uiDriver, author, capture);
+            Action = new ElementActions(this);
+            Assert = new AssertHelp(this);
         }
 
         public TestExecutioner(bool useConfigFile = true)
         {
-            reportingEnabled = false;
+            ReportingEnabled = false;
             if (useConfigFile)
             {
                 Initialize(null, null, null, null);
             }
             else
             {
-                this.uiDriver = new iEmosoft.Automation.UIDrivers.BrowserDriver(new AutomationConfiguration(), UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
+                UiDriver = new UIDrivers.BrowserDriver(new Config(), UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
             }
+            Action = new ElementActions(this);
+            Assert = new AssertHelp(this);
         }
 
         public PoolState PoolState
@@ -84,45 +89,8 @@ namespace iEmosoft.Automation
             try
             {
                 string script = "if (!window.jQuery) { var jq = document.createElement('script'); jq.type = 'text/javascript'; jq.src = 'https://code.jquery.com/jquery-2.2.1.min.js'; document.getElementsByTagName('head')[0].appendChild(jq);}";
-                this.ExecuteJavaScript(script);
+                ExecuteJavaScript(script);
                 return true;
-            }
-            catch (Exception exp)
-            {
-                return false;
-            }
-        }
-
-        private void Initialize(TestCaseHeaderData testCaseHeader, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
-        {
-            AutomationFactory factory = new AutomationFactory();
-
-            if (testCaseHeader != null)
-            {
-                if (capture != null)
-                {
-                    this.screenCapture = capture;
-                }
-                else
-                {
-                    this.screenCapture = factory.CreateScreenCapturer();
-                }
-
-                this.testAuthor = author == null ? factory.CreateAuthor() : author;
-                this.testAuthor.StartNewTestCase(testCaseHeader);
-            }
-             
-            this.uiDriver = injectedDriver == null ? factory.CreateUIDriver() : injectedDriver;
-            this.startTime = DateTime.Now;
-        }
-
-        
-
-        public bool DoesElementExist(string attributeName, string attributeValue, string elementName = "", int mineForSeconds = 10)
-        {
-            try
-            {
-                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(attributeName, attributeValue, elementName, true, mineForSeconds) != null;
             }
             catch
             {
@@ -130,35 +98,38 @@ namespace iEmosoft.Automation
             }
         }
 
-        public void HoverMouseOverElement(string elementId, int retrySeconds = 10)
+        private void Initialize(TestCaseHeaderData testCaseHeader, IUIDriver injectedDriver, BaseAuthor author, IScreenCapture capture)
         {
-            var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(elementId, retrySeconds);
-            HoverMouseOverElement(element);
-        }
+            var factory = new AutomationFactory();
 
-        public void HoverMouseOverElement(string attributeName, string attributeValue, string controlName = "", int retrySeconds = 10)
-        {
-            var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(attributeName, attributeValue,
-                controlName, true, retrySeconds);
+            UiDriver = injectedDriver ?? factory.CreateUIDriver();
 
-            HoverMouseOverElement(element);
-        }
+            if (testCaseHeader != null)
+            {
+                if (Directory.Exists(factory.Configuration.TestReportFilePath))
+                {
+                    Directory.Delete(factory.Configuration.TestReportFilePath, true);
+                }
 
-        public void HoverMouseOverElement(JQuerySelector selector, int retrySeconds = 10)
-        {
-            string newId = this.CreateRandomIdAttributeOnSelector(selector);
-            HoverMouseOverElement(newId, retrySeconds);
-        }
+                if (capture != null)
+                {
+                    ScreenCapture = capture;
+                }
+                else
+                {
+                    ScreenCapture = factory.CreateScreenCapturer(UiDriver);
+                }
 
-        private void HoverMouseOverElement(IWebElement element)
-        {
-            Actions action = new Actions(this.RawSeleniumWebDriver_AvoidCallingDirectly);
-            action.MoveToElement(element);
+                TestAuthor = author ?? factory.CreateAuthor();
+                TestAuthor.StartNewTestCase(testCaseHeader);
+            }
+
+            StartTime = DateTime.Now;
         }
 
         public void FireChangeEvent(UIQuery query)
         {
-            this.FireChangeEvent(query.AttributeName, query.AttributeValue, query.ControlTypeName);
+            FireChangeEvent(query.AttributeName, query.AttributeValue, query.ControlTypeName);
         }
 
         public void FireChangeEvent(string attributeNameOrElementId, string attributeValue = "", string elementName = "")
@@ -186,332 +157,36 @@ namespace iEmosoft.Automation
 
         public void FireChangeEvent(JQuerySelector selector)
         {
-            var newId = this.CreateRandomIdAttributeOnSelector(selector);
-            this.FireChangeEvent(newId);
-        }
-
-        public UIQuery WaitForElementsToAppear(int numberOfSeconds, params UIQuery[] elementsQuery)
-        {
-            DateTime begin = DateTime.Now;
-
-            while (true)
-            {
-                foreach (var uiQuery in elementsQuery)
-                {
-                    try
-                    {
-                        var element = RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(uiQuery.AttributeName,
-                            uiQuery.AttributeValue,
-                            uiQuery.ControlTypeName, true, -1);
-
-                        if (element != null)
-                        {
-                            return uiQuery;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-
-                TimeSpan ts = DateTime.Now - begin;
-                if (ts.TotalSeconds > numberOfSeconds)
-                {
-                    break;
-                }
-                Pause(200);
-            }
-
-            return null;
-        }
-
-        public bool WaitForElementToVanish(string idOrCSSSelector, int mineForSeconds = 10)
-        {
-            bool result = false;
-
-            //Give the element 3 seconds to appear in the 1st place
-            DoesElementExist(idOrCSSSelector, 3);
-
-            for (int i = 0; i < mineForSeconds; i++)
-            {
-                if (! DoesElementExist(idOrCSSSelector, 1)){
-                    result = true;
-                    break; 
-                }
-            }
-
-            return result;
-        }
-
-        public bool IsElementDisplaying(string id, int mineForSeconds = 10)
-        {
-            try
-            {
-                var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(id, mineForSeconds);
-                return element != null && element.Displayed;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool DoesElementExist(string idOrCSSSelector, int mineForSeconds = 10)
-        {
-            try
-            {
-                return this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCSSSelector, mineForSeconds) != null;
-            }
-            catch(Exception exp)
-            {
-                return false;
-            }
+            var newId = CreateRandomIdAttributeOnSelector(selector);
+            FireChangeEvent(newId);
         }
 
         public void RefreshWebPage()
         {
-            this.RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Refresh();
+            RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Refresh();
         }
         public object ExecuteJavaScript(string script)
         {
-            var fireFoxDriver = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
+            var fireFoxDriver = UiDriver as aUI.Automation.UIDrivers.BrowserDriver;
             return fireFoxDriver.RawWebDriver.ExecuteScript(script);
         }
 
         public BugCreator BugCreator { get; set; }
-           
 
-        public bool ClickElement(string IdOrAttributeName, string attributeValue = "", string elementName = "", string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true,  int waitForURLChangeSeconds= 0)
-        {
-            string currentPageOrUrl = uiDriver.CurrentFormName_OrPageURL;
-
-            if (string.IsNullOrEmpty(attributeValue))
-            {
-                attributeValue = IdOrAttributeName;
-                IdOrAttributeName = "id";
-                
-            }
-                     
-            if (!string.IsNullOrEmpty(stepDescription))
-            {
-                this.BeginTestCaseStep(stepDescription, expectedResult);
-            }
-
-            if (snapScreenBeforeClick && this.reportingEnabled && this.CurrentStep != null)
-            {
-                this.CurrentStep.ImageFilePath = this.CaptureScreen();
-            }
-
-            uiDriver.ClickControl(IdOrAttributeName, attributeValue, elementName);
-
-            if (waitForURLChangeSeconds > 0)
-            {
-                for (int i = 0; i < (waitForURLChangeSeconds * 5); i++)
-                {
-                    System.Threading.Thread.Sleep(200);
-                    if (currentPageOrUrl != uiDriver.CurrentFormName_OrPageURL)
-                    {
-                        break;
-                    }
-                }
-            }
-            return true;
-        }
-
-        public bool ClickElement(UIQuery query, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true)
-        {
-            return this.ClickElement(query.AttributeName, query.AttributeValue, query.ControlTypeName, stepDescription, expectedResult, snapScreenBeforeClick);
-        }
-
-        public bool ClickElement(JQuerySelector script, string stepDescription = "", string expectedResult = "", bool snapScreenBeforeClick = true, int waitForURLChangeSeconds = 0)
-        {
-            string newId = this.CreateRandomIdAttributeOnSelector(script);
-            return this.ClickElement(newId, "", "", stepDescription, expectedResult, snapScreenBeforeClick, waitForURLChangeSeconds);
-        }
-
-        public bool DoesElementExist(JQuerySelector script, int seconds = 10)
-        {
-            bool exists = false;
-
-            for (int i = 0; i < seconds; i++)
-            {
-                string newId = this.CreateRandomIdAttributeOnSelector(script);
-                exists = DoesElementExist(newId, 1);
-                if (exists)
-                {
-                    break;
-                }
-            }
-
-            return exists;
-          
-        }
-              
-
-        public string CurrentFormName_OrURL { get { return uiDriver.CurrentFormName_OrPageURL; } }
-        
-        public void SetTextOnElement(string idOrCSSSelector, string text)
-        {
-            SetTextOnElement(idOrCSSSelector, text, null);
-        }
+        public string CurrentFormName_OrURL { get { return UiDriver.CurrentFormName_OrPageURL; } }
 
         public void Pause(int milliseconds)
         {
             System.Threading.Thread.Sleep(milliseconds);
         }
 
-        public void SetTextOnElement(string idOrCSSSelector, string text, string stepDescription)
-        {
-            if (!string.IsNullOrEmpty(stepDescription))
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-
-            if (text == null)
-            {
-                text = "";
-            }
-
-            uiDriver.SetTextOnControl(idOrCSSSelector, text);
-        }
-
-        public void SetTextOnElement(UIQuery query, string valueToSet, string stepDescription = "")
-        {
-           this.SetTextOnElement(query.AttributeName, query.AttributeValue, valueToSet, query.ControlTypeName, stepDescription);
-        }
-
-        public void SetTextOnElement(JQuerySelector selector, string valueToSet, string stepDescription = "")
-        {
-            var newId = this.CreateRandomIdAttributeOnSelector(selector );
-            this.SetTextOnElement(newId, valueToSet, stepDescription);
-        }
-
-        public void SetTextOnElement(string attributeName, string attributeValue, string textToSet,
-            string elementName = "", string stepDescription = "", bool useWildCard = true)
-        {
-            uiDriver.SetTextOnControl(attributeName, attributeValue, textToSet, elementName, useWildCard);
-
-            if (!stepDescription.isNull() && this.reportingEnabled)
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-        }
-
-        public string GetTextOnElement(string idOrCss)
-        {
-            return uiDriver.GetTextOnControl(idOrCss);
-        }
-
-        public string GetTextOnElement(string attributeName,string attributeValue,string controlType, bool useWildCardSearch = true)
-        {
-            return uiDriver.GetTextOnControl(attributeName, attributeValue, controlType, useWildCardSearch);
-        }
-
-        public string GetTextOnElement(JQuerySelector selector)
-        {
-            var newId = this.CreateRandomIdAttributeOnSelector(selector);
-            return uiDriver.GetTextOnControl(newId);
-        }
-
-        public string GetTextOnElement(UIQuery query)
-        {
-            return uiDriver.GetTextOnControl(query.AttributeName, query.AttributeValue, query.ControlTypeName);
-        }
-
-        public void SetValueOnDropdown(string attributeName, string attributeValue, string valueToSet, string stepDescription = "")
-        {
-            if (!string.IsNullOrEmpty(stepDescription) && this.reportingEnabled)
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-            
-            if (DoesElementExist(attributeName, attributeValue ))
-            {
-                string script = string.Format("$('[{0}*={1}]').val({2}).change();", attributeName, attributeValue.PutInQuotes(), valueToSet.PutInQuotes());
-                ExecuteJavaScript(script);
-            }
-
-        }
-
-        public void SetValueOnDropdown(string attributeName, string attributeValue, int optionIndex, string stepDescription = "")
-        {
-            if (!string.IsNullOrEmpty(stepDescription) && this.reportingEnabled)
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-
-            if (DoesElementExist(attributeName, attributeValue))
-            {
-                //$($('#ddlCountry option')[1]).val()
-                string script = string.Format("return $($('[{0}*={1}] option')[{2}]).val()", attributeName, attributeValue.PutInQuotes(), optionIndex);
-                string valueToSet = this.ExecuteJavaScript(script).ToString();
-
-                script = string.Format("$('[{0}*={1}]').val({2}).change();", attributeName, attributeValue.PutInQuotes(), valueToSet.PutInQuotes());
-                ExecuteJavaScript(script);
-            }
-
-        }
-      
         public IWebDriver RawSeleniumWebDriver_AvoidCallingDirectly
         {
             get
             {
-                var fireFox = uiDriver as iEmosoft.Automation.UIDrivers.BrowserDriver;
+                var fireFox = UiDriver as aUI.Automation.UIDrivers.BrowserDriver;
                 return fireFox.RawWebDriver;
             }
-        }
-
-        public void SetValueOnDropdown(UIQuery query, string valuleToSet, string stepDescription = "")
-        {
-            SetValueOnDropdown(query.AttributeName, query.AttributeValue, valuleToSet, stepDescription);
-        }
-
-        public Dictionary<string, string> GetAvailableValuesFromDropdown(string idOrCss)
-        {
-            var element = RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCss);
-            var selectElement = new SelectElement(element);
-
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            foreach (var option in selectElement.Options)
-            {
-                result.Add(option.MineForValue(), option.Text);
-            }
-
-            return result;
-        }
-
-        public void SetValueOnDropdown(string id, int optionIndex, string stepDescription = "")
-        {
-            this.SetValueOnDropdown("id", id, optionIndex, stepDescription);    
-        }
-
-        public void SetValueOnDropdown(string idOrCSS, string valueToSet, string stepDescription = "")
-        {
-            if (!string.IsNullOrEmpty(stepDescription) && this.reportingEnabled)
-            {
-                this.BeginTestCaseStep(stepDescription);
-            }
-
-            string script = "";
-
-            if (this.DoesElementExist(idOrCSS))
-            {
-                if (this.IsAngularApp)
-                {
-                    script = string.Format("angular.element(\"#{0}\").val({1}).change();", idOrCSS, valueToSet.PutInSingleQuotes());
-                }
-                else
-                {
-                    script = string.Format("$(\"#{0}\").val({1}).change();", idOrCSS, valueToSet.PutInSingleQuotes());
-                }
-
-                this.ExecuteJavaScript(script);
-            }
-            else
-            {
-                throw new Exception("Unable to find " + idOrCSS);
-            }
-          
         }
 
         public void ClickAlert(bool clickOK)
@@ -544,106 +219,51 @@ namespace iEmosoft.Automation
 
         private IAlert GetAlert()
         {
-            WebDriverWait wait = new WebDriverWait(RawSeleniumWebDriver_AvoidCallingDirectly, new TimeSpan(0, 0, 5));
+            var wait = new WebDriverWait(RawSeleniumWebDriver_AvoidCallingDirectly, new TimeSpan(0, 0, 5));
             wait.Until(ExpectedConditions.AlertIsPresent());
             return RawSeleniumWebDriver_AvoidCallingDirectly.SwitchTo().Alert();
         }
 
-        public string GetSelectedTextOnDropdown(string elementId)
+        public void NavigateTo(string url, string expectedResult = "")
         {
-            object objResult = "";
-
-            if (DoesElementExist(elementId))
+            if (!string.IsNullOrEmpty(expectedResult) && ReportingEnabled)
             {
-                string script = string.Format("return $('#{0} :selected').text()", elementId);
-
-                objResult = ExecuteJavaScript(script);
+                BeginTestCaseStep("Navigate to " + url, expectedResult);
             }
 
-            return objResult.ToString();
-        }
-
-        public string GetSelectedTextOnDropdown(string attributeName, string attributeValue)
-        {
-            object objResult = "";
-
-            if (DoesElementExist(attributeName, attributeValue))
-            {
-                string script = string.Format("return $('[{0}*=\"{1}\"] :selected').text()", attributeName,
-                    attributeValue);
-
-                objResult = ExecuteJavaScript(script);
-            }
-
-            return objResult.ToString();
-        }
-
-        public string GetSelectedTextOnDropdown(UIQuery query)
-        {
-            return this.GetSelectedTextOnDropdown(query.AttributeName, query.AttributeValue);
-        }
-
-
-        public string GetSelectedValueOnDropdown(string elementId)
-        {
-            object objResult = "";
-
-            if (DoesElementExist(elementId))
-            {
-                string script = string.Format("return $('#{0}').val();", elementId);
-
-                objResult = ExecuteJavaScript(script);
-            }
-
-            return objResult.ToString();
-        }
-
-        public string GetSelectedValueOnDropdown(string attributeName, string attributeValue)
-        {
-            object objResult = "";
-
-            if (DoesElementExist(attributeName, attributeValue))
-            {
-                string script = string.Format("return $('[{0}*=\"{1}\"]').val()", attributeName,
-                    attributeValue);
-
-                objResult = ExecuteJavaScript(script);
-            }
-
-            return objResult.ToString();
-        }
-
-        public string GetSelectedValueOnDropdown(UIQuery query)
-        {
-            return GetSelectedValueOnDropdown(query.AttributeName, query.AttributeValue);
-        }
-
-        public void  NavigateTo(string url, string expectedResult = "")
-        {
-            if (!string.IsNullOrEmpty(expectedResult) && this.reportingEnabled)
-            {
-                this.BeginTestCaseStep("Navigate to " + url, expectedResult);
-            }
-
-            uiDriver.MaximizeWindow();
-            uiDriver.NavigateTo(url);
+            UiDriver.MaximizeWindow();
+            UiDriver.NavigateTo(url);
         }
 
         public void Quit()
         {
-            uiDriver.Dispose();
+            UiDriver.Dispose();
         }
-        
-        public string CaptureScreen(string textToWriteOnScreenCapture)
+
+        public string CaptureScreen(string textToWriteOnScreenCapture = "")
         {
-            if (this.screenCapture == null || reportingEnabled == false)
+            if (ScreenCapture == null || ReportingEnabled == false)
+            {
+                return null;
+            }
+            else if (TestAuthor.CurrentStep != null)
+            {
+                var fileName = ScreenCapture.NewFileName;
+                ScreenCapture.CaptureDesktop(fileName, textToWriteOnScreenCapture);
+                TestAuthor.CurrentStep.ImageFilePath = fileName;
+                TestAuthor.CurrentStep.ImageData = ScreenCapture.LastImageCapturedAsByteArray;
+                AllTestFiles.Add(fileName);
+                return fileName;
+            }
+            else
             {
                 return null;
             }
 
+            /*
             string fileName = screenCapture.NewFileName;
 
-            var process = Process.GetProcesses().FirstOrDefault(x => x.MainWindowTitle.Contains(this.RawSeleniumWebDriver_AvoidCallingDirectly.Title));
+            var process = Process.GetProcesses().FirstOrDefault(x => x.MainWindowTitle.Contains(RawSeleniumWebDriver_AvoidCallingDirectly.Title));
 
             if (process != null)
             {
@@ -652,49 +272,43 @@ namespace iEmosoft.Automation
 
             uiDriver.MaximizeWindow();
 
-            screenCapture.CaptureDesktop(fileName, null, textToWriteOnScreenCapture);
-            if (this.testAuthor != null && this.testAuthor.CurrentStep != null)
+            screenCapture.CaptureDesktop(fileName, textToWriteOnScreenCapture);
+            if (testAuthor != null && testAuthor.CurrentStep != null)
             {
-                this.testAuthor.CurrentStep.ImageFilePath = fileName;
-                this.testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
+                testAuthor.CurrentStep.ImageFilePath = fileName;
+                testAuthor.CurrentStep.ImageData = screenCapture.LastImageCapturedAsByteArray;
             }
 
             allTestFiles.Add(fileName);
             return fileName;
+            */
         }
 
-        public string CaptureScreen()
-        {
-            System.Threading.Thread.Sleep(500);
-            return this.CaptureScreen(string.Empty);
-        }
-             
-     
         public bool TestCaseFailed
         {
-            get { return this.testAuthor != null ? testAuthor.TestCaseFailed : false; }
+            get { return TestAuthor != null ? TestAuthor.TestCaseFailed : false; }
         }
 
         public Exception FailCurrentStep(Exception unexpectedException)
         {
-            if (this.CurrentStep == null)
+            if (CurrentStep == null)
             {
-                this.FailTest(unexpectedException);
+                FailTest(unexpectedException);
             }
             else
             {
                 string msg = "An Unexpected error occurred. " + unexpectedException.ToDeepMessage();
-                this.FailCurrentStep(null, msg, true);
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(false, msg);
+                FailCurrentStep(null, msg, true);
+                Assert.True(false, msg);
             }
 
             return unexpectedException;
-            
+
         }
         public void FailCurrentStep(string expectedResult, string actualResult, bool isShowStoppingError = false)
         {
-            this.testPassed = false;
-            var currentStep = this.CurrentStep;
+            TestPassed = false;
+            var currentStep = CurrentStep;
             if (currentStep != null)
             {
                 currentStep.StepPassed = false;
@@ -709,60 +323,60 @@ namespace iEmosoft.Automation
                     currentStep.ActualResult = actualResult;
                 }
 
-                this.CaptureScreen(actualResult);
+                CaptureScreen(actualResult);
             }
 
             if (isShowStoppingError)
             {
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
-                Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
+                Assert.True(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
+                Assert.True(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
             }
         }
 
-        public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "", bool captureImage = true)
+        public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "", bool captureImage = false)
         {
-            if (this.testAuthor != null)
+            if (TestAuthor != null)
             {
-                testAuthor.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
+                TestAuthor.BeginTestCaseStep(stepDescription, expectedResult, suppliedData);
             }
 
-            if (captureImage)
+            if (captureImage || Config.RecordAllSteps) //add second parameter
             {
-                this.CaptureScreen();
+                CaptureScreen();
             }
         }
-         
+
 
         public TestCaseStep CurrentStep
         {
-            get 
+            get
             {
-                return this.testAuthor == null ? null : testAuthor.CurrentStep;
+                return TestAuthor?.CurrentStep;
             }
         }
 
         public void ReleaseFromPool()
         {
-            if (this.poolState.IsPartOfTestExecutionerPool)
+            if (PoolState.IsPartOfTestExecutionerPool)
             {
                 ProcessTestResults();
-                poolState.WasAlreadyInPool = true;
-              
-                if (!poolState.LangingPageURL.isNull())
+                PoolState.WasAlreadyInPool = true;
+
+                if (!PoolState.LangingPageURL.isNull())
                 {
-                    this.NavigateTo(poolState.LangingPageURL);
+                    NavigateTo(PoolState.LangingPageURL);
                 }
-                poolState.IsAvailable = true;
+                PoolState.IsAvailable = true;
             }
             else
             {
-                this.Dispose();
+                Dispose();
             }
         }
 
         public string WriteReport()
         {
-            return this.ProcessTestResults();
+            return ProcessTestResults();
         }
 
         public void Dispose()
@@ -770,44 +384,44 @@ namespace iEmosoft.Automation
             try
             {
                 //Make sure 'WriteReport' wasn't already called
-                if (!processTestResultCalled)
+                if (!ProcessTestResultCalled)
                 {
                     ProcessTestResults();
                 }
             }
-            catch (Exception exp)
+            catch (Exception)
             {
-                throw exp;
+                throw;
             }
 
             //Close the browser
-            this.Quit();
+            Quit();
+            GC.SuppressFinalize(this);
         }
 
         private string ProcessTestResults()
         {
-            var config = new AutomationConfiguration();
             string reportFile = null;
-            this.disposeTime = DateTime.Now;
-           
-            if (testAuthor != null)
+            DisposeTime = DateTime.Now;
+
+            if (TestAuthor != null)
             {
-                if (reportingEnabled && config.TestReportFilePath.IsNotNull())
+                if (ReportingEnabled && Config.TestReportFilePath.IsNotNull())
                 {
-                    reportFile = testAuthor.SaveReport();
-                    allTestFiles.Add(reportFile);
+                    reportFile = TestAuthor.SaveReport();
+                    AllTestFiles.Add(reportFile);
 
                     if (reportSavedCallback != null)
                     {
                         reportSavedCallback(reportFile);
                     }
-                    
+
                 }
-                this.testAuthor.Dispose();
+                TestAuthor.Dispose();
             }
 
-            if (this.BugCreator != null)
-                this.BugCreator.Dispose();
+            if (BugCreator != null)
+                BugCreator.Dispose();
 
             string ftpReportPath = FTPReport();
             if (!ftpReportPath.isNull())
@@ -815,16 +429,22 @@ namespace iEmosoft.Automation
                 CallRestService(ftpReportPath);
             }
 
-            processTestResultCalled = true;
+            ProcessTestResultCalled = true;
             return reportFile;
         }
 
         private string FTPReport()
         {
-            ReportUploader uploader = new ReportUploader(new AutomationConfiguration());
-            var testName = this.TestCaseHeader.TestName;
-            return uploader.UploadReport(testName, allTestFiles);
-
+            try
+            {
+                var uploader = new ReportUploader(Config);
+                var testName = TestCaseHeader.TestName;
+                return uploader.UploadReport(testName, AllTestFiles);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static bool FailTestBeforeItEvenRan(TestCaseHeaderData testCaseHeader, string reason)
@@ -847,17 +467,17 @@ namespace iEmosoft.Automation
 
         private void CallRestService(string ftpReportPath)
         {
-            TestRunDTO dto = new TestRunDTO()
+            var dto = new TestRunDTO()
             {
-                ApplicationId = new AutomationConfiguration().ApplicationUnderTest,
+                ApplicationId = Config.ApplicationUnderTest,
                 FTPPath = ftpReportPath,
-                Status = this.testPassed ? (int)TestRunDTO.TestRunStatusEnumeration.Passed : (int)TestRunDTO.TestRunStatusEnumeration.Failed,
+                Status = TestPassed ? (int)TestRunDTO.TestRunStatusEnumeration.Passed : (int)TestRunDTO.TestRunStatusEnumeration.Failed,
                 TestNumber = TestCaseHeader.TestNumber,
-                TestTime = disposeTime - startTime,
-                RunDate = startTime
+                TestTime = DisposeTime - StartTime,
+                RunDate = StartTime
             };
 
-            RestClient restClient=null;
+            RestClient restClient = null;
 
             try
             {
@@ -869,7 +489,7 @@ namespace iEmosoft.Automation
                 if (exp.Message.Contains("Unable to find test number"))
                 {
                     restClient.RegisterTest(dto.TestNumber, TestCaseHeader.TestFamily, TestCaseHeader.TestName, TestCaseHeader.TestDescription, DateTime.Now);
-                    this.Pause(3000);
+                    Pause(3000);
                     restClient.RecordTestRun(dto);
                 }
             }
@@ -879,9 +499,9 @@ namespace iEmosoft.Automation
         {
             bool result = false;
 
-            for (int i = 0; i <= (waitSeconds *2); i++)
+            for (int i = 0; i <= (waitSeconds * 2); i++)
             {
-                if (this.CurrentFormName_OrURL.Contains(urlSnippet))
+                if (CurrentFormName_OrURL.Contains(urlSnippet))
                 {
                     result = true;
                     break;
@@ -897,149 +517,132 @@ namespace iEmosoft.Automation
         {
             try
             {
-                var element = uiDriver.RawWebDriver.FindElement(By.TagName("body"));
+                var element = UiDriver.RawWebDriver.FindElement(By.TagName("body"));
             }
             catch { };
 
-            return uiDriver.ScreenContains(lookFor);
+            return UiDriver.ScreenContains(lookFor);
         }
 
-        public bool IsCheckBoxChecked(string idOrCss)
-        {
-            return uiDriver.IsCheckBoxChecked(idOrCss);
-        }
-
-        public bool IsCheckBoxChecked(string idOrCss, bool value)
-        {
-            bool existingValue = uiDriver.IsCheckBoxChecked(idOrCss);
-
-            if (existingValue != value)
-            {
-                uiDriver.ClickControl(idOrCss);
-            }
-
-            return uiDriver.IsCheckBoxChecked(idOrCss);
-        }
-        
         public void AssertPageContains(string lookFor, bool continueIfFails = false)
         {
-            testAuthor.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
+            TestAuthor.BeginTestCaseStep(string.Format("Verify page contains string '{0}'", lookFor));
 
-            if (!this.PageContains(lookFor))
+            if (!PageContains(lookFor))
             {
                 string msg = string.Format("Unable to find '{0}' on current page, see image for details.", lookFor);
 
-                if (this.testAuthor.CurrentStep.ActualResult.IsNull() == false && this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                    this.testAuthor.CurrentStep.ActualResult += "  ";
+                if (TestAuthor.CurrentStep.ActualResult.IsNull() == false && TestAuthor.CurrentStep.ActualResult.Length > 0)
+                    TestAuthor.CurrentStep.ActualResult += "  ";
 
-                this.testAuthor.CurrentStep.ActualResult = msg;
-                this.testAuthor.CurrentStep.StepPassed = false;
+                TestAuthor.CurrentStep.ActualResult = msg;
+                TestAuthor.CurrentStep.StepPassed = false;
 
                 //captuer the screen with an error message
-                this.CaptureScreen(msg);
-              
-                if (! continueIfFails)
+                CaptureScreen(msg);
+
+                if (!continueIfFails)
                 {
                     throw new Exception(msg);
                 }
-                this.testPassed = false;
+                TestPassed = false;
             }
             else
             {
                 //No error message, capture the screen (with no error message);
-                this.CaptureScreen();
+                CaptureScreen();
             }
         }
 
 
         public bool AmOnScreen(string urlSnippet)
         {
-            return uiDriver.AmOnSceen(urlSnippet);
+            return UiDriver.AmOnSceen(urlSnippet);
         }
 
         public void AssertAmOnScreen(string urlSnippet)
         {
-            if (!this.AmOnScreen(urlSnippet))
+            if (!AmOnScreen(urlSnippet))
             {
-                if (this.testAuthor.CurrentStep != null)
+                if (TestAuthor.CurrentStep != null)
                 {
-                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                        this.testAuthor.CurrentStep.ActualResult += "  ";
+                    if (TestAuthor.CurrentStep.ActualResult.Length > 0)
+                        TestAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.testAuthor.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
-                    this.testAuthor.CurrentStep.StepPassed = false;     
+                    TestAuthor.CurrentStep.ActualResult = string.Format("Am not on the expected page, url does not contain '{0}'", urlSnippet);
+                    TestAuthor.CurrentStep.StepPassed = false;
                 }
 
-                this.testPassed = false;
+                TestPassed = false;
                 throw new Exception("Am not on the expected page.  Url does not contain '" + urlSnippet + "'");
             }
         }
 
         public void AssertPageNotContain(string lookFor)
         {
-            if (this.PageContains(lookFor))
+            if (PageContains(lookFor))
             {
                 string msg = string.Format("Page contains text ('{0}'), that should not exist, we may not be on the page expected.", lookFor);
 
-                if (this.testAuthor.CurrentStep != null)
+                if (TestAuthor.CurrentStep != null)
                 {
-                    if (this.testAuthor.CurrentStep.ActualResult.Length > 0)
-                        this.testAuthor.CurrentStep.ActualResult += "  ";
+                    if (TestAuthor.CurrentStep.ActualResult.Length > 0)
+                        TestAuthor.CurrentStep.ActualResult += "  ";
 
-                    this.testAuthor.CurrentStep.ActualResult = msg;
-                    this.testAuthor.CurrentStep.StepPassed = false;
+                    TestAuthor.CurrentStep.ActualResult = msg;
+                    TestAuthor.CurrentStep.StepPassed = false;
                 }
 
-                this.testPassed = false;
-               throw new Exception(msg);
+                TestPassed = false;
+                throw new Exception(msg);
             }
         }
 
 
         public List<TestCaseStep> RecordedSteps
         {
-            get { return testAuthor.RecordedSteps; }
+            get { return TestAuthor.RecordedSteps; }
         }
 
         public void StartNewTestCase(TestCaseHeaderData header)
         {
             if (header != null)
             {
-                AutomationFactory factory = new AutomationFactory();
-                if (this.screenCapture == null)
+                var factory = new AutomationFactory();
+                if (ScreenCapture == null)
                 {
-                    this.screenCapture = factory.CreateScreenCapturer();
+                    ScreenCapture = factory.CreateScreenCapturer(UiDriver);
                 }
 
-                if (this.testAuthor == null)
+                if (TestAuthor == null)
                 {
-                    testAuthor = factory.CreateAuthor();
-                    this.testAuthor.StartNewTestCase(header);
+                    TestAuthor = factory.CreateAuthor();
+                    TestAuthor.StartNewTestCase(header);
                 }
 
-                this.startTime = DateTime.Now;
-                processTestResultCalled = false;
+                StartTime = DateTime.Now;
+                ProcessTestResultCalled = false;
             }
         }
 
         public TestCaseHeaderData TestCaseHeader
         {
-            get { return testAuthor.TestCaseHeader;  }
+            get { return TestAuthor.TestCaseHeader; }
         }
 
         private string CreateRandomIdAttributeOnSelector(JQuerySelector seletor)
         {
             string newId = Guid.NewGuid().ToString().Replace("-", "");
-            string jqSelector = seletor.jQuerySelectorScript;
-            
+            string jqSelector = seletor.JQuerySelectorScript;
+
             if (!jqSelector.StartsWith("$"))
             {
                 jqSelector = jqSelector.Replace("'", "\"");
                 jqSelector = "$('" + jqSelector + "')";
             }
             string script = string.Format("{0}.attr('id', '{1}')", jqSelector, newId);
-            
-            this.ExecuteJavaScript(script);
+
+            ExecuteJavaScript(script);
             return newId;
         }
 
@@ -1050,7 +653,7 @@ namespace iEmosoft.Automation
                 try
                 {
                     string script = "return angular == null ? 'FALSE' : 'TRUE'";
-                    object result = this.ExecuteJavaScript(script);
+                    object result = ExecuteJavaScript(script);
 
                     return result.ToString() == "TRUE";
                 }
@@ -1063,7 +666,7 @@ namespace iEmosoft.Automation
 
         private string GetNgModelAttribute(string idOrCss)
         {
-            var element = this.RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCss);
+            var element = RawSeleniumWebDriver_AvoidCallingDirectly.MineForElement(idOrCss);
             string ngModelValue = element.GetAttribute("ng-model");
 
             return ngModelValue;
@@ -1071,10 +674,10 @@ namespace iEmosoft.Automation
 
         public Exception FailTest(Exception exp)
         {
-            this.BeginTestCaseStep("Un expected error occurred", "", "");
-            this.CurrentStep.ActualResult = exp.Message;
-            this.CurrentStep.StepPassed = false;
-            this.testPassed = false;
+            BeginTestCaseStep("Un expected error occurred", "", "");
+            CurrentStep.ActualResult = exp.Message;
+            CurrentStep.StepPassed = false;
+            TestPassed = false;
             return exp;
         }
 
@@ -1089,7 +692,289 @@ namespace iEmosoft.Automation
             // Make Calculator the foreground application
             SetForegroundWindow(handle);
         }
-               
+
+        //TODO get dropdown values
+
+        #region Element Helper Methods
+        #region Singles
+        public ElementResult Click(ElementObject ele)
+        {
+            ele.Action = ElementAction.Click;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult Click(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Click };
+            return Action.ExecuteAction(obj);
+        }
+        public ElementResult Hover(ElementObject ele)
+        {
+            ele.Action = ElementAction.Hover;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult Hover(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Hover };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult EnterText(ElementObject ele)
+        {
+            ele.Action = ElementAction.EnterText;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult EnterText(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.EnterText, Text = text, Random = random };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult Dropdown(ElementObject ele)
+        {
+            ele.Action = ElementAction.Dropdown;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult Dropdown(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Dropdown, Text = text, Random = random };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult DropdownIndex(ElementObject ele)
+        {
+            ele.Action = ElementAction.DropdownIndex;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult DropdownIndex(Enum ele, int index = 0)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.DropdownIndex, Text = index.ToString() };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult RadioBtn(ElementObject ele)
+        {
+            ele.Action = ElementAction.RadioBtn;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult RadioBtn(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.RadioBtn, Text = text, Random = random };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult MultiDropdown(ElementObject ele)
+        {
+            ele.Action = ElementAction.MultiDropdown;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult MultiDropdown(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.MultiDropdown, Text = text, Random = random };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetText(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetText;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetText(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetText };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetCheckbox(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetCheckbox;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetCheckbox(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetCheckbox };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetAttribute(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetAttribute;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetAttribute(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetAttribute, Text = text };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetCSS(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetCSS;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetCSS(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetCSS, Text = text };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetProperty(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetProperty;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetProperty(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetProperty, Text = text };
+            return Action.ExecuteAction(obj);
+        }
+        #endregion
+
+        #region Multi's
+        public List<ElementResult> ClickAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.Click;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> ClickAll(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Click };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> EnterTextAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.EnterText;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> EnterTextAll(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.EnterText, Text = text, Random = random };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> DropdownAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.Dropdown;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> DropdownAll(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Dropdown, Text = text, Random = random };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> DropdownIndexAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.DropdownIndex;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> DropdownIndexAll(Enum ele, int index = 0)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.DropdownIndex, Text = index.ToString() };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> RadioBtnAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.RadioBtn;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> RadioBtnAll(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.RadioBtn, Text = text, Random = random };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> MultiDropdownAll(ElementObject ele)
+        {
+            ele.Action = ElementAction.MultiDropdown;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> MultiDropdownAll(Enum ele, string text = "", bool random = false)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.MultiDropdown, Text = text, Random = random };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> GetAllText(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetText;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> GetAllText(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetText };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> GetCheckboxes(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetCheckbox;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> GetCheckboxes(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetCheckbox };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> GetAttributes(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetAttribute;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> GetAttributes(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetAttribute, Text = text };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> GetCSSes(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetCSS;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> GetCSSes(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetCSS, Text = text };
+            return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> GetProperties(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetProperty;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> GetProperties(Enum ele, string text = "")
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetProperty, Text = text };
+            return Action.ExecuteActions(obj);
+        }
+        #endregion
+        #endregion
     }
 
     public class PoolState

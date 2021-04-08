@@ -1,22 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace iEmosoft.Automation.Model
+namespace aUI.Automation.ModelObjects
 {
     public class TestCaseHeaderData
     {
-        private string fileName="";
+        private string FileName = "";
         private string testName;
 
         public TestCaseHeaderData()
         {
-            this.ExecutedOnDate = DateTime.Now.ToString();
-            this.Priority = "HIGH";
-            this.TestWriter = "Automated Test Writer";
-            this.ExecutedByName = "Automated Tester";
+            ExecutedOnDate = DateTime.Now.ToString();
+            Priority = "HIGH";
+            TestWriter = "Automated Test Writer";
+            ExecutedByName = "Automated Tester";
         }
 
         public string TestNumber { get; set; }
@@ -31,10 +27,10 @@ namespace iEmosoft.Automation.Model
 
                 if (string.IsNullOrEmpty(result))
                 {
-                    int index = this.TestDescription.ToUpper().IndexOf("THAN");
+                    int index = TestDescription.ToUpper().IndexOf("THAN");
                     if (index > 0)
                     {
-                        result = result.Substring(index + 5);
+                        result = result[(index + 5)..];
                     }
                 }
 
@@ -54,8 +50,8 @@ namespace iEmosoft.Automation.Model
         {
             get
             {
-                if (!string.IsNullOrEmpty(fileName))
-                    return fileName;
+                if (!string.IsNullOrEmpty(FileName))
+                    return FileName;
 
                 //If the filename has not specifically been set, derive it from the testname and test number
                 if (!string.IsNullOrEmpty(TestNumber))
@@ -67,7 +63,7 @@ namespace iEmosoft.Automation.Model
             }
             set
             {
-                this.fileName = value;
+                FileName = value;
             }
         }
 

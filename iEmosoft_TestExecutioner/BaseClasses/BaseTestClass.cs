@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using iEmosoft.Automation.Test.IEmosoft.com;
-using iEmosoft.Automation.Model;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using aUI.Automation.ModelObjects;
+using aUI.Automation.Test.IEmosoft.com;
+using NUnit.Framework;
+using System;
 
-namespace iEmosoft.Automation.BaseClasses
+namespace aUI.Automation.BaseClasses
 {
     public abstract class BaseTestClass
     {
@@ -20,13 +16,12 @@ namespace iEmosoft.Automation.BaseClasses
 
         protected void RegisterTestUnderDevelopment(string testNumber, string testName, string testDescription, string testFamily, string etaDate, RegisterTestUnderDevelopmentResultEnumeration assertAction = RegisterTestUnderDevelopmentResultEnumeration.AssertInconclusive)
         {
-            RestClient restClient = new RestClient();
+            var restClient = new RestClient();
 
             DateTime? eta = null;
             if (!string.IsNullOrEmpty(etaDate))
             {
-                DateTime temp;
-                if (!DateTime.TryParse(etaDate, out temp))
+                if (!DateTime.TryParse(etaDate, out DateTime temp))
                 {
                     throw new Exception("etaDate must be a valid date (eg. '1/1/2020')");
                 }

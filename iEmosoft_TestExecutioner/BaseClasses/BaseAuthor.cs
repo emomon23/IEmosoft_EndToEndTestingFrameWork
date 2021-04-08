@@ -1,26 +1,26 @@
-﻿using System;
+﻿using aUI.Automation.ModelObjects;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using iEmosoft.Automation.Model;
 
-namespace iEmosoft.Automation.BaseClasses
+namespace aUI.Automation.BaseClasses
 {
     public abstract class BaseAuthor : IDisposable
     {
-        private int nextStepNumber = 0;
+        private int NextStepNumber = 0;
 
-        protected List<TestCaseStep> recordedSteps = new List<TestCaseStep>();
-        protected TestCaseHeaderData testCaseHeader;
+        public List<TestCaseStep> RecordedSteps { get; private set; } = new List<TestCaseStep>();
+        public TestCaseHeaderData TestCaseHeader { get; private set; }
 
-        protected string testCaseTemplatePath;
-        protected string newTestCasePath = "";
-        protected string newTestCaseName = "";
-        protected string rootTestCasesFolder = "";
+        protected string TestCaseTemplatePath;
+        protected string NewTestCasePath = "";
+        protected string NewTestCaseName = "";
+        protected string RootTestCasesFolder = "";
 
-        protected TestCaseStep currentTestCaseStep = null;
+        protected TestCaseStep CurrentTestCaseStep = null;
 
-        protected bool fileIsDirty = false;
-        protected bool templateWasFound = true;
+        protected bool FileIsDirty = false;
+        protected bool TemplateWasFound = true;
 
         public bool TestCaseFailed
         {
@@ -28,9 +28,9 @@ namespace iEmosoft.Automation.BaseClasses
             {
                 bool result = false;
 
-                for (var i = 0; i < recordedSteps.Count; i++)
+                for (var i = 0; i < RecordedSteps.Count; i++)
                 {
-                    if (recordedSteps[i].StepPassed == false)
+                    if (RecordedSteps[i].StepPassed == false)
                     {
                         result = true;
                         break;
@@ -44,16 +44,6 @@ namespace iEmosoft.Automation.BaseClasses
         //** ABSTRACT METHODS **
         public abstract string SaveReport();
         public abstract bool StartNewTestCase(TestCaseHeaderData headerData);
-        
-        public List<TestCaseStep> RecordedSteps
-        {
-            get { return this.recordedSteps; }
-        }
-
-        public TestCaseHeaderData TestCaseHeader
-        {
-            get { return this.testCaseHeader; }
-        }
 
         public bool AddTestStep(string stepDescription, string expectedResult = "", string suppliedData = "", bool wasSuccessful = true, string actualResult = "", string imageFile = "")
         {
@@ -62,9 +52,9 @@ namespace iEmosoft.Automation.BaseClasses
 
         public void BeginTestCaseStep(string stepDescription, string expectedResult = "", string suppliedData = "")
         {
-            this.fileIsDirty = true;
+            FileIsDirty = true;
 
-            this.currentTestCaseStep = new TestCaseStep()
+            CurrentTestCaseStep = new TestCaseStep()
             {
                 StepDescription = stepDescription,
                 ExpectedResult = expectedResult,
@@ -72,53 +62,53 @@ namespace iEmosoft.Automation.BaseClasses
                 StepPassed = true
             };
 
-            this.recordedSteps.Add(currentTestCaseStep);
+            RecordedSteps.Add(CurrentTestCaseStep);
         }
-   
+
         public TestCaseStep CurrentStep
         {
-            get { return this.currentTestCaseStep; }
+            get { return CurrentTestCaseStep; }
         }
 
         protected bool InitialzieNewTestCase(TestCaseHeaderData testCaseHeader)
         {
-            this.nextStepNumber = 0;
-            this.testCaseHeader = testCaseHeader;
-            this.newTestCaseName = testCaseHeader.TestName;
+            NextStepNumber = 0;
+            TestCaseHeader = testCaseHeader;
+            NewTestCaseName = testCaseHeader.TestName;
 
             string subFolder = string.IsNullOrEmpty(testCaseHeader.SubFolder) ? "" : "\\" + testCaseHeader.SubFolder;
-            this.newTestCasePath = string.Format("{0}{1}", this.rootTestCasesFolder, subFolder);
-      
-            this.templateWasFound = File.Exists(testCaseTemplatePath);
-            if (!templateWasFound)
+            NewTestCasePath = string.Format("{0}{1}", RootTestCasesFolder, subFolder);
+
+            //            templateWasFound = File.Exists(testCaseTemplatePath);
+            //            if (!templateWasFound)
+            //            {
+            //                return false;
+            //            }
+
+            if (!Directory.Exists(NewTestCasePath) && !string.IsNullOrEmpty(NewTestCasePath))
             {
-                return false;
+                Directory.CreateDirectory(NewTestCasePath);
             }
 
-            if (!Directory.Exists(newTestCasePath) &&  ! string.IsNullOrEmpty(newTestCasePath))
-            {
-                Directory.CreateDirectory(newTestCasePath);
-            }
-            
-            this.testCaseHeader = testCaseHeader;
-            this.recordedSteps = new List<TestCaseStep>();
+            TestCaseHeader = testCaseHeader;
+            RecordedSteps = new List<TestCaseStep>();
 
-            fileIsDirty = true;
+            FileIsDirty = true;
             return true;
         }
-        
+
         protected string GetNextFileName()
         {
-            string result = this.newTestCasePath;
+            string result = NewTestCasePath;
             int ctr = 0;
 
             while (File.Exists(result))
             {
                 ctr += 1;
-                result = this.newTestCasePath.Replace(".", ctr.ToString() + ".");
+                result = NewTestCasePath.Replace(".", ctr.ToString() + ".");
             }
 
-            if (this.TestCaseFailed)
+            if (TestCaseFailed)
             {
                 string fileName = Path.GetFileName(result);
 
@@ -130,13 +120,14 @@ namespace iEmosoft.Automation.BaseClasses
 
         protected string GetNextStepSequenceNumberString()
         {
-            nextStepNumber += 1;
-            return (nextStepNumber*10).ToString();
+            NextStepNumber += 1;
+            return (NextStepNumber * 10).ToString();
         }
-               
+
         public void Dispose()
         {
-           //Subclasses can hide this and implement their own dispose if they wish
+            //Subclasses can hide this and implement their own dispose if they wish
+            GC.SuppressFinalize(this);
         }
     }
 }

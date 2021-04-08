@@ -1,108 +1,116 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using iEmosoft;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Model;
-using iEmosoft.Automation.Interfaces;
+﻿using aUI.Automation.HelperObjects;
+using aUI.Automation.Interfaces;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.Support.UI;
+using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Support.UI;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
-namespace iEmosoft.Automation.UIDrivers
+namespace aUI.Automation.UIDrivers
 {
     public class BrowserDriver : IUIDriver
     {
         public enum BrowserDriverEnumeration
         {
-            Chome,
+            Chrome,
+            ChromeRemote,
             Firefox,
-            IE, 
+            FirefoxRemote,
+            IE,
             SauceLabs
         }
 
-        private OpenQA.Selenium.IWebDriver browser = null;
+        private IWebDriver Browser = null;
 
         public string DriverType { get; private set; }
-               
 
-        public List<string> FailedBrowsers { get { return new List<string> { this.DriverType }; } }
 
-        public BrowserDriver( IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Firefox)
+        public List<string> FailedBrowsers { get { return new List<string> { DriverType }; } }
+
+        public BrowserDriver(IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Firefox)
         {
-            DesiredCapabilities dc = new DesiredCapabilities();
-            dc.SetCapability(CapabilityType.UnexpectedAlertBehavior, "ignore");
+            //add default screen size
+            //add ability for custom settings in config
+            //Add 'uri' for remote execution
 
             switch (browserVendor)
             {
                 case BrowserDriverEnumeration.Firefox:
-                    browser = new OpenQA.Selenium.Firefox.FirefoxDriver(dc);
-                    this.DriverType = "FireFox";
+                    var ffService = FirefoxDriverService.CreateDefaultService();
+                    Browser = new FirefoxDriver(ffService);
+                    DriverType = "FireFox";
                     break;
-                case BrowserDriverEnumeration.Chome:
-                    //Tony: browser = new Chrome() (eg google Selenium with Chome)
-                    this.DriverType = "Chrome";
+
+                case BrowserDriverEnumeration.FirefoxRemote:
+                    var ffRemoteService = new FirefoxOptions();
+                    Browser = new RemoteWebDriver(new Uri(""), ffRemoteService);
+                    DriverType = "FireFox";
+                    break;
+                case BrowserDriverEnumeration.Chrome:
+                    var chromeOps = new ChromeOptions();
+                    Browser = new ChromeDriver(chromeOps);
+                    DriverType = "Chrome";
+                    break;
+
+                case BrowserDriverEnumeration.ChromeRemote:
+                    var chromeROps = new ChromeOptions();
+                    Browser = new RemoteWebDriver(new Uri(""), chromeROps);
+                    DriverType = "Chrome";
                     break;
                 case BrowserDriverEnumeration.IE:
-                    //Tony: browser = new IEDriver() (eg google Selenium with IE)
-                    this.DriverType = "IE";
+                    var ieOptions = new InternetExplorerOptions();
+                    Browser = new InternetExplorerDriver(ieOptions);
+                    DriverType = "IE";
                     break;
                 case BrowserDriverEnumeration.SauceLabs:
-                    DesiredCapabilities capabilities = GetDesiredCapabilities(configuration);
+                    var capabilities = GetDesiredCapabilities(configuration);
                     var url = new Uri("http://" + configuration.SauceLabsKey + "@ondemand.saucelabs.com:80/wd/hub");
-                    browser = new OpenQA.Selenium.Remote.RemoteWebDriver(url, capabilities);
+                    Browser = new RemoteWebDriver(url, capabilities);
                     break;
             }
         }
 
-        private DesiredCapabilities GetDesiredCapabilities(IAutomationConfiguration config){
-            DesiredCapabilities result;
-
-            switch (config.SauceLabsBrowser)
+        private DriverOptions GetDesiredCapabilities(IAutomationConfiguration config)
+        {
+            DriverOptions result = config.SauceLabsBrowser switch
             {
-                case "IE":
-                    result = DesiredCapabilities.InternetExplorer();
-                    break;
+                "IE" => new InternetExplorerOptions(),
+                "Chrome" => new ChromeOptions(),
+                _ => new FirefoxOptions(),
+            };
 
-                case "Chrome":
-                    result = DesiredCapabilities.Chrome();
-                    break;
-                default:
-                    result = DesiredCapabilities.Firefox();
-                    break;
-            }
-
-            string [] usernameKey = config.SauceLabsKey.Split(':');
+            string[] usernameKey = config.SauceLabsKey.Split(':');
 
             if (usernameKey.Length != 2)
             {
                 throw new Exception(string.Format("SauceLabsKey found in config file is not as expected.  Expected username:key in the value attribute"));
             }
 
-            result.SetCapability("username", usernameKey[0]);
-            result.SetCapability("accessKey", usernameKey[1]);
-            result.SetCapability("platform", config.SauceLabsPlatform);
+            result.AddAdditionalCapability("username", usernameKey[0]);
+            result.AddAdditionalCapability("accessKey", usernameKey[1]);
+            result.AddAdditionalCapability("platform", config.SauceLabsPlatform);
             return result;
         }
 
         public bool ScreenContains(string lookFor)
         {
-            return browser.PageSource.Contains(lookFor);
+            return Browser.PageSource.Contains(lookFor);
         }
 
         public void SetTextOnControl(string controlIdOrCssSelector, string textToSet)
         {
-            IWebElement element = browser.MineForElement(controlIdOrCssSelector);
+            IWebElement element = Browser.MineForElement(controlIdOrCssSelector);
             SetTextOnControl(element, textToSet);
         }
 
         public void SetTextOnControl(string attributeName, string attributeValue, string textToSet,
             string controlType = "", bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
+            IWebElement element = Browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
 
             if (element == null)
@@ -113,7 +121,7 @@ namespace iEmosoft.Automation.UIDrivers
             SetTextOnControl(element, textToSet);
         }
 
-        private  void SetTextOnControl(IWebElement element, string textToSet)
+        private void SetTextOnControl(IWebElement element, string textToSet)
         {
             if (textToSet.isNull() || textToSet.StartsWith("+=") == false)
             {
@@ -135,14 +143,14 @@ namespace iEmosoft.Automation.UIDrivers
 
         public void ClickControl(string controlIdOrCssSelector)
         {
-            IWebElement element = browser.MineForElement(controlIdOrCssSelector);
+            IWebElement element = Browser.MineForElement(controlIdOrCssSelector);
             ClickElement(element);
         }
 
         public void ClickControl(string attributeName, string attributeValue, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
+            IWebElement element = Browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
             ClickElement(element);
         }
@@ -155,7 +163,7 @@ namespace iEmosoft.Automation.UIDrivers
             }
             catch (UnhandledAlertException alertExp)
             {
-                HandleUnexpectedAlertModal(alertExp);  
+                HandleUnexpectedAlertModal(alertExp);
             }
         }
 
@@ -164,7 +172,7 @@ namespace iEmosoft.Automation.UIDrivers
             string alertText = "";
             try
             {
-                var alert = browser.SwitchTo().Alert();
+                var alert = Browser.SwitchTo().Alert();
                 alertText = alert.Text;
                 alert.Accept();
             }
@@ -176,26 +184,26 @@ namespace iEmosoft.Automation.UIDrivers
         }
         public string GetTextOnControl(string controlIdOrCssSelector)
         {
-            IWebElement element = browser.MineForElement(controlIdOrCssSelector);
-            return element.MineForTextValue(browser as IJavaScriptExecutor);
+            IWebElement element = Browser.MineForElement(controlIdOrCssSelector);
+            return element.MineForTextValue(Browser as IJavaScriptExecutor);
         }
 
         public string GetTextOnControl(string attributeName, string attributeValue, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
+            IWebElement element = Browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
-            return element.MineForTextValue(browser as IJavaScriptExecutor);
+            return element.MineForTextValue(Browser as IJavaScriptExecutor);
         }
 
         public bool AmOnSceen(string snippetToLookFor)
         {
-            return browser.Url.Contains(snippetToLookFor);
+            return Browser.Url.Contains(snippetToLookFor);
         }
 
         public void SetValueOnDropDown(string controlIdOrCssSelector, string valueToSet)
         {
-            var dropdown = (SelectElement) browser.MineForElement(controlIdOrCssSelector);
+            var dropdown = (SelectElement)Browser.MineForElement(controlIdOrCssSelector);
             var originalValue = dropdown.SelectedOption.Text;
 
             dropdown.SelectByText(valueToSet);
@@ -210,8 +218,8 @@ namespace iEmosoft.Automation.UIDrivers
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
 
-            var selectElement = browser.MineForElement(attributeName, attributeValue, "select", true);
-            
+            var selectElement = Browser.MineForElement(attributeName, attributeValue, "select", true);
+
             try
             {
                 var dropdown = (SelectElement)selectElement;
@@ -224,7 +232,7 @@ namespace iEmosoft.Automation.UIDrivers
                     dropdown.SelectByValue(valueToSet);
                 }
             }
-            catch 
+            catch
             {
                 selectElement.SendKeys(valueToSet);
             }
@@ -232,7 +240,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public bool IsCheckBoxChecked(string controlIdOrCssSelector)
         {
-            IWebElement element = browser.MineForElement(controlIdOrCssSelector);
+            IWebElement element = Browser.MineForElement(controlIdOrCssSelector);
             bool isCurrentlyChecked = element.Selected;
 
             return isCurrentlyChecked;
@@ -242,7 +250,7 @@ namespace iEmosoft.Automation.UIDrivers
         public bool IsCheckBoxChecked(string attributeName, string attributeValue, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
+            IWebElement element = Browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
             bool isCurrentlyChecked = element.Selected;
 
@@ -252,7 +260,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public void SetCheckBoxValueTo(string controlIdOrCssSelector, bool valueItShouldBeSetTo)
         {
-            IWebElement element = browser.MineForElement(controlIdOrCssSelector);
+            IWebElement element = Browser.MineForElement(controlIdOrCssSelector);
 
             bool isCurrentlyChecked = element.Selected;
 
@@ -265,7 +273,7 @@ namespace iEmosoft.Automation.UIDrivers
         public void SetCheckBoxValueTo(string attributeName, string attributeValue, bool valueItShouldBeSetTo,
             string controlType = "", bool useWildCardSearch = true, int retryForSeconds = 10)
         {
-            IWebElement element = browser.MineForElement(attributeName, attributeValue, controlType,
+            IWebElement element = Browser.MineForElement(attributeName, attributeValue, controlType,
                 useWildCardSearch, retryForSeconds);
             bool isCurrentlyChecked = element.Selected;
 
@@ -277,7 +285,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public string GetTextOnDropDown(string controlIdOrCssSelector)
         {
-            var element = (SelectElement) browser.MineForElement(controlIdOrCssSelector);
+            var element = (SelectElement)Browser.MineForElement(controlIdOrCssSelector);
             try
             {
                 return element.SelectedOption.Text;
@@ -296,7 +304,7 @@ namespace iEmosoft.Automation.UIDrivers
             {
                 var element =
                     (SelectElement)
-                        browser.MineForElement(attributeName, attributeValue, controlType, useWildCardSearch,
+                        Browser.MineForElement(attributeName, attributeValue, controlType, useWildCardSearch,
                             retryForSeconds);
                 return element.SelectedOption.Text;
             }
@@ -311,7 +319,7 @@ namespace iEmosoft.Automation.UIDrivers
         {
             try
             {
-                var element = (SelectElement) browser.MineForElement(controlIdOrCssSelector);
+                var element = (SelectElement)Browser.MineForElement(controlIdOrCssSelector);
                 return element.SelectedOption.GetAttribute("value");
             }
             catch
@@ -329,7 +337,7 @@ namespace iEmosoft.Automation.UIDrivers
             {
                 var element =
                     (SelectElement)
-                        browser.MineForElement(attributeName, attributeValue, controlType, useWildCardSearch,
+                        Browser.MineForElement(attributeName, attributeValue, controlType, useWildCardSearch,
                             retryForSeconds);
                 return element.SelectedOption.GetAttribute("value");
             }
@@ -342,7 +350,7 @@ namespace iEmosoft.Automation.UIDrivers
 
         public void NavigateTo(string windowNameOrUri)
         {
-            browser.NavigateTo(windowNameOrUri);
+            Browser.NavigateTo(windowNameOrUri);
         }
 
         public void Launch(string appNameOrUri)
@@ -355,37 +363,39 @@ namespace iEmosoft.Automation.UIDrivers
             Thread.Sleep(milliseconds);
         }
 
-     
+
         public string CurrentFormName_OrPageURL
         {
             get
             {
-                try { 
-                    return browser.Url;
+                try
+                {
+                    return Browser.Url;
                 }
                 catch (UnhandledAlertException alertExp)
                 {
                     HandleUnexpectedAlertModal(alertExp);
-                    return browser.Url;
+                    return Browser.Url;
                 }
             }
         }
 
         public void ShowWindow()
         {
-            browser.Manage().Window.Maximize();
+            Browser.Manage().Window.Maximize();
         }
 
         public void MaximizeWindow()
         {
-            browser.Manage().Window.Maximize();
+            Browser.Manage().Window.Maximize();
         }
 
         public void Dispose()
         {
-            browser.Quit();
+            Browser.Quit();
+            GC.SuppressFinalize(this);
         }
 
-        public IWebDriver RawWebDriver { get { return browser; } }
+        public IWebDriver RawWebDriver { get { return Browser; } }
     }
 }

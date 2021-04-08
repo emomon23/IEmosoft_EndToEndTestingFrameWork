@@ -1,36 +1,35 @@
-﻿using System;
+﻿using aUI.Automation.HelperObjects;
+using aUI.Automation.ModelObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using iEmosoft.Automation.HelperObjects;
-using iEmosoft.Automation.Model;
 
-namespace iEmosoft.Automation.BaseClasses
+namespace aUI.Automation.BaseClasses
 {
     public abstract class BugCreator : IDisposable
     {
-        protected TestCaseHeaderData header = null;
-        protected List<TestCaseStep> steps = null;
+        protected TestCaseHeaderData Header = null;
+        protected List<TestCaseStep> Steps = null;
 
         protected string BugTitle = "";
         protected string BugDescription = "";
-     
+
 
         //Make sure to call base.InitializeBugCreator when you override this method!
         public abstract string CreateBug(TestCaseHeaderData header, List<TestCaseStep> steps);
 
         protected void InitializeBugCreator(TestCaseHeaderData header, List<TestCaseStep> steps)
         {
-            this.header = header;
-            this.steps = steps;
-            this.InitializeBugTitleAndSummary();
+            Header = header;
+            Steps = steps;
+            InitializeBugTitleAndSummary();
         }
 
         protected string PathToFailedImage
         {
             get
             {
-                var failedStep = this.GetFailedStep();
+                var failedStep = GetFailedStep();
                 if (failedStep != null && string.IsNullOrEmpty(failedStep.ImageFilePath) == false)
                     return failedStep.ImageFilePath;
 
@@ -42,25 +41,25 @@ namespace iEmosoft.Automation.BaseClasses
         {
             get
             {
-                var failedStep = this.GetFailedStep();
+                var failedStep = GetFailedStep();
                 return failedStep != null || failedStep.ImageFilePath.IsNull() == false;
             }
         }
 
         protected string GetTestStepsParagraph()
         {
-            return this.GetTestStepsParagraph("\n\n");
+            return GetTestStepsParagraph("\n\n");
         }
 
         protected string GetTestStepsParagraph(string stepSeperator)
         {
             string result = stepSeperator;
 
-            for (int i=0; i<steps.Count(); i++)
+            for (int i = 0; i < Steps.Count; i++)
             {
-                var step = steps[i];
+                var step = Steps[i];
 
-                result += string.Format("Step {0}: {1}{2}", (i+1) * 10, step.StepDescription, stepSeperator);
+                result += string.Format("Step {0}: {1}{2}", (i + 1) * 10, step.StepDescription, stepSeperator);
             }
 
             return result;
@@ -68,18 +67,18 @@ namespace iEmosoft.Automation.BaseClasses
 
         protected TestCaseStep GetFailedStep()
         {
-            return steps.FirstOrDefault(s => s.StepPassed == false);
+            return Steps.FirstOrDefault(s => s.StepPassed == false);
         }
 
         private void InitializeBugTitleAndSummary()
         {
-            string testNumber = header.TestNumber.IsNull() ? "" : header.TestNumber + " - ";
-            var badStep = this.GetFailedStep();
+            string testNumber = Header.TestNumber.IsNull() ? "" : Header.TestNumber + " - ";
+            var badStep = GetFailedStep();
 
-            this.BugTitle = string.Format("{0}{1}", testNumber, badStep.ActualResult.Replace(", see image for details", ""));
-            this.BugDescription = string.Format("- {1}{0} - Prereqs: {2}{0}{0}Steps to reproduce:{3}", "\n",
-                header.TestDescription,
-                header.Prereqs,
+            BugTitle = string.Format("{0}{1}", testNumber, badStep.ActualResult.Replace(", see image for details", ""));
+            BugDescription = string.Format("- {1}{0} - Prereqs: {2}{0}{0}Steps to reproduce:{3}", "\n",
+                Header.TestDescription,
+                Header.Prereqs,
                 GetTestStepsParagraph());
         }
 

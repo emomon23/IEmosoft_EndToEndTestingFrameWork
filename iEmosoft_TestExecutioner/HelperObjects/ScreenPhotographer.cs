@@ -1,26 +1,26 @@
 ﻿using System;
-using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 
-namespace iEmosoft.Automation.HelperObjects
+namespace aUI.Automation.HelperObjects
 {
-    public class ScreenPhotographer 
+    public class ScreenPhotographer
     {
-        private string baseRootFolder = "";
-        private Image lastImageCaptured = null;
-        private IntPtr screenToCapture = IntPtr.Zero;
+        private string BaseRootFolder = "";
+        public Image LastImageCaptured { get; private set; } = null;
+        private IntPtr ScreenToCapture = IntPtr.Zero;
 
         public IntPtr ScreenToCaptureWindowsHandle
         {
             get
             {
-                return this.screenToCapture;
+                return ScreenToCapture;
             }
             set
             {
-                this.screenToCapture = value;
+                ScreenToCapture = value;
             }
         }
 
@@ -28,15 +28,15 @@ namespace iEmosoft.Automation.HelperObjects
         {
             get
             {
-                return baseRootFolder;
+                return BaseRootFolder;
             }
         }
-        
+
         public ScreenPhotographer() { }
-             
+
         public ScreenPhotographer(string rootFolder)
         {
-            this.baseRootFolder = rootFolder;
+            BaseRootFolder = rootFolder;
             if (!Directory.Exists(rootFolder))
             {
                 try
@@ -49,13 +49,13 @@ namespace iEmosoft.Automation.HelperObjects
                 }
             }
         }
-       
+
         public Image CaptureScreen(string textToWriteOnImage = "")
         {
-            if (this.screenToCapture == IntPtr.Zero)
-                this.screenToCapture = User32.GetDesktopWindow();
-          
-            Image img = CaptureWindow(this.screenToCapture);
+            if (ScreenToCapture == IntPtr.Zero)
+                ScreenToCapture = User32.GetDesktopWindow();
+
+            Image img = CaptureWindow(ScreenToCapture);
 
             if (!textToWriteOnImage.isNull())
             {
@@ -64,40 +64,34 @@ namespace iEmosoft.Automation.HelperObjects
 
             return img;
         }
-        
+
         public void CaptureScreenToFile(string filename, ImageFormat format = null, string textToWriteOnImage = "")
         {
             Image img = CaptureScreen();
-            
-            if (! textToWriteOnImage.IsNull())
+
+            if (!textToWriteOnImage.IsNull())
             {
-                this.WriteTextOnImage(img, textToWriteOnImage);
+                WriteTextOnImage(img, textToWriteOnImage);
             }
 
             if (format == null)
             {
-                format = ImageFormat.Jpeg;
+                format = ImageFormat.Png;
             }
 
             img.Save(filename, format);
 
-            this.lastImageCaptured = img;
+            LastImageCaptured = img;
         }
-        
-        public Image LastImageCaptured { get { return this.lastImageCaptured; } }
 
         public byte[] LastImageCapturedAsByteArray
         {
             get
             {
-                byte [] result;
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    this.lastImageCaptured.Save(ms, ImageFormat.Png);
-                    result = ms.ToArray();
-                }
+                using var ms = new MemoryStream();
 
-                return result;
+                LastImageCaptured.Save(ms, ImageFormat.Png);
+                return ms.ToArray();
             }
         }
 
@@ -106,15 +100,11 @@ namespace iEmosoft.Automation.HelperObjects
             if (string.IsNullOrEmpty(textToWrite))
                 return;
 
-            PointF textLocation = new PointF(200, 200);
+            var textLocation = new PointF(200, 200);
 
-            using (Graphics graphics = Graphics.FromImage(image))
-            {
-                using (var arialFont = new Font("Arial", 14))
-                {
-                    graphics.DrawString(textToWrite, arialFont, Brushes.Red, textLocation);
-                }
-            }
+            using Graphics graphics = Graphics.FromImage(image);
+            using var arialFont = new Font("Arial", 14);
+            graphics.DrawString(textToWrite, arialFont, Brushes.Red, textLocation);
         }
 
         public Image CaptureWindow(IntPtr windowHandle, string textToWriteOnImage = "")
@@ -124,7 +114,7 @@ namespace iEmosoft.Automation.HelperObjects
             // get te hDC of the target window
             IntPtr hdcSrc = User32.GetWindowDC(handle);
             // get the size
-            User32.RECT windowRect = new User32.RECT();
+            var windowRect = new User32.RECT();
             User32.GetWindowRect(handle, ref windowRect);
             int width = windowRect.right - windowRect.left;
             int height = windowRect.bottom - windowRect.top;
@@ -148,11 +138,11 @@ namespace iEmosoft.Automation.HelperObjects
             GDI32.DeleteObject(hBitmap);
 
 
-            this.lastImageCaptured = img;
+            LastImageCaptured = img;
 
             if (!textToWriteOnImage.isNull())
             {
-                this.WriteTextOnImage(img, textToWriteOnImage);
+                WriteTextOnImage(img, textToWriteOnImage);
             }
 
             return img;
@@ -167,10 +157,10 @@ namespace iEmosoft.Automation.HelperObjects
         public void CaptureWindowToFile(IntPtr handle, string filename, ImageFormat format, string textToWriteOnImage)
         {
             Image img = CaptureWindow(handle);
-            this.WriteTextOnImage(img, textToWriteOnImage);
+            WriteTextOnImage(img, textToWriteOnImage);
             img.Save(filename, format);
         }
-        
+
         /// <summary>
         /// Helper class containing Gdi32 API functions
         /// </summary>

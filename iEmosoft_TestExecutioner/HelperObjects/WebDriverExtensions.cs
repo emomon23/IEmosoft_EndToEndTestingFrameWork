@@ -1,15 +1,13 @@
-﻿using System;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.Support.UI;
 
-namespace iEmosoft.Automation.HelperObjects
+namespace aUI.Automation.HelperObjects
 {
     public static class WebDriverExtensions
     {
@@ -30,8 +28,9 @@ namespace iEmosoft.Automation.HelperObjects
         {
             driver.FindElement(by).Click();
         }
-        
-        public static void SetTextOnElement(this IWebDriver driver, By by, string text){
+
+        public static void SetTextOnElement(this IWebDriver driver, By by, string text)
+        {
             driver.FindElement(by).SendKeys(text);
         }
 
@@ -43,20 +42,22 @@ namespace iEmosoft.Automation.HelperObjects
             title = title.IsNull() ? "Something we don't want to seach for ASFSFSA!!" : title;
 
             var firefoxBrowsers = Process.GetProcessesByName("firefox");
-            if (firefoxBrowsers.Count() == 1)
-                return firefoxBrowsers.ElementAt(0).MainWindowHandle;
-
-            IntPtr activeWindowHandle = GetActiveWindow();
-
-            foreach (var browser in firefoxBrowsers)
+            if (firefoxBrowsers.Length > 1)
             {
-                if (browser.MainWindowTitle == title || browser.MainWindowHandle == activeWindowHandle)
+                IntPtr activeWindowHandle = GetActiveWindow();
+
+                foreach (var browser in firefoxBrowsers)
                 {
-                    result = browser.MainWindowHandle;
+                    if (browser.MainWindowTitle == title || browser.MainWindowHandle == activeWindowHandle)
+                    {
+                        result = browser.MainWindowHandle;
+                    }
                 }
+
+                return result;
             }
 
-            return result;
+            return firefoxBrowsers.ElementAt(0).MainWindowHandle;
         }
 
         public static bool DoesElementExist(this IWebDriver driver, By by)
@@ -107,8 +108,9 @@ namespace iEmosoft.Automation.HelperObjects
             return rtnVal;
         }
 
-      
-        public static string GetSelectedTextOnDropdown(this IWebDriver driver, By by){
+
+        public static string GetSelectedTextOnDropdown(this IWebDriver driver, By by)
+        {
             var dropdown = (SelectElement)driver.FindElement(by);
 
             return dropdown.SelectedOption.Text;
@@ -119,13 +121,15 @@ namespace iEmosoft.Automation.HelperObjects
             return driver.PageSource.ToLower().Contains(lookFor.ToLower());
         }
 
-        public static string GetSelectedValueOnDropdown(this IWebDriver driver, By by){
+        public static string GetSelectedValueOnDropdown(this IWebDriver driver, By by)
+        {
             var dropdown = (SelectElement)driver.FindElement(by);
 
             return dropdown.SelectedOption.GetAttribute("value");
         }
 
-        public static void NavigateTo(this IWebDriver driver, string url){
+        public static void NavigateTo(this IWebDriver driver, string url)
+        {
             driver.Navigate().GoToUrl(url);
         }
 
@@ -200,8 +204,9 @@ namespace iEmosoft.Automation.HelperObjects
         public static List<IWebElement> MineForElements(this IWebElement element, string attributeName, string attributeValue, string elementName = "")
         {
             string query = string.Format("{0}[{1}*='{2}']", elementName, attributeName, attributeValue);
-            
-            for (int i=0; i<10; i++){
+
+            for (int i = 0; i < 10; i++)
+            {
                 try
                 {
                     var results = element.FindElements(By.CssSelector(query));
@@ -224,7 +229,7 @@ namespace iEmosoft.Automation.HelperObjects
             IWebElement rtnVal = null;
 
             int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
-            int retryAttemps = seconds < 0? 1 : (seconds*1000)/200;
+            int retryAttemps = seconds < 0 ? 1 : (seconds * 1000) / 200;
 
             for (var i = 0; i < retryAttemps; i++)
             {
@@ -263,8 +268,8 @@ namespace iEmosoft.Automation.HelperObjects
             IWebElement result = null;
             string query = "";
 
-             int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
-             int retryAttemps = retryForSeconds < 0? 1 : (seconds*1000)/200;
+            int seconds = retryForSeconds == 0 ? 1 : retryForSeconds > 60 ? 60 : retryForSeconds;
+            int retryAttemps = retryForSeconds < 0 ? 1 : (seconds * 1000) / 200;
 
             for (var i = 0; i < retryAttemps; i++)
             {
@@ -349,7 +354,7 @@ namespace iEmosoft.Automation.HelperObjects
             List<IWebElement> rtnVal = null;
 
             for (var i = 0; i <= retryIfCountIsZeroHowManyTimes; i++)
-            { 
+            {
                 rtnVal = QueryForElements(driver, By.CssSelector(idOrCssSelector));
                 if (rtnVal != null && rtnVal.Count > 0)
                     break;
@@ -370,7 +375,7 @@ namespace iEmosoft.Automation.HelperObjects
             {
                 return driver.FindElement(by);
             }
-            catch (NoSuchElementException exception)
+            catch
             {
                 return null;
             }
@@ -382,7 +387,7 @@ namespace iEmosoft.Automation.HelperObjects
             {
                 return driver.FindElements(by).ToList();
             }
-            catch (NoSuchElementException exception)
+            catch
             {
                 return null;
             }
@@ -390,10 +395,15 @@ namespace iEmosoft.Automation.HelperObjects
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern IntPtr GetActiveWindow();
-      
+
         public static bool IsNull(this string str)
         {
             return string.IsNullOrEmpty(str);
+        }
+
+        public static void ScrollToElement(this IJavaScriptExecutor js, IWebElement element)
+        {
+            js.ExecuteScript("arguments[0].scrollIntoView({block: \"center\"});", element);
         }
     }
 }

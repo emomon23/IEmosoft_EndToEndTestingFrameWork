@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
+﻿using Newtonsoft.Json;
 
-namespace iEmosoft.Automation
+namespace aUI.Automation.Baseline
 {
     public abstract class BaseTestResult
     {
@@ -15,7 +10,7 @@ namespace iEmosoft.Automation
 
         public string ToJSON()
         {
-            return new JavaScriptSerializer().Serialize(this);
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

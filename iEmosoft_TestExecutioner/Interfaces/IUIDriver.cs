@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace iEmosoft.Automation.Interfaces
+namespace aUI.Automation.Interfaces
 {
     public interface IUIDriver : IDisposable
     {
         bool ScreenContains(string lookFor);
 
-        string DriverType { get;  }
+        string DriverType { get; }
         List<string> FailedBrowsers { get; }
 
-        
+
 
         void SetTextOnControl(string controlIdOrCssSelector, string textToSet);
         void SetTextOnControl(string attributeName, string attributeValue, string textToSet, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10);
 
-        
+
         void ClickControl(string controlIdOrCssSelector);
         void ClickControl(string attributeName, string attributeValue, string controlType = "",
             bool useWildCardSearch = true, int retryForSeconds = 10);

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using iEmosoft.Automation.Model;
-using Excel = Microsoft.Office.Interop.Excel;
-using iEmosoft.Automation.BaseClasses;
-
-namespace iEmosoft.Automation.Authors
+﻿/*
+namespace aUI.Automation.Authors
 {
 	public class ExcelAuthor : BaseAuthor, IDisposable
 	{
@@ -41,7 +36,7 @@ namespace iEmosoft.Automation.Authors
             {
                 base.rootTestCasesFolder = rootTestCasesFolderOrAppSettingName;
             }
-            this.testCaseTemplatePath = string.Format("{0}\\Resources\\TestCaseTemplate.xlsx", AppDomain.CurrentDomain.BaseDirectory);
+            testCaseTemplatePath = string.Format("{0}\\Resources\\TestCaseTemplate.xlsx", AppDomain.CurrentDomain.BaseDirectory);
 		}
        
        	public override bool StartNewTestCase(TestCaseHeaderData testCaseHeader)
@@ -118,23 +113,23 @@ namespace iEmosoft.Automation.Authors
             //If the workbook is not null, then we've already written the header
 	        if (workbook == null)
 	        {
-	            this.workbook = excelApp.Workbooks.Open(testCaseTemplatePath, MISSING, MISSING, MISSING, MISSING,
+	            workbook = excelApp.Workbooks.Open(testCaseTemplatePath, MISSING, MISSING, MISSING, MISSING,
 	                MISSING, MISSING, MISSING, MISSING, MISSING, MISSING, MISSING, MISSING, MISSING, MISSING);
-	            this.activateWorksheet = workbook.ActiveSheet;
+	            activateWorksheet = workbook.ActiveSheet;
 
 
 	            if (!string.IsNullOrEmpty(testCaseHeader.TestNumber))
 	            {
-	                this.WriteToExcelFile("A1", testCaseHeader.TestNumber.ToString());
+	                WriteToExcelFile("A1", testCaseHeader.TestNumber.ToString());
 	            }
 
-	            this.WriteToExcelFile("B2", testCaseHeader.Prereqs);
-	            this.WriteToExcelFile("B3", testCaseHeader.TestName);
-	            this.WriteToExcelFile("B4", testCaseHeader.Priority);
-	            this.WriteToExcelFile("B5", testCaseHeader.TestWriter);
-	            this.WriteToExcelFile("D4", testCaseHeader.ExecutedByName);
-	            this.WriteToExcelFile("D5", testCaseHeader.ExecutedOnDate);
-	            this.WriteToExcelFile("A8", testCaseHeader.TestDescription);
+	            WriteToExcelFile("B2", testCaseHeader.Prereqs);
+	            WriteToExcelFile("B3", testCaseHeader.TestName);
+	            WriteToExcelFile("B4", testCaseHeader.Priority);
+	            WriteToExcelFile("B5", testCaseHeader.TestWriter);
+	            WriteToExcelFile("D4", testCaseHeader.ExecutedByName);
+	            WriteToExcelFile("D5", testCaseHeader.ExecutedOnDate);
+	            WriteToExcelFile("A8", testCaseHeader.TestDescription);
 	        }
 	    }
 
@@ -142,31 +137,31 @@ namespace iEmosoft.Automation.Authors
 	    {
 	        for (int i=currentStepIndexWrittenToFile; i< recordedSteps.Count; i++)
 	        {
-	            this.WriteStepToExcel(recordedSteps[i]);
+	            WriteStepToExcel(recordedSteps[i]);
 	        }    
 	    }
 
         private void WriteStepToExcel(TestCaseStep step)
 		{
-           	if (!this.templateWasFound)
+           	if (!templateWasFound)
 			{
 				return;
 			}
 
 			//The steps will be number by 10's, this will allow a person to manually insert line items between numbers.
-			string stepNumber = ((this.currentStepIndexWrittenToFile + 1) * 10).ToString();
+			string stepNumber = ((currentStepIndexWrittenToFile + 1) * 10).ToString();
 
 			//steps being on row #14 in the test case template, as the currentStepIndex increases, so should the row we write too.
-			string stepRow = (14 + this.currentStepIndexWrittenToFile).ToString();
-			this.currentStepIndexWrittenToFile += 1;
+			string stepRow = (14 + currentStepIndexWrittenToFile).ToString();
+			currentStepIndexWrittenToFile += 1;
 
-			this.WriteToExcelFile("A" + stepRow, stepNumber);
-			this.WriteToExcelFile("B" + stepRow, step.StepDescription);
-			this.WriteToExcelFile("C" + stepRow, step.SuppliedData);
-			this.WriteToExcelFile("D" + stepRow, step.ExpectedResult);
-			this.WriteToExcelFile("E" + stepRow, step.ActualResult);
-			this.WriteToExcelFile("F" + stepRow, step.StepPassed ? "True" : "FALSE!");
-            this.WriteToExcelFile("H" + stepRow, step.Notes);
+			WriteToExcelFile("A" + stepRow, stepNumber);
+			WriteToExcelFile("B" + stepRow, step.StepDescription);
+			WriteToExcelFile("C" + stepRow, step.SuppliedData);
+			WriteToExcelFile("D" + stepRow, step.ExpectedResult);
+			WriteToExcelFile("E" + stepRow, step.ActualResult);
+			WriteToExcelFile("F" + stepRow, step.StepPassed ? "True" : "FALSE!");
+            WriteToExcelFile("H" + stepRow, step.Notes);
 
             if (!string.IsNullOrEmpty(step.ImageFilePath))
             {
@@ -178,34 +173,34 @@ namespace iEmosoft.Automation.Authors
 
 			if (!step.StepPassed)
 			{
-				this.SetCellsBackColor(statusRow, RED);
+				SetCellsBackColor(statusRow, RED);
 			}
 			else
 			{
-				this.SetCellsBackColor(statusRow, GREEN);
+				SetCellsBackColor(statusRow, GREEN);
 			}
 
 			fileIsDirty = true;
-            this.currentTestCaseStep = null;
+            currentTestCaseStep = null;
 		}
 
 	    private string SaveExcelFileToDisk()
 	    {
             string newFileName = GetNextFileName();
-            this.workbook.SaveAs(newFileName, MISSING, MISSING, MISSING, MISSING, MISSING, Excel.XlSaveAsAccessMode.xlExclusive, 2, MISSING, MISSING, MISSING, MISSING);
+            workbook.SaveAs(newFileName, MISSING, MISSING, MISSING, MISSING, MISSING, Excel.XlSaveAsAccessMode.xlExclusive, 2, MISSING, MISSING, MISSING, MISSING);
             return newFileName;
         }
 
         private void UpdatePassFailStatusForWholeTest(){
 	        if (fileIsDirty && templateWasFound)
             {
-                int darkColor = this.TestCaseFailed ? DARK_RED : DARK_GREEN;
-                int lightColor = this.TestCaseFailed ? RED : GREEN;
-                string passFailText = this.TestCaseFailed ? "FAIL" : "PASSED";
+                int darkColor = TestCaseFailed ? DARK_RED : DARK_GREEN;
+                int lightColor = TestCaseFailed ? RED : GREEN;
+                string passFailText = TestCaseFailed ? "FAIL" : "PASSED";
 
-                this.WriteToExcelFile("B1", passFailText);
-                this.SetCellsBackColor("B1", lightColor);
-                this.SetCellsBackColor("A1", darkColor);
+                WriteToExcelFile("B1", passFailText);
+                SetCellsBackColor("B1", lightColor);
+                SetCellsBackColor("A1", darkColor);
            }
 
             fileIsDirty = false;
@@ -215,13 +210,14 @@ namespace iEmosoft.Automation.Authors
         {
             if (!string.IsNullOrEmpty(text))
             {
-                this.activateWorksheet.get_Range(cell, MISSING).Value = text;
+                activateWorksheet.get_Range(cell, MISSING).Value = text;
             }
         }
 
         private void SetCellsBackColor(string cell, int color)
         {
-            this.activateWorksheet.get_Range(cell).Interior.Color = color;
+            activateWorksheet.get_Range(cell).Interior.Color = color;
         }
     }
 }
+*/

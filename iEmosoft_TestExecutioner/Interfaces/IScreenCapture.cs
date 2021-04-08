@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 
-namespace iEmosoft.Automation.Interfaces
+namespace aUI.Automation.Interfaces
 {
     public interface IScreenCapture : IDisposable
     {
-        void CaptureDesktop(string fileName, ImageFormat format = null, string textToOverlay = "");
+        void CaptureDesktop(string fileName, string textToOverlay, bool deleteDup = true);
         byte[] LastImageCapturedAsByteArray { get; }
         string NewFileName { get; }
-       
+
     }
 }

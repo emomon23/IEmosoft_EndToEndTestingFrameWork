@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace iEmosoft.Automation
+﻿namespace aUI.Automation
 {
     public class JQuerySelector
     {
         public JQuerySelector() { }
         public JQuerySelector(string script)
         {
-            this.jQuerySelectorScript = script;
+            JQuerySelectorScript = script;
         }
-        public string jQuerySelectorScript { get; set; }
+        public string JQuerySelectorScript { get; set; }
     }
 
     public static class StringJQuerySelectorExtensionClass

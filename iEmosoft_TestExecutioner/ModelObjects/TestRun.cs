@@ -1,40 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace iEmosoft.Automation.Model
+namespace aUI.Automation.ModelObjects
 {
     public class TestRun
     {
-        List<TestCaseStep> steps = new List<TestCaseStep>();
-        TestCaseHeaderData headerData;
+        List<TestCaseStep> Steps { get; set; } = new List<TestCaseStep>();
+        public TestCaseHeaderData HeaderData { get; set; }
 
         public TestRun()
         {
-            this.RunDate = DateTime.Now;
+            RunDate = DateTime.Now;
         }
 
         public string ApplicationUnderTest { get; set; }
         public DateTime RunDate { get; set; }
         public double RuntimeInMinutes { get; set; }
-
-        public List<TestCaseStep> Steps
-        {
-            get { return steps; }
-            set { steps = value; }
-        }
-
-        public TestCaseHeaderData HeaderData
-        {
-            get
-            {
-                return headerData;
-            }
-            set
-            {
-                headerData = value;
-            }
-        }
     }
 }

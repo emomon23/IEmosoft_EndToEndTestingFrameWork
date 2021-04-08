@@ -1,30 +1,25 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace iEmosoft.Automation
+namespace aUI.Automation.Baseline
 {
     public class BaselineTester : IDisposable
     {
-        private string baselinePath = "";
-        private bool baselineFileExists = false;
-                
-        private List<BaselineDescrepencyCheck> descrepencies = new List<BaselineDescrepencyCheck>();
-        private Type concreateTestResultType;
+        private string BaselinePath = "";
+        private List<BaselineDescrepencyCheck> Descrepencies = new();
+        private Type ConcreateTestResultType;
 
         public BaselineTester(string baselineFileName, Type testResultImplementationType)
         {
-            this.baselinePath = Path.GetDirectoryName(baselineFileName) + "\\";
-            this.concreateTestResultType = testResultImplementationType;
+            BaselinePath = Path.GetDirectoryName(baselineFileName) + "\\";
+            ConcreateTestResultType = testResultImplementationType;
 
-            if (!Directory.Exists(baselinePath))
+            if (!Directory.Exists(BaselinePath))
             {
-                Directory.CreateDirectory(baselinePath);
+                Directory.CreateDirectory(BaselinePath);
             }
         }
 
@@ -40,20 +35,20 @@ namespace iEmosoft.Automation
                 var descrepency = baselineTestResult.CompareResults(testResult);
                 if (descrepency != null && descrepency.Mismatches != null && descrepency.Mismatches.Count > 0)
                 {
-                    this.descrepencies.Add(descrepency);
+                    Descrepencies.Add(descrepency);
                 }
             }
         }
 
         public void WriteBaseline(BaseTestResult testResult)
         {
-            string path = baselinePath + testResult.TestResultKey + ".json";
+            string path = BaselinePath + testResult.TestResultKey + ".json";
             File.WriteAllText(path, testResult.ToJSON());
         }
 
         private BaseTestResult GetBaselineTestResult(string key)
         {
-            string path = baselinePath + key + ".json";
+            string path = BaselinePath + key + ".json";
 
             if (!File.Exists(path))
             {
@@ -61,7 +56,7 @@ namespace iEmosoft.Automation
             }
 
             string json = File.ReadAllText(path);
-            BaseTestResult result = (BaseTestResult)Activator.CreateInstance(this.concreateTestResultType);
+            BaseTestResult result = (BaseTestResult)Activator.CreateInstance(ConcreateTestResultType);
             result.ReadFromJSONString(json);
 
             return result;
@@ -71,9 +66,9 @@ namespace iEmosoft.Automation
         {
             string message = "";
 
-            if (descrepencies.Count > 0)
+            if (Descrepencies.Count > 0)
             {
-                string descrpencyFilePath = string.Format("{0}\\Descrepencies_{1}_{2}.{3}", baselinePath, this.concreateTestResultType.ToString(),
+                string descrpencyFilePath = string.Format("{0}\\Descrepencies_{1}_{2}.{3}", BaselinePath, ConcreateTestResultType.ToString(),
                     Guid.NewGuid().ToString().Substring(0, 5), "json");
 
                 WriteDescrepencies(descrpencyFilePath);
@@ -81,7 +76,7 @@ namespace iEmosoft.Automation
                 message +=
                     string.Format(
                         "There are {0} descrepencies between baseline and this test run.  View {1} to see the descrepencies",
-                        descrepencies.Count, descrpencyFilePath);
+                        Descrepencies.Count, descrpencyFilePath);
 
                 Assert.IsTrue(false, message);
             }
@@ -90,12 +85,13 @@ namespace iEmosoft.Automation
             {
                 Assert.Inconclusive(message);
             }
+            GC.SuppressFinalize(this);
         }
 
-  
+
         private void WriteDescrepencies(string fileName)
         {
-            var jsonString = new JavaScriptSerializer().Serialize(descrepencies);
+            var jsonString = JsonConvert.SerializeObject(Descrepencies);
             File.WriteAllText(fileName, jsonString);
         }
     }
