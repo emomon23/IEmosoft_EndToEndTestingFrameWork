@@ -22,6 +22,7 @@ namespace aUI.Automation.Elements
         public bool Random = false;
         public bool Clear = true;
         public bool ProtectedValue = false;
+        public int RandomLength = 25;
 
         public string ElementName = "";
 
@@ -31,19 +32,62 @@ namespace aUI.Automation.Elements
         /// Value - what to replace it with
         /// </summary>
         public Dictionary<string, string> RuntimeRefUpdate = new();
-
+        public string ExpectedValue = "";
 
         public ElementObject()
         {
         }
 
-        public ElementObject(Enum eleRef)
+        public ElementObject(ElementType type, string eleRef, string desiredText = "")
+        {
+            EleType = type;
+            EleRef = eleRef;
+            ElementName = $"{type} Element Specified";
+            ExpectedValue = desiredText;
+        }
+
+        public ElementObject(Enum eleRef, string desiredText = "")
         {
             //TODO Expand constructors
             EleType = eleRef.Type();
             EleRef = eleRef.Ref();
             ElementName = eleRef.ToString();
+            Text = desiredText;
+            ExpectedValue = desiredText;
         }
+
+        public ElementObject(Enum eleRef, int randLength)
+        {
+            //TODO Expand constructors
+            EleType = eleRef.Type();
+            EleRef = eleRef.Ref();
+            ElementName = eleRef.ToString();
+            Random = true;
+            RandomLength = randLength;
+        }
+
+        public ElementObject(Enum eleRef, Dictionary<string, string> runtimeUpdate)
+        {
+            EleType = eleRef.Type();
+            EleRef = eleRef.Ref();
+            ElementName = eleRef.ToString();
+            RuntimeRefUpdate = runtimeUpdate;
+            RuntimeUpdate();
+        }
+
+        public void RuntimeUpdate()
+        {
+            foreach (var itm in RuntimeRefUpdate)
+            {
+                EleRef = EleRef.Replace(itm.Key, itm.Value);
+            }
+
+            if (!ElementName.Contains("With Runtime Update"))
+            {
+                ElementName += " With Runtime Update";
+            }
+        }
+
 
         /* CustomCondition Example:
          *

@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using System;
 
 namespace aUI.Automation.Elements
 {
@@ -12,7 +13,7 @@ namespace aUI.Automation.Elements
         public string AttributeText = "";
         public IWebElement RawEle = null;
         public bool Success = false;
-
+        public Exception Exception = null;
 
         public ElementResult(TestExecutioner tE)
         {

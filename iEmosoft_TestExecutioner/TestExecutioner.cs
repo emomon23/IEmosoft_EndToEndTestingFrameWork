@@ -726,9 +726,9 @@ namespace aUI.Automation
             return Action.ExecuteAction(ele);
         }
 
-        public ElementResult EnterText(Enum ele, string text = "", bool random = false)
+        public ElementResult EnterText(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.EnterText, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
             return Action.ExecuteAction(obj);
         }
 
@@ -738,9 +738,9 @@ namespace aUI.Automation
             return Action.ExecuteAction(ele);
         }
 
-        public ElementResult Dropdown(Enum ele, string text = "", bool random = false)
+        public ElementResult Dropdown(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.Dropdown, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
             return Action.ExecuteAction(obj);
         }
 
@@ -762,9 +762,9 @@ namespace aUI.Automation
             return Action.ExecuteAction(ele);
         }
 
-        public ElementResult RadioBtn(Enum ele, string text = "", bool random = false)
+        public ElementResult RadioBtn(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.RadioBtn, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
             return Action.ExecuteAction(obj);
         }
 
@@ -776,7 +776,7 @@ namespace aUI.Automation
 
         public ElementResult MultiDropdown(Enum ele, string text = "", bool random = false)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.MultiDropdown, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, Random = random };
             return Action.ExecuteAction(obj);
         }
 
@@ -812,7 +812,7 @@ namespace aUI.Automation
 
         public ElementResult GetAttribute(Enum ele, string text = "")
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.GetAttribute, Text = text };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.GetAttribute };
             return Action.ExecuteAction(obj);
         }
 
@@ -824,7 +824,7 @@ namespace aUI.Automation
 
         public ElementResult GetCSS(Enum ele, string text = "")
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.GetCSS, Text = text };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.GetCSS };
             return Action.ExecuteAction(obj);
         }
 
@@ -836,7 +836,7 @@ namespace aUI.Automation
 
         public ElementResult GetProperty(Enum ele, string text = "")
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.GetProperty, Text = text };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteAction(obj);
         }
         #endregion
@@ -860,9 +860,9 @@ namespace aUI.Automation
             return Action.ExecuteActions(ele);
         }
 
-        public List<ElementResult> EnterTextAll(Enum ele, string text = "", bool random = false)
+        public List<ElementResult> EnterTextAll(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.EnterText, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
             return Action.ExecuteActions(obj);
         }
 
@@ -898,7 +898,7 @@ namespace aUI.Automation
 
         public List<ElementResult> RadioBtnAll(Enum ele, string text = "", bool random = false)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.RadioBtn, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.RadioBtn, Random = random };
             return Action.ExecuteActions(obj);
         }
 
@@ -910,7 +910,7 @@ namespace aUI.Automation
 
         public List<ElementResult> MultiDropdownAll(Enum ele, string text = "", bool random = false)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.MultiDropdown, Text = text, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.MultiDropdown, Random = random };
             return Action.ExecuteActions(obj);
         }
 
@@ -970,7 +970,7 @@ namespace aUI.Automation
 
         public List<ElementResult> GetProperties(Enum ele, string text = "")
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.GetProperty, Text = text };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteActions(obj);
         }
         #endregion

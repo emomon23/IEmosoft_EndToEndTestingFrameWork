@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace aUI.Automation.HelperObjects
 {
@@ -23,6 +24,16 @@ namespace aUI.Automation.HelperObjects
         public List<string> Countries { get; set; }
         public List<string> Cities { get; set; }
         public List<string> States { get; set; }
+
+        public string GetRandomString(int length, bool spaces = false)
+        {
+            var ops = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            if(spaces)
+            {
+                ops += " ";
+            }
+            return new string(Enumerable.Repeat(ops, length).Select(s => s[Rnd.Next(s.Length)]).ToArray());
+        }
 
         public string GetRandomFirstName(int appendGuidDigits = 0)
         {

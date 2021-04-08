@@ -137,13 +137,17 @@ namespace aUI.Automation.Elements
                 return rsp;
             }
 
-            //TODO Implement 'random' for all other values beyond dropdown
+            if (eleObj.Random)
+            {
+                eleObj.Text = TE.Rand.GetRandomString(eleObj.RandomLength);
+            }
 
             try
             {
                 if (eleObj.Scroll)
                 {
-                    (((IWrapsDriver)ele).WrappedDriver as IJavaScriptExecutor).ScrollToElement(ele);
+                    rsp.ScrollTo();
+//                    (((IWrapsDriver)ele).WrappedDriver as IJavaScriptExecutor).ScrollToElement(ele);
                 }
 
                 switch (eleObj.Action)
@@ -229,8 +233,9 @@ namespace aUI.Automation.Elements
                         throw new NotImplementedException("This action has not been implemented. Please implement it.");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                rsp.Exception = e;
                 rsp.Success = false;
                 return rsp;
             }
@@ -413,6 +418,23 @@ namespace aUI.Automation.Elements
         }
 
         #region Single Element Actions
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="elementRef"></param>
+        /// <param name="location">'start' 'center' 'end' or 'nearest'</param>
+        public static void ScrollTo(this ElementResult elementRef, string location = "center")
+        {
+            IJavaScriptExecutor js = elementRef.TE.RawSeleniumWebDriver_AvoidCallingDirectly as IJavaScriptExecutor;
+            
+            if(string.IsNullOrEmpty(location))
+            {
+                js.ExecuteScript($"arguments[0].scrollIntoView(true);", elementRef.RawEle);
+                return;
+            }
+
+            js.ExecuteScript($"arguments[0].scrollIntoView({{block: \"{location}\"}});", elementRef.RawEle);
+        }
         public static ElementResult Click(this ElementResult elementRef, ElementObject ele = null)
         {
             ele.Action = ElementAction.Click;
