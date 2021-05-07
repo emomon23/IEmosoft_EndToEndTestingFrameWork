@@ -1,6 +1,7 @@
 ﻿using aUI.Automation.Enums;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 
@@ -26,40 +27,45 @@ namespace aUI.Automation.HelperObjects
             Client.BaseAddress = new Uri(baseUrl);
             Client.DefaultRequestHeaders.Accept.Add(
                 new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(appType));
+        }
 
+        public void SetAuthentication(string authKey, string type = "Bearer")
+        {
+            Client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(type, authKey);
         }
 
         //get
         public dynamic GetCall(Enum endpt, string query = "", int expectedCode = 200)
         {
+            StartStep(endpt, "Get", expectedCode);
             var ept = $"{endpt.Api()}{query}";
             var rspMsg = Client.GetAsync(ept).Result;
 
-            TE.Assert.AreEqual(expectedCode, (int)rspMsg.StatusCode, "Verify response code matches expected");
+            AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
         }
 
         //post
-        public dynamic PostCall(Enum endpt, object body, int expectedCode = 200)
+        public dynamic PostCall(Enum endpt, object body, string vars, int expectedCode = 200)
         {
-            //create httpContent
+            StartStep(endpt, "Post", expectedCode);
             var data = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, ApplicationType);
-            var rspMsg = Client.PostAsync(endpt.Api(), data).Result;
+            var rspMsg = Client.PostAsync(endpt.Api() + vars, data).Result;
 
-            TE.Assert.AreEqual(expectedCode, (int)rspMsg.StatusCode, "Verify response code matches expected");
+            AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
         }
 
         //put
-        public dynamic PutCall(Enum endpt, object body, int expectedCode = 200)
+        public dynamic PutCall(Enum endpt, object body, string vars, int expectedCode = 200)
         {
-            //create httpContent
+            StartStep(endpt, "Put", expectedCode);
             var data = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, ApplicationType);
-            var rspMsg = Client.PutAsync(endpt.Api(), data).Result;
+            var rspMsg = Client.PutAsync(endpt.Api() + vars, data).Result;
 
-            TE.Assert.AreEqual(expectedCode, (int)rspMsg.StatusCode, "Verify response code matches expected");
+            AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
         }
@@ -67,12 +73,29 @@ namespace aUI.Automation.HelperObjects
         //delete
         public dynamic DeleteCall(Enum endpt, string query = "", int expectedCode = 200)
         {
+            StartStep(endpt, "Delete", expectedCode);
             var ept = $"{endpt.Api()}{query}";
             var rspMsg = Client.DeleteAsync(ept).Result;
 
-            TE.Assert.AreEqual(expectedCode, (int)rspMsg.StatusCode, "Verify response code matches expected");
+            AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
+        }
+
+        private void AssertResult(int expectedCode, HttpResponseMessage rspMsg)
+        {
+            if (TE != null)
+            {
+                TE.Assert.AreEqual(expectedCode, (int)rspMsg.StatusCode, "Verify response code matches expected");
+            }
+        }
+
+        private void StartStep(Enum endpt, string type, int expectedCode)
+        {
+            if (TE != null)
+            {
+                TE.BeginTestCaseStep($"API {type} call to {endpt}", expectedCode.ToString());
+            }
         }
 
         public void Dispose()
@@ -88,7 +111,26 @@ namespace aUI.Automation.HelperObjects
     {
         public static dynamic GetRsp(this HttpResponseMessage response)
         {
-            return JsonConvert.DeserializeObject<dynamic>(response.Content.ReadAsStringAsync().Result);
+            try
+            {
+                return JsonConvert.DeserializeObject<dynamic>(response.Content.ReadAsStringAsync().Result);
+            }
+            catch
+            {
+                return response.Content.ReadAsStringAsync().Result;
+            }
+        }
+
+        public static List<dynamic> GetRspList(dynamic rsp)
+        {
+            try
+            {
+                return rsp.ToObject<List<dynamic>>();
+            }
+            catch
+            {
+                return new List<dynamic>() { rsp };
+            }
         }
     }
 }

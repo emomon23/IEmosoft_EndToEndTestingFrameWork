@@ -1,5 +1,7 @@
 ﻿using aUI.Automation.HelperObjects;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Appium;
+using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Internal;
 using OpenQA.Selenium.Support.UI;
@@ -26,6 +28,7 @@ namespace aUI.Automation.Elements
         GetAttribute,
         GetCSS,
         GetProperty,
+        Wait,
     }
 
     public enum ElementType
@@ -38,6 +41,9 @@ namespace aUI.Automation.Elements
         LinkText,
         Tag,
         PartialLinkText,
+
+        //Appium
+        AccessabilityId,
     }
 
     public enum Wait
@@ -54,6 +60,7 @@ namespace aUI.Automation.Elements
     {
         private TestExecutioner TE;
         private IWebDriver Driver;
+        private string MobileMultiMap = Config.GetConfigSetting("MobileEleIdMap", "content-desc");
         //TODO add & improve assertions at this level
         //this will require a class for customized assertions to track
 
@@ -78,6 +85,7 @@ namespace aUI.Automation.Elements
 
         public ElementResult ExecuteAction(ElementObject ele, ElementResult starter = null)
         {
+            var eleName = starter == null ? ele.ElementName : starter.ElementName;
             switch (ele.Action)
             {
                 case ElementAction.Click:
@@ -87,7 +95,7 @@ namespace aUI.Automation.Elements
                 case ElementAction.RadioBtn:
                 case ElementAction.MultiDropdown:
                 case ElementAction.Hover:
-                    TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {ele.ElementName}",
+                    TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {eleName}",
                         ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
                     break;
             }
@@ -96,8 +104,15 @@ namespace aUI.Automation.Elements
             //check if 'ele' has an element in it or not.
             if (!string.IsNullOrEmpty(ele.EleRef))
             {
-                var finder = ElementFinder(ele);
-                element = FindElement(ele, finder, starter?.RawEle);
+                if(ele.EleType == ElementType.AccessabilityId)
+                {
+                        element = FindAppiumElement(ele, starter?.RawEle);
+                }
+                else
+                {
+                    var finder = ElementFinder(ele);
+                    element = FindElement(ele, finder, starter?.RawEle);
+                }
             }
 
             return CompleteAction(ele, element);
@@ -105,6 +120,7 @@ namespace aUI.Automation.Elements
 
         public List<ElementResult> ExecuteActions(ElementObject ele, ElementResult starter = null)
         {
+            var eleName = starter == null ? ele.ElementName : starter.ElementName;
             switch (ele.Action)
             {
                 case ElementAction.Click:
@@ -114,23 +130,30 @@ namespace aUI.Automation.Elements
                 case ElementAction.RadioBtn:
                 case ElementAction.MultiDropdown:
                 case ElementAction.Hover:
-                    TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {ele.ElementName}",
+                    TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {eleName}",
                         ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
                     break;
             }
-
-            var finder = ElementFinder(ele);
-            var elements = FindElements(ele, finder, starter?.RawEle);
-
-            elements.ForEach(x => CompleteAction(ele, x));
-            return elements;
+            List<ElementResult> elements = null;
+            if (ele.EleType == ElementType.AccessabilityId)
+            {
+                elements = FindAppiumElements(ele, starter?.RawEle);
+            }
+            else
+            {
+                var finder = ElementFinder(ele);
+                elements = FindElements(ele, finder, starter?.RawEle);
+            }
+            var rtn = new List<ElementResult>();
+            elements.ForEach(x => rtn.Add(CompleteAction(ele, x)));
+            return rtn;
         }
 
         private ElementResult CompleteAction(ElementObject eleObj, ElementResult eleRes)
         {
             SelectElement select;
             var ele = eleRes.RawEle;
-            var rsp = new ElementResult(TE) { Success = false, RawEle = ele };
+            var rsp = new ElementResult(TE) { Success = false, RawEle = ele, ElementName = eleObj.ElementName };
 
             if (ele == null)
             {
@@ -146,7 +169,25 @@ namespace aUI.Automation.Elements
             {
                 if (eleObj.Scroll)
                 {
-                    rsp.ScrollTo();
+                    try
+                    {
+                        rsp.ScrollTo();
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            //scroll till element is within the center 50% of the screen??????????? Just not sure how to drag..
+                            //TouchActions action = new TouchActions(Driver);
+                            
+                            //var visibleText = "Submit";
+                            //((AndroidDriver<IWebElement>)Driver).FindElementByAndroidUIAutomator("new UiScrollable(new UiSelector().scrollable(true).instance(0)).scrollIntoView(new UiSelector().textContains(\"" + visibleText + "\").instance(0))");
+
+                            //TouchActions action = new TouchActions(Driver);
+                            //action.Scroll(ele, 10, 100).Perform();
+                        }
+                        catch (Exception e) { Console.WriteLine(e.Message); }
+                    }
 //                    (((IWrapsDriver)ele).WrappedDriver as IJavaScriptExecutor).ScrollToElement(ele);
                 }
 
@@ -229,6 +270,9 @@ namespace aUI.Automation.Elements
                     case ElementAction.GetProperty:
                         rsp.Text = ele.GetProperty(eleObj.Text);
                         break;
+                    case ElementAction.Wait:
+                        //nothing to do here
+                        break;
                     default:
                         throw new NotImplementedException("This action has not been implemented. Please implement it.");
                 }
@@ -240,6 +284,7 @@ namespace aUI.Automation.Elements
                 return rsp;
             }
 
+            rsp.Success = true;
             return rsp;
         }
 
@@ -286,53 +331,181 @@ namespace aUI.Automation.Elements
             };
         }
 
+        private ElementResult FindAppiumElement(ElementObject ele, IWebElement starter = null)
+        {
+            var start = DateTime.Now;
+
+            while (DateTime.Now.Subtract(start).TotalSeconds < ele.MaxWait)
+            {
+                try
+                {
+                    IWebElement temp;
+                    if (starter == null)
+                    {
+                        temp = ((AppiumDriver<IWebElement>)Driver).FindElementByAccessibilityId(ele.EleRef);
+                    }
+                    else
+                    {
+                        temp = starter.FindElement(By.XPath($".//*[@{MobileMultiMap}='{ele.EleRef}']"));
+                    }
+                    
+                    var element = new ElementResult(TE) { RawEle = temp, Success = false };
+
+                    switch (ele.WaitType)
+                    {
+                        case Wait.Visible:
+                            element.Success = temp.Displayed;
+                            break;
+                        case Wait.Clickable:
+                            element.Success = temp.Displayed & temp.Enabled;
+                            break;
+                        case Wait.Selected:
+                            element.Success = temp.Selected;
+                            break;
+                        case Wait.ContainsText:
+                            element.Success = temp.Text.Contains(ele.Text);
+                            break;
+                        case Wait.Custom:
+                            //TODO handle this case
+                            start = DateTime.Now.Subtract(new TimeSpan(100, 0, 0));
+                            throw new NotImplementedException();
+                    }
+                    if (element.Success)
+                    {
+                        return element;
+                    }
+                }
+                catch
+                {
+                    if(ele.WaitType == Wait.Invisible)
+                    {
+                        return new ElementResult(TE) { Success = true };
+                    }
+                }
+            }
+
+            return new ElementResult(TE) { Success = false };
+        }
+
+        private List<ElementResult> FindAppiumElements(ElementObject ele, IWebElement starter = null)
+        {
+            var start = DateTime.Now;
+
+            while (DateTime.Now.Subtract(start).TotalSeconds < ele.MaxWait)
+            {
+                try
+                {
+                    IReadOnlyCollection<IWebElement> elements;
+                    if (starter == null) 
+                    { 
+                        elements = ((AppiumDriver<IWebElement>)Driver).FindElementsByAccessibilityId(ele.EleRef);
+                    }
+                    else
+                    {
+                        elements = starter.FindElements(By.XPath($".//*[@{MobileMultiMap}='{ele.EleRef}']"));
+                    }
+
+                    var success = false;
+                    var eleList = new List<ElementResult>();
+                    foreach (var temp in elements)
+                    {
+                        var element = new ElementResult(TE) { RawEle = temp, Success = false };
+
+                        switch (ele.WaitType)
+                        {
+                            case Wait.Visible:
+                                element.Success = temp.Displayed;
+                                break;
+                            case Wait.Clickable:
+                                element.Success = temp.Displayed & temp.Enabled;
+                                break;
+                            case Wait.Selected:
+                                element.Success = temp.Selected;
+                                break;
+                            case Wait.ContainsText:
+                                element.Success = temp.Text.Contains(ele.Text);
+                                break;
+                            case Wait.Custom:
+                                //TODO handle this case
+                                start = DateTime.Now.Subtract(new TimeSpan(100, 0, 0));
+                                throw new NotImplementedException();
+                        }
+                        if (!element.Success)
+                        {
+                            success = false;
+                        }
+                        eleList.Add(element);
+                    }
+                    if (success)
+                    {
+                        return eleList;
+                    }
+                }
+                catch
+                {
+                    if (ele.WaitType == Wait.Invisible)
+                    {
+                        return new List<ElementResult>() { new ElementResult(TE) { Success = true } };
+                    }
+                }
+            }
+
+            return new List<ElementResult>() { new ElementResult(TE) { Success = false } };
+        }
+
         private ElementResult FindElement(ElementObject eleRef, By by, IWebElement starter = null)
         {
             var wait = new WebDriverWait(Driver, new TimeSpan(0, 0, eleRef.MaxWait));
             wait.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(ElementNotVisibleException),
                 typeof(ElementNotInteractableException));
-
+            var sucess = false;
             IWebElement element = null;
-
-            var sucess = wait.Until(condition =>
+            try
             {
-                try
+                sucess = wait.Until(condition =>
                 {
-                    if (starter == null)
+                    try
                     {
+                        if (starter == null)
+                        {
                         //TODO Enable custom filter for elements from other elements
                         if (eleRef.WaitType == Wait.Custom)
-                        {
-                            if (eleRef.CustomCondition != null)
                             {
-                                var rsp = eleRef.CustomCondition(Driver, by);
-                                element = rsp.Item1;
-                                return rsp.Item2;
+                                if (eleRef.CustomCondition != null)
+                                {
+                                    var rsp = eleRef.CustomCondition(Driver, by);
+                                    element = rsp.Item1;
+                                    return rsp.Item2;
+                                }
                             }
+
+                            element = Driver.FindElement(by);
+                        }
+                        else
+                        {
+                            element = starter.FindElement(by);
                         }
 
-                        element = Driver.FindElement(by);
+                        return eleRef.WaitType switch
+                        {
+                            Wait.Clickable => element.Displayed && element.Enabled,
+                            Wait.Visible => element.Displayed,
+                            Wait.Selected => element.Selected,
+                            Wait.Invisible => !element.Displayed,
+                            Wait.ContainsText => element.Text.Contains(eleRef.Text),
+                            _ => true,
+                        };
                     }
-                    else
+                    catch (Exception)
                     {
-                        element = starter.FindElement(by);
+                        return eleRef.WaitType == Wait.Invisible;
                     }
-
-                    return eleRef.WaitType switch
-                    {
-                        Wait.Clickable => element.Displayed && element.Enabled,
-                        Wait.Visible => element.Displayed,
-                        Wait.Selected => element.Selected,
-                        Wait.Invisible => !element.Displayed,
-                        Wait.ContainsText => element.Text.Contains(eleRef.Text),
-                        _ => true,
-                    };
-                }
-                catch (Exception)
-                {
-                    return eleRef.WaitType == Wait.Invisible;
-                }
-            });
+                });
+            }
+            catch
+            {
+                return new ElementResult(TE) { RawEle = null, Success = false};
+            }
 
             return new ElementResult(TE) { RawEle = element, Success = sucess };
         }
@@ -346,58 +519,66 @@ namespace aUI.Automation.Elements
 
             List<IWebElement> elements = null;
 
-            var sucess = wait.Until(condition =>
+            try
             {
-                try
+                var sucess = wait.Until(condition =>
                 {
-                    if (starter == null)
+                    try
                     {
-                        if (eleRef.WaitType == Wait.Custom)
+                        if (starter == null)
                         {
-                            if (eleRef.CustomConditionMulti != null)
+                            if (eleRef.WaitType == Wait.Custom)
                             {
-                                var rsp = eleRef.CustomConditionMulti(Driver, by);
-                                elements = rsp.Item1;
-                                return rsp.Item2;
+                                if (eleRef.CustomConditionMulti != null)
+                                {
+                                    var rsp = eleRef.CustomConditionMulti(Driver, by);
+                                    elements = rsp.Item1;
+                                    return rsp.Item2;
+                                }
+                            }
+
+                            elements = Driver.FindElements(by).ToList();
+                        }
+                        else
+                        {
+                            elements = starter.FindElements(by).ToList();
+                        }
+
+                        var pass = true;
+
+                        foreach (var element in elements)
+                        {
+                            var val = eleRef.WaitType switch
+                            {
+                                Wait.Clickable => element.Displayed && element.Enabled,
+                                Wait.Visible => element.Displayed,
+                                Wait.Selected => element.Selected,
+                                Wait.Invisible => !element.Displayed,
+                                Wait.ContainsText => element.Text.Contains(eleRef.Text),
+                                _ => true,
+                            };
+
+                            if (!val)
+                            {
+                                pass = false;
                             }
                         }
 
-                        elements = Driver.FindElements(by).ToList();
+                        return pass;
                     }
-                    else
+                    catch (Exception)
                     {
-                        elements = starter.FindElements(by).ToList();
+                        return eleRef.WaitType == Wait.Invisible;
                     }
+                });
 
-                    var pass = true;
-
-                    foreach (var element in elements)
-                    {
-                        var val = eleRef.WaitType switch
-                        {
-                            Wait.Clickable => element.Displayed && element.Enabled,
-                            Wait.Visible => element.Displayed,
-                            Wait.Selected => element.Selected,
-                            Wait.Invisible => !element.Displayed,
-                            Wait.ContainsText => element.Text.Contains(eleRef.Text),
-                            _ => true,
-                        };
-
-                        if (!val)
-                        {
-                            pass = false;
-                        }
-                    }
-
-                    return pass;
-                }
-                catch (Exception)
-                {
-                    return eleRef.WaitType == Wait.Invisible;
-                }
-            });
-
-            elements.ForEach(x => retur.Add(new ElementResult(TE) { RawEle = x, Success = sucess }));
+                elements.ForEach(x => retur.Add(new ElementResult(TE) { RawEle = x, Success = sucess }));
+            }
+            catch //(Exception e) 
+            {
+                //TE.FailCurrentStep(e);
+                //throw new NotFoundException("The desired element was not found in expected state");
+            }
 
             return retur;
         }
@@ -407,12 +588,19 @@ namespace aUI.Automation.Elements
     {
         public static ElementResult ExecuteAction(this ElementResult elementRef, ElementObject ele)
         {
+            if (ele == null) { ele = new ElementObject(); }
             var ea = new ElementActions(elementRef.TE);
             return ea.ExecuteAction(ele, elementRef);
         }
 
         public static List<ElementResult> ExecuteActions(this ElementResult elementRef, ElementObject ele)
         {
+            if (!elementRef.Success)
+            {
+                return new List<ElementResult>() { new ElementResult(elementRef.TE) };
+            }
+
+            if (ele == null) { ele = new ElementObject(); }
             var ea = new ElementActions(elementRef.TE);
             return ea.ExecuteActions(ele, elementRef);
         }
@@ -437,11 +625,13 @@ namespace aUI.Automation.Elements
         }
         public static ElementResult Click(this ElementResult elementRef, ElementObject ele = null)
         {
+            if(ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Click;
             return elementRef.ExecuteAction(ele);
         }
         public static ElementResult Hover(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Hover;
             return elementRef.ExecuteAction(ele);
         }
@@ -454,6 +644,7 @@ namespace aUI.Automation.Elements
 
         public static ElementResult EnterText(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.EnterText;
             return elementRef.ExecuteAction(ele);
         }
@@ -466,6 +657,7 @@ namespace aUI.Automation.Elements
 
         public static ElementResult SelectDropdown(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Dropdown;
             return elementRef.ExecuteAction(ele);
         }
@@ -478,6 +670,7 @@ namespace aUI.Automation.Elements
 
         public static ElementResult MultiDropdown(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.MultiDropdown;
             return elementRef.ExecuteAction(ele);
         }
@@ -502,13 +695,16 @@ namespace aUI.Automation.Elements
 
         public static ElementResult RadioBtn(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.RadioBtn;
             return elementRef.ExecuteAction(ele);
         }
 
-        public static ElementResult GetText(this ElementResult elementRef)
+        public static ElementResult GetText(this ElementResult elementRef, ElementObject ele = null)
         {
-            var ele = new ElementObject { Action = ElementAction.GetText };
+            if (ele == null) { ele = new ElementObject(); }
+            ele.Action = ElementAction.GetText;
+//            var ele = new ElementObject { Action = ElementAction.GetText };
             return elementRef.ExecuteAction(ele);
         }
 
@@ -541,6 +737,7 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> ClickAll(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Click;
             return elementRef.ExecuteActions(ele);
         }
@@ -553,6 +750,7 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> EnterTexts(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.EnterText;
             return elementRef.ExecuteActions(ele);
         }
@@ -565,6 +763,7 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> SelectDropdowns(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Dropdown;
             return elementRef.ExecuteActions(ele);
         }
@@ -577,6 +776,7 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> MultiDropdowns(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.MultiDropdown;
             return elementRef.ExecuteActions(ele);
         }
@@ -589,6 +789,7 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> DropdownIndexes(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.DropdownIndex;
             return elementRef.ExecuteActions(ele);
         }
@@ -601,13 +802,16 @@ namespace aUI.Automation.Elements
 
         public static List<ElementResult> RadioBtns(this ElementResult elementRef, ElementObject ele = null)
         {
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.RadioBtn;
             return elementRef.ExecuteActions(ele);
         }
 
-        public static List<ElementResult> GetTexts(this ElementResult elementRef)
+        public static List<ElementResult> GetTexts(this ElementResult elementRef, ElementObject ele = null)
         {
-            var ele = new ElementObject { Action = ElementAction.GetText };
+            if (ele == null) { ele = new ElementObject(); }
+            ele.Action = ElementAction.GetText;
+            //var ele = new ElementObject { Action = ElementAction.GetText };
             return elementRef.ExecuteActions(ele);
         }
 

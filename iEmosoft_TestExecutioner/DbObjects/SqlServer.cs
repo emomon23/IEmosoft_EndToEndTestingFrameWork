@@ -11,6 +11,7 @@ namespace aUI.Automation.DbObjects
         private SqlConnection Conn;
         public List<List<object>> Results;
         public List<string> Headers;
+        public int RowsAffected = -1;
 
         public SqlServer(string connection)
         {
@@ -60,11 +61,18 @@ namespace aUI.Automation.DbObjects
                 result.GetValues(row);
                 Results.Add(new List<object>(row));
             }
+            RowsAffected = Results.Count;
 
             for (int i = 0; i < result.FieldCount; i++)
             {
                 Headers.Add(result.GetName(i));
             }
+        }
+
+        public void ExecuteTransaction(string query)
+        {
+            var cmd = new SqlCommand(query, Conn);
+            RowsAffected = cmd.ExecuteNonQuery();
         }
 
         public void Dispose()

@@ -21,7 +21,11 @@ namespace aUI.Automation.UIDrivers
             Firefox,
             FirefoxRemote,
             IE,
-            SauceLabs
+            SauceLabs,
+            Windows,
+            Android,
+            AndroidRemote,
+            IOS,
         }
 
         private IWebDriver Browser = null;
@@ -36,6 +40,7 @@ namespace aUI.Automation.UIDrivers
             //add default screen size
             //add ability for custom settings in config
             //Add 'uri' for remote execution
+            var uri = Config.GetConfigSetting("SeleniumHubUrl");
 
             switch (browserVendor)
             {
@@ -47,7 +52,7 @@ namespace aUI.Automation.UIDrivers
 
                 case BrowserDriverEnumeration.FirefoxRemote:
                     var ffRemoteService = new FirefoxOptions();
-                    Browser = new RemoteWebDriver(new Uri(""), ffRemoteService);
+                    Browser = new RemoteWebDriver(new Uri(uri), ffRemoteService);
                     DriverType = "FireFox";
                     break;
                 case BrowserDriverEnumeration.Chrome:
@@ -58,7 +63,7 @@ namespace aUI.Automation.UIDrivers
 
                 case BrowserDriverEnumeration.ChromeRemote:
                     var chromeROps = new ChromeOptions();
-                    Browser = new RemoteWebDriver(new Uri(""), chromeROps);
+                    Browser = new RemoteWebDriver(new Uri(uri), chromeROps);
                     DriverType = "Chrome";
                     break;
                 case BrowserDriverEnumeration.IE:
@@ -390,12 +395,12 @@ namespace aUI.Automation.UIDrivers
             Browser.Manage().Window.Maximize();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Browser.Quit();
             GC.SuppressFinalize(this);
         }
 
-        public IWebDriver RawWebDriver { get { return Browser; } }
+        public IWebDriver RawWebDriver { get { return Browser; } protected set { Browser = value; } }
     }
 }

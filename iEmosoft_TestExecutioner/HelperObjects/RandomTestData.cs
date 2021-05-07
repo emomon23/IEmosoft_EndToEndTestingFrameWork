@@ -32,7 +32,33 @@ namespace aUI.Automation.HelperObjects
             {
                 ops += " ";
             }
-            return new string(Enumerable.Repeat(ops, length).Select(s => s[Rnd.Next(s.Length)]).ToArray());
+
+            var stringChars = new char[length];
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = ops[Rnd.Next(0, ops.Length)];
+            }
+
+            return new string(stringChars);
+        }
+
+        public string GetRandomAlphaNumericString(int length, bool spaces = false)
+        {
+            var ops = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            if (spaces)
+            {
+                ops += " ";
+            }
+
+            var stringChars = new char[length];
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = ops[Rnd.Next(0,ops.Length)];
+            }
+
+            return new string(stringChars);
         }
 
         public string GetRandomFirstName(int appendGuidDigits = 0)

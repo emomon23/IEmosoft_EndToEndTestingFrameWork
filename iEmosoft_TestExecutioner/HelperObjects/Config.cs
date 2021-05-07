@@ -128,6 +128,11 @@ namespace aUI.Automation.HelperObjects
             }
         }
 
+        public static string GetEnvironment()
+        {
+            return Directory.GetParent(Directory.GetCurrentDirectory()).Name;
+        }
+
         public static string GetConfigSetting(string settingName, string resultIfNotFound = null)
         {
             try

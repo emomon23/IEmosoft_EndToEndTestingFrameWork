@@ -4,6 +4,7 @@ using aUI.Automation.HelperObjects;
 using aUI.Automation.Interfaces;
 using aUI.Automation.ModelObjects;
 using aUI.Automation.Test.IEmosoft.com;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
@@ -21,8 +22,8 @@ namespace aUI.Automation
         private BaseAuthor TestAuthor = null;
         private bool ReportingEnabled = true;
         private bool TestPassed = true;
-        private DateTime StartTime;
-        private DateTime DisposeTime;
+        public DateTime StartTime { get; private set; }
+        public DateTime? DisposeTime { get; private set; } = null;
         private List<string> AllTestFiles = new();
         private PoolState poolState = new() { IsAvailable = true, IsPartOfTestExecutionerPool = false };
         private bool ProcessTestResultCalled = false;
@@ -46,15 +47,39 @@ namespace aUI.Automation
             };
 
             Initialize(testCaseHeader, uiDriver, author, capture);
-            Action = new ElementActions(this);
             Assert = new AssertHelp(this);
+            Action = new ElementActions(this);
         }
 
         public TestExecutioner(TestCaseHeaderData testCaseHeader, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
             Initialize(testCaseHeader, uiDriver, author, capture);
-            Action = new ElementActions(this);
             Assert = new AssertHelp(this);
+            Action = new ElementActions(this);
+        }
+
+        public TestExecutioner(TestCaseHeaderData testCaseHeader, bool apiTest)
+        {
+            if (apiTest)
+            {
+                //TODO Modify Dispose to deal with null test author
+                //TODO deal with null driver on screenshot failures
+                TestAuthor = new AutomationFactory().CreateAuthor();
+                TestAuthor.StartNewTestCase(testCaseHeader);
+
+                StartTime = DateTime.Now;
+            }
+            else
+            {
+                Initialize(testCaseHeader, null, null, null);
+            }
+
+            Assert = new AssertHelp(this);
+            
+            if (!apiTest)
+            {
+                Action = new ElementActions(this);
+            }
         }
 
         public TestExecutioner(bool useConfigFile = true)
@@ -68,8 +93,8 @@ namespace aUI.Automation
             {
                 UiDriver = new UIDrivers.BrowserDriver(new Config(), UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
             }
-            Action = new ElementActions(this);
             Assert = new AssertHelp(this);
+            Action = new ElementActions(this);
         }
 
         public PoolState PoolState
@@ -165,6 +190,22 @@ namespace aUI.Automation
         {
             RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Refresh();
         }
+
+        public void WaitForAjaxCalls(int wait = 15)
+        {
+            var start = DateTime.Now;
+            var done = false;
+
+            while(!done && DateTime.Now.Subtract(start).TotalSeconds < wait)
+            {
+                try
+                {
+                    done = !(bool)ExecuteJavaScript("return $(\"body[block-ui='main']\").hasClass(\"block-ui-visible\")");
+                }
+                catch { return; }
+            }
+        }
+
         public object ExecuteJavaScript(string script)
         {
             var fireFoxDriver = UiDriver as aUI.Automation.UIDrivers.BrowserDriver;
@@ -237,7 +278,10 @@ namespace aUI.Automation
 
         public void Quit()
         {
-            UiDriver.Dispose();
+            if (UiDriver != null)
+            {
+                UiDriver.Dispose();
+            }
         }
 
         public string CaptureScreen(string textToWriteOnScreenCapture = "")
@@ -346,7 +390,6 @@ namespace aUI.Automation
             }
         }
 
-
         public TestCaseStep CurrentStep
         {
             get
@@ -377,26 +420,6 @@ namespace aUI.Automation
         public string WriteReport()
         {
             return ProcessTestResults();
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                //Make sure 'WriteReport' wasn't already called
-                if (!ProcessTestResultCalled)
-                {
-                    ProcessTestResults();
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            //Close the browser
-            Quit();
-            GC.SuppressFinalize(this);
         }
 
         private string ProcessTestResults()
@@ -473,7 +496,7 @@ namespace aUI.Automation
                 FTPPath = ftpReportPath,
                 Status = TestPassed ? (int)TestRunDTO.TestRunStatusEnumeration.Passed : (int)TestRunDTO.TestRunStatusEnumeration.Failed,
                 TestNumber = TestCaseHeader.TestNumber,
-                TestTime = DisposeTime - StartTime,
+                TestTime = (DateTime)DisposeTime - StartTime,
                 RunDate = StartTime
             };
 
@@ -674,7 +697,7 @@ namespace aUI.Automation
 
         public Exception FailTest(Exception exp)
         {
-            BeginTestCaseStep("Un expected error occurred", "", "");
+            BeginTestCaseStep("An expected error occurred", "", "");
             CurrentStep.ActualResult = exp.Message;
             CurrentStep.StepPassed = false;
             TestPassed = false;
@@ -697,6 +720,8 @@ namespace aUI.Automation
 
         #region Element Helper Methods
         #region Singles
+
+        //TODO Add wait for element and/or 'get element'
         public ElementResult Click(ElementObject ele)
         {
             ele.Action = ElementAction.Click;
@@ -839,6 +864,17 @@ namespace aUI.Automation
             var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteAction(obj);
         }
+        public ElementResult WaitFor(ElementObject ele, Wait wait = Wait.Visible)
+        {
+            ele.Action = ElementAction.Wait;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult WaitFor(Enum ele, Wait wait = Wait.Visible)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Wait, WaitType = wait };
+            return Action.ExecuteAction(obj);
+        }
         #endregion
 
         #region Multi's
@@ -975,6 +1011,41 @@ namespace aUI.Automation
         }
         #endregion
         #endregion
+
+        public void Dispose()
+        {
+            try
+            {
+                var result = TestContext.CurrentContext.Result;
+                if (result.FailCount > 0 || (result.PassCount == 0 && result.SkipCount == 0))
+                {
+                    if (CurrentStep == null)
+                    {
+                        FailTest(new Exception("Test failed before any steps were initiated."));
+                    }
+                    else if (CurrentStep.StepPassed)
+                    {
+                        CurrentStep.StepPassed = false;
+                        CurrentStep.ActualResult = $"Step failed due to: {result.Message}";
+                        if (UiDriver.RawWebDriver != null && UiDriver.RawWebDriver.WindowHandles.Count > 0)
+                        {
+                            CaptureScreen("");
+                        }
+                    }
+                }
+                //Make sure 'WriteReport' wasn't already called
+                //if (!ProcessTestResultCalled)
+                //{
+                //}
+            }
+            catch { }
+
+            ProcessTestResults();
+
+            //Close the browser
+            Quit();
+            GC.SuppressFinalize(this);
+        }
     }
 
     public class PoolState

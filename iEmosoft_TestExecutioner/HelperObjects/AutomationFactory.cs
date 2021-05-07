@@ -39,6 +39,12 @@ namespace aUI.Automation.HelperObjects
                 "IE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.IE),
                 "CHROME" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Chrome),
                 "SAUCELABS" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.SauceLabs),
+                "CHROMEREMOTE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.ChromeRemote),
+                "FIREFOXREMOTE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.FirefoxRemote),
+                "WINDOWS" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Windows),
+                "ANDROID" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Android),
+                "ANDROIDREMOTE" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.AndroidRemote),
+                "IOS" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.IOS),
                 "WPF" => new WindowsWhite(),
                 _ => throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHOME', 'IE','FIREFOX'"),
             };
