@@ -7,7 +7,7 @@
 
     <RootNamespace>aUI.Automation</RootNamespace>
 
-    <Configurations>Debug;Release;Dev;Stage</Configurations>
+    <Configurations>Debug;Release;Dev;Stage;UAT</Configurations>
 
     <Description></Description>
 
@@ -34,7 +34,8 @@
     <PackageReference Include="Npgsql" Version="5.0.4" />
     <PackageReference Include="nunit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="89.0.4389.2300" />
+    <PackageReference Include="NunitXml.TestLogger" Version="3.0.107" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="91.0.4472.10100" />
     <PackageReference Include="Selenium.WebDriver.GeckoDriver.Win64" Version="0.29.0" />
     <PackageReference Include="Selenium.WebDriver.IEDriver" Version="3.150.1.2" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />

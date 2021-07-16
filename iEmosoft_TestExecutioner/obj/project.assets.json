@@ -740,6 +740,12 @@
           "build/netcoreapp2.1/NUnit3TestAdapter.props": {}
         }
       },
+      "NunitXml.TestLogger/3.0.107": {
+        "type": "package",
+        "build": {
+          "build/netstandard1.0/NUnitXml.TestLogger.props": {}
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
         "type": "package",
         "runtimeTargets": {
@@ -957,7 +963,7 @@
           "lib/netstandard2.0/WebDriver.dll": {}
         }
       },
-      "Selenium.WebDriver.ChromeDriver/89.0.4389.2300": {
+      "Selenium.WebDriver.ChromeDriver/91.0.4472.10100": {
         "type": "package",
         "build": {
           "build/Selenium.WebDriver.ChromeDriver.targets": {}
@@ -3756,6 +3762,23 @@
         "nunit3testadapter.nuspec"
       ]
     },
+    "NunitXml.TestLogger/3.0.107": {
+      "sha512": "KUWil9sEnA7Rgv41FKTWedvL8UcpmBhbKI9pD9YxFUo5rv4mdEuq14Ms/i7+OU2hC1Zyg8x9Ik1mn/byQ2o9SQ==",
+      "type": "package",
+      "path": "nunitxml.testlogger/3.0.107",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/_common/Microsoft.VisualStudio.TestPlatform.Extension.NUnit.Xml.TestAdapter.dll",
+        "build/_common/Microsoft.VisualStudio.TestPlatform.Extension.NUnit.Xml.TestLogger.dll",
+        "build/_common/Spekt.TestLogger.dll",
+        "build/net45/NUnitXml.TestLogger.props",
+        "build/netstandard1.0/NUnitXml.TestLogger.props",
+        "nunitxml.testlogger.3.0.107.nupkg.sha512",
+        "nunitxml.testlogger.nuspec",
+        "packageIcon.png"
+      ]
+    },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "sha512": "7VSGO0URRKoMEAq0Sc9cRz8mb6zbyx/BZDEWhgPdzzpmFhkam3fJ1DAGWFXBI4nGlma+uPKpfuMQP5LXRnOH5g==",
       "type": "package",
@@ -4067,20 +4090,21 @@
         "selenium.webdriver.nuspec"
       ]
     },
-    "Selenium.WebDriver.ChromeDriver/89.0.4389.2300": {
-      "sha512": "/lnt6U3hogvJtFBP9l9Vm3F7zVBTClCANeVzcyWwyUf/uW686KEgGU+9x6sebstjd02qrmvcP42MKHTID1tq/A==",
+    "Selenium.WebDriver.ChromeDriver/91.0.4472.10100": {
+      "sha512": "RalhItuJ6BZdD9HHVUHdpgDP/NQAUrr1yEAHWet+Ww33wbcuei0A2sF4+9duKaLQuZO3lcid7pKe2+km3sOGBQ==",
       "type": "package",
-      "path": "selenium.webdriver.chromedriver/89.0.4389.2300",
+      "path": "selenium.webdriver.chromedriver/91.0.4472.10100",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
+        "README.md",
         "build/DefinePropertiesChromeDriver.targets",
         "build/Selenium.WebDriver.ChromeDriver.targets",
         "driver/linux64/chromedriver",
         "driver/mac64/chromedriver",
         "driver/win32/chromedriver.exe",
         "nupkg-icon.png",
-        "selenium.webdriver.chromedriver.89.0.4389.2300.nupkg.sha512",
+        "selenium.webdriver.chromedriver.91.0.4472.10100.nupkg.sha512",
         "selenium.webdriver.chromedriver.nuspec"
       ]
     },
@@ -8017,7 +8041,8 @@
       "NUnit3TestAdapter >= 3.17.0",
       "Newtonsoft.Json >= 13.0.1",
       "Npgsql >= 5.0.4",
-      "Selenium.WebDriver.ChromeDriver >= 89.0.4389.2300",
+      "NunitXml.TestLogger >= 3.0.107",
+      "Selenium.WebDriver.ChromeDriver >= 91.0.4472.10100",
       "Selenium.WebDriver.GeckoDriver.Win64 >= 0.29.0",
       "Selenium.WebDriver.IEDriver >= 3.150.1.2",
       "System.Configuration.ConfigurationManager >= 5.0.0",
@@ -8033,11 +8058,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectUniqueName": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
       "projectName": "TestAutomation",
-      "projectPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectPath": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
       "packagesPath": "C:\\Users\\andrew.enoksen\\.nuget\\packages\\",
-      "outputPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\obj\\",
+      "outputPath": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\andrew.enoksen\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -8118,9 +8143,13 @@
             "target": "Package",
             "version": "[5.0.4, )"
           },
+          "NunitXml.TestLogger": {
+            "target": "Package",
+            "version": "[3.0.107, )"
+          },
           "Selenium.WebDriver.ChromeDriver": {
             "target": "Package",
-            "version": "[89.0.4389.2300, )"
+            "version": "[91.0.4472.10100, )"
           },
           "Selenium.WebDriver.GeckoDriver.Win64": {
             "target": "Package",
@@ -8166,7 +8195,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
       }
     }
   },

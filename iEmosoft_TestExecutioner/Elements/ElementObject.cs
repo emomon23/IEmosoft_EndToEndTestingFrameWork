@@ -19,6 +19,7 @@ namespace aUI.Automation.Elements
         public ElementAction Action = ElementAction.GetText;
 
         public bool Scroll = true;
+        public string ScrollLoc = "center";
         public bool Random = false;
         public bool Clear = true;
         public bool ProtectedValue = false;

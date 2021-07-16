@@ -191,6 +191,23 @@ namespace aUI.Automation
             RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Refresh();
         }
 
+        public void WaitForDownload(string path)
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                if (File.Exists(path)) { break; }
+                Pause(1000);
+            }
+            var length = new FileInfo(path).Length;
+            for (var i = 0; i < 30; i++)
+            {
+                Pause(750);
+                var newLength = new FileInfo(path).Length;
+                if (newLength == length && length != 0) { break; }
+                length = newLength;
+            }
+        }
+
         public void WaitForAjaxCalls(int wait = 15)
         {
             var start = DateTime.Now;
@@ -518,13 +535,13 @@ namespace aUI.Automation
             }
         }
 
-        public bool WaitForURLChange(string urlSnippet, int waitSeconds = 20)
+        public bool WaitForURLChange(string urlSnippet, bool endsWith = false, int waitSeconds = 20)
         {
             bool result = false;
 
             for (int i = 0; i <= (waitSeconds * 2); i++)
             {
-                if (CurrentFormName_OrURL.Contains(urlSnippet))
+                if ((CurrentFormName_OrURL.ToLower().Contains(urlSnippet.ToLower()) && !endsWith) || (endsWith && CurrentFormName_OrURL.ToLower().EndsWith(urlSnippet.ToLower())))
                 {
                     result = true;
                     break;
@@ -621,6 +638,23 @@ namespace aUI.Automation
             }
         }
 
+        public void SwitchWindows(bool first = true)
+        {
+            var window = RawSeleniumWebDriver_AvoidCallingDirectly.WindowHandles[^1];
+            
+            if (first)
+            {
+                window = RawSeleniumWebDriver_AvoidCallingDirectly.WindowHandles[0];
+            }
+
+            RawSeleniumWebDriver_AvoidCallingDirectly.SwitchTo().Window(window);
+        }
+
+        public void CloseWindow()
+        {
+            RawSeleniumWebDriver_AvoidCallingDirectly.Close();
+            SwitchWindows(false);
+        }
 
         public List<TestCaseStep> RecordedSteps
         {
@@ -716,6 +750,12 @@ namespace aUI.Automation
             SetForegroundWindow(handle);
         }
 
+        public void NavBack()
+        {
+            BeginTestCaseStep("Navigate back to the prior page");
+            RawSeleniumWebDriver_AvoidCallingDirectly.Navigate().Back();
+        }
+
         //TODO get dropdown values
 
         #region Element Helper Methods
@@ -730,7 +770,7 @@ namespace aUI.Automation
 
         public ElementResult Click(Enum ele)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.Click };
+            var obj = new ElementObject(ele) { Action = ElementAction.Click, WaitType = Wait.Clickable };
             return Action.ExecuteAction(obj);
         }
         public ElementResult Hover(ElementObject ele)
@@ -765,7 +805,7 @@ namespace aUI.Automation
 
         public ElementResult Dropdown(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.Dropdown, RandomLength = random, Random = random > 0 };
             return Action.ExecuteAction(obj);
         }
 
@@ -789,7 +829,7 @@ namespace aUI.Automation
 
         public ElementResult RadioBtn(Enum ele, string text = "", int random = -1)
         {
-            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, RandomLength = random, Random = random > 0 };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.RadioBtn, RandomLength = random, Random = random > 0 };
             return Action.ExecuteAction(obj);
         }
 
@@ -801,7 +841,7 @@ namespace aUI.Automation
 
         public ElementResult MultiDropdown(Enum ele, string text = "", bool random = false)
         {
-            var obj = new ElementObject(ele, text) { Action = ElementAction.EnterText, Random = random };
+            var obj = new ElementObject(ele, text) { Action = ElementAction.MultiDropdown, Random = random };
             return Action.ExecuteAction(obj);
         }
 
@@ -814,6 +854,18 @@ namespace aUI.Automation
         public ElementResult GetText(Enum ele)
         {
             var obj = new ElementObject(ele) { Action = ElementAction.GetText };
+            return Action.ExecuteAction(obj);
+        }
+
+        public ElementResult GetDropdown(ElementObject ele)
+        {
+            ele.Action = ElementAction.GetDropdown;
+            return Action.ExecuteAction(ele);
+        }
+
+        public ElementResult GetDropdown(Enum ele)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.GetDropdown };
             return Action.ExecuteAction(obj);
         }
 
@@ -864,15 +916,17 @@ namespace aUI.Automation
             var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteAction(obj);
         }
-        public ElementResult WaitFor(ElementObject ele, Wait wait = Wait.Visible)
+        public ElementResult WaitFor(ElementObject ele, Wait wait = Wait.Visible, int maxWait = 10)
         {
             ele.Action = ElementAction.Wait;
+            ele.WaitType = wait;
+            ele.MaxWait = maxWait;
             return Action.ExecuteAction(ele);
         }
 
-        public ElementResult WaitFor(Enum ele, Wait wait = Wait.Visible)
+        public ElementResult WaitFor(Enum ele, Wait wait = Wait.Visible, int maxWait = 10)
         {
-            var obj = new ElementObject(ele) { Action = ElementAction.Wait, WaitType = wait };
+            var obj = new ElementObject(ele) { Action = ElementAction.Wait, WaitType = wait, MaxWait = maxWait };
             return Action.ExecuteAction(obj);
         }
         #endregion
@@ -1008,6 +1062,39 @@ namespace aUI.Automation
         {
             var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteActions(obj);
+        }
+
+        public List<ElementResult> WaitForAll(ElementObject ele, Wait wait = Wait.Visible)
+        {
+            ele.Action = ElementAction.Wait;
+            ele.WaitType = wait;
+            return Action.ExecuteActions(ele);
+        }
+
+        public List<ElementResult> WaitForAll(Enum ele, Wait wait = Wait.Visible)
+        {
+            var obj = new ElementObject(ele) { Action = ElementAction.Wait, WaitType = wait };
+            return Action.ExecuteActions(obj);
+        }
+        #endregion
+
+        #region Specialty Element Helpers
+        public (List<ElementResult> header, List<List<ElementResult>> body) ReadTable(Enum tableRef, bool scroll = false)
+        {
+            var table = WaitFor(tableRef);
+            var headers = table.GetTexts(new ElementObject(ElementType.Tag, "th"));
+
+            var body = table.GetText(new ElementObject(ElementType.Tag, "tbody") { Scroll = scroll });
+            var rows = body.GetTexts(new ElementObject(ElementType.Tag, "tr") { Scroll = scroll });//set scroll to false
+            var tableBody = new List<List<ElementResult>>();
+
+            foreach (var row in rows)
+            {
+                var cells = row.GetTexts(new ElementObject(ElementType.Tag, "td") { Scroll = scroll });
+                tableBody.Add(cells);
+            }
+
+            return (headers, tableBody);
         }
         #endregion
         #endregion

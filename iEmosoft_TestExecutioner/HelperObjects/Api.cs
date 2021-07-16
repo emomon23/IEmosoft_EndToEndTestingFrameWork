@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Web;
 
 namespace aUI.Automation.HelperObjects
 {
@@ -34,13 +35,22 @@ namespace aUI.Automation.HelperObjects
             Client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(type, authKey);
         }
 
+        public void UpdateRequestType(string type)
+        {
+            //TOOD may need to remove other first
+            //Client.DefaultRequestHeaders.Accept
+            ApplicationType = type;
+            Client.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(type));
+        }
+
         //get
         public dynamic GetCall(Enum endpt, string query = "", int expectedCode = 200)
         {
             StartStep(endpt, "Get", expectedCode);
             var ept = $"{endpt.Api()}{query}";
             var rspMsg = Client.GetAsync(ept).Result;
-
+            var a = rspMsg.Content.ReadAsStringAsync();
             AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
@@ -50,9 +60,9 @@ namespace aUI.Automation.HelperObjects
         public dynamic PostCall(Enum endpt, object body, string vars, int expectedCode = 200)
         {
             StartStep(endpt, "Post", expectedCode);
-            var data = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, ApplicationType);
+            var data = FormatBody(body);
             var rspMsg = Client.PostAsync(endpt.Api() + vars, data).Result;
-
+            var a = rspMsg.Content.ReadAsStringAsync();
             AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
@@ -62,9 +72,9 @@ namespace aUI.Automation.HelperObjects
         public dynamic PutCall(Enum endpt, object body, string vars, int expectedCode = 200)
         {
             StartStep(endpt, "Put", expectedCode);
-            var data = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, ApplicationType);
+            var data = FormatBody(body);
             var rspMsg = Client.PutAsync(endpt.Api() + vars, data).Result;
-
+            var a = rspMsg.Content.ReadAsStringAsync();
             AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
@@ -80,6 +90,15 @@ namespace aUI.Automation.HelperObjects
             AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();
+        }
+
+        private HttpContent FormatBody(object body)
+        {
+            return ApplicationType switch
+            {
+                "application/x-www-form-urlencoded" => new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)body),
+                _ => new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, ApplicationType),
+            };
         }
 
         private void AssertResult(int expectedCode, HttpResponseMessage rspMsg)

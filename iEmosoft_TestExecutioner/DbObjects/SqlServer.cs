@@ -67,6 +67,7 @@ namespace aUI.Automation.DbObjects
             {
                 Headers.Add(result.GetName(i));
             }
+            result.Close();
         }
 
         public void ExecuteTransaction(string query)

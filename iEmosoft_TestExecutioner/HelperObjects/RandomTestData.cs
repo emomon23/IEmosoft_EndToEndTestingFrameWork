@@ -400,12 +400,12 @@ namespace aUI.Automation.HelperObjects
 
         public int Next(int min, int max = int.MaxValue)
         {
-            rndUseageCounter += 1;
-            if (rndUseageCounter > 5)
-            {
-                ResetRnd();
-                rndUseageCounter = 0;
-            }
+            //rndUseageCounter += 1;
+            //if (rndUseageCounter > 5)
+            //{
+            //    ResetRnd();
+            //    rndUseageCounter = 0;
+            //}
 
             return rnd.Next(min, max);
         }

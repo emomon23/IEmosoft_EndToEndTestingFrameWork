@@ -36,6 +36,20 @@ namespace aUI.Automation.Enums
                 return defaultRtn ?? field.ToString();
             }
         }
+        public static string AmbientValue(this Enum field, string defaultRtn = null)
+        {
+            var fi = field.GetType().GetField(field.ToString());
+            var attributes = (AmbientValueAttribute[])fi.GetCustomAttributes(typeof(AmbientValueAttribute), false);
+
+            if (attributes.Length > 0)
+            {
+                return attributes[0].Value.ToString();
+            }
+            else
+            {
+                return defaultRtn ?? field.ToString();
+            }
+        }
 
         public static ElementType Type(this Enum field)
         {

@@ -28,7 +28,7 @@ namespace aUI.Automation.UIDrivers
 
                 var capabilities = new DesiredCapabilities();
                 capabilities.SetCapability(CapabilityType.BrowserName, "android");
-                capabilities.SetCapability(CapabilityType.BrowserVersion, "8.1");
+                capabilities.SetCapability(CapabilityType.BrowserVersion, "10");
                 capabilities.SetCapability(CapabilityType.Timeouts, 120);
                 capabilities.SetCapability("newCommandTimeout", "120000");
                 capabilities.SetCapability("screenResolution", "720x1280");
@@ -41,7 +41,7 @@ namespace aUI.Automation.UIDrivers
                 options.AddAdditionalCapability("waitDuration", 120);
 
 
-                RawWebDriver = new RemoteWebDriver(new Uri(uri), capabilities, new TimeSpan(0,2,0)); //options);
+                RawWebDriver = new RemoteWebDriver(new Uri(uri), options);// capabilities, new TimeSpan(0,2,0)); //options);
             }
             else if (local)
             {

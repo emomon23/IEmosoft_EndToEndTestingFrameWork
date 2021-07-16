@@ -94,11 +94,12 @@ namespace aUI.Automation.HelperObjects
             get
             {
                 var name = TestContext.CurrentContext.Test.FullName;
+                var a = TestContext.CurrentContext.Test.Name;
                 var prams = name.Substring(0, name.Length - TestContext.CurrentContext.Test.Name.Length).Split('(');
                 var leadingName = "";
                 if (prams.Length > 1)
                 {
-                    leadingName = prams[1].Split(')')[0] + " - ";
+                    leadingName = prams[1].Split(')')[0].Replace("\"","") + " - ";
                 }
                 return RemoveInvalidChars($"{leadingName}{TestContext.CurrentContext.Test.Name}".Replace("_", " "));
             }
@@ -135,6 +136,13 @@ namespace aUI.Automation.HelperObjects
 
         public static string GetConfigSetting(string settingName, string resultIfNotFound = null)
         {
+            var primary = Environment.GetEnvironmentVariable(settingName);
+
+            if (!string.IsNullOrEmpty(primary))
+            {
+                return primary;
+            }
+
             try
             {
                 var path = Directory.GetCurrentDirectory();

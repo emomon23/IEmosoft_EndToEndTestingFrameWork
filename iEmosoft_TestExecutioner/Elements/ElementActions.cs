@@ -29,6 +29,7 @@ namespace aUI.Automation.Elements
         GetCSS,
         GetProperty,
         Wait,
+        GetDropdown,
     }
 
     public enum ElementType
@@ -54,6 +55,7 @@ namespace aUI.Automation.Elements
         Invisible,
         ContainsText,
         Custom,
+        Presence,
     }
 
     public class ElementActions
@@ -171,7 +173,7 @@ namespace aUI.Automation.Elements
                 {
                     try
                     {
-                        rsp.ScrollTo();
+                        rsp.ScrollTo(eleObj.ScrollLoc);
                     }
                     catch
                     {
@@ -205,6 +207,9 @@ namespace aUI.Automation.Elements
                         if (eleObj.Clear)
                         {
                             ele.Clear();
+
+                            ele.SendKeys(Keys.Control + "a");
+                            ele.SendKeys(Keys.Backspace);
                         }
                         ele.SendKeys(eleObj.Text);
                         break;
@@ -222,6 +227,19 @@ namespace aUI.Automation.Elements
                         }
                         rsp.Text = SetDropdown(select, eleObj.Text);
                         break;
+                    case ElementAction.GetDropdown:
+                        select = new SelectElement(ele);
+                        if (select.IsMultiple)
+                        {
+                            var tempLst = new List<string>();
+                            select.AllSelectedOptions.ToList().ForEach(x => tempLst.Add(x.Text));
+                            rsp.Text = string.Join('|', tempLst);
+                        }
+                        else
+                        {
+                            rsp.Text = select.SelectedOption.Text;
+                        }
+                        break;
                     case ElementAction.DropdownIndex:
                         select = new SelectElement(ele);
                         if (select.IsMultiple && eleObj.Clear)
@@ -229,10 +247,12 @@ namespace aUI.Automation.Elements
                             select.DeselectAll(); 
                         }
 
-                        var index = TE.Rand.Rnd.Next(0, select.Options.Count);
-                        if (int.Parse(eleObj.Text) >= 0 || !eleObj.Random)
+                        var start = eleObj.Text.Length > 1 ? 1 : 0;
+
+                        var index = TE.Rand.Rnd.Next(start, select.Options.Count);
+                        if (int.TryParse(eleObj.Text, out int indexVal) || !eleObj.Random)
                         {
-                            index = int.Parse(eleObj.Text);
+                            index = indexVal;
                         }
                         select.SelectByIndex(index);
                         rsp.Text = select.Options[index].Text;
@@ -259,7 +279,34 @@ namespace aUI.Automation.Elements
                         rsp.Text = ele.Selected.ToString();
                         break;
                     case ElementAction.GetText:
-                        rsp.Text = ele.Text;
+                        if (ele.TagName.Equals("select"))
+                        {
+                            select = new SelectElement(ele);
+                            if (select.IsMultiple) {
+                                var ops = new List<string>();
+                                select.AllSelectedOptions.ToList().ForEach(x => ops.Add(x.Text));
+                                rsp.Text = string.Join("\n", ops);
+                            }
+                            else
+                            {
+                                rsp.Text = select.SelectedOption.Text;
+                            }
+                        }
+                        else
+                        {
+                            rsp.Text = ele.Text;
+                        }
+
+                        if (string.IsNullOrEmpty(rsp.Text))
+                        {
+                            rsp.Text = ele.GetAttribute("value");
+                        }
+
+                        if(rsp.Text == null)
+                        {
+                            rsp.Text = "";
+                        }
+
                         break;
                     case ElementAction.GetAttribute:
                         rsp.Text = ele.GetAttribute(eleObj.Text);
@@ -369,6 +416,9 @@ namespace aUI.Automation.Elements
                             //TODO handle this case
                             start = DateTime.Now.Subtract(new TimeSpan(100, 0, 0));
                             throw new NotImplementedException();
+                        case Wait.Presence:
+                            element.Success = temp != null;
+                            break;
                     }
                     if (element.Success)
                     {
@@ -429,6 +479,9 @@ namespace aUI.Automation.Elements
                                 //TODO handle this case
                                 start = DateTime.Now.Subtract(new TimeSpan(100, 0, 0));
                                 throw new NotImplementedException();
+                            case Wait.Presence:
+                                element.Success = temp != null;
+                                break;
                         }
                         if (!element.Success)
                         {
@@ -492,11 +545,13 @@ namespace aUI.Automation.Elements
                             Wait.Visible => element.Displayed,
                             Wait.Selected => element.Selected,
                             Wait.Invisible => !element.Displayed,
+                            Wait.Presence => element != null,
                             Wait.ContainsText => element.Text.Contains(eleRef.Text),
                             _ => true,
+
                         };
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         return eleRef.WaitType == Wait.Invisible;
                     }
@@ -554,6 +609,7 @@ namespace aUI.Automation.Elements
                                 Wait.Visible => element.Displayed,
                                 Wait.Selected => element.Selected,
                                 Wait.Invisible => !element.Displayed,
+                                Wait.Presence => element != null,
                                 Wait.ContainsText => element.Text.Contains(eleRef.Text),
                                 _ => true,
                             };
@@ -704,8 +760,32 @@ namespace aUI.Automation.Elements
         {
             if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.GetText;
-//            var ele = new ElementObject { Action = ElementAction.GetText };
             return elementRef.ExecuteAction(ele);
+        }
+
+        public static ElementResult GetText(this ElementResult elementRef, Enum ele)
+        {
+            var element = new ElementObject(ele)
+            {
+                Action = ElementAction.GetText
+            };
+            return elementRef.ExecuteAction(element);
+        }
+
+        public static ElementResult GetDropdown(this ElementResult elementRef, ElementObject ele = null)
+        {
+            if (ele == null) { ele = new ElementObject(); }
+            ele.Action = ElementAction.GetDropdown;
+            return elementRef.ExecuteAction(ele);
+        }
+
+        public static ElementResult GetDropdown(this ElementResult elementRef, Enum ele)
+        {
+            var element = new ElementObject(ele)
+            {
+                Action = ElementAction.GetDropdown
+            };
+            return elementRef.ExecuteAction(element);
         }
 
         public static ElementResult GetCheckbox(this ElementResult elementRef)
@@ -714,9 +794,16 @@ namespace aUI.Automation.Elements
             return elementRef.ExecuteAction(ele);
         }
 
-        public static ElementResult GetAttribute(this ElementResult elementRef)
+        public static ElementResult GetAttribute(this ElementResult elementRef, ElementObject ele = null)
         {
-            var ele = new ElementObject { Action = ElementAction.GetAttribute };
+            if (ele == null) { ele = new ElementObject(); }
+            ele.Action = ElementAction.GetAttribute;
+            return elementRef.ExecuteAction(ele);
+        }
+
+        public static ElementResult GetAttribute(this ElementResult elementRef, string attribute)
+        {
+            var ele = new ElementObject() { Text = attribute, Action = ElementAction.GetAttribute };
             return elementRef.ExecuteAction(ele);
         }
 
@@ -813,6 +900,12 @@ namespace aUI.Automation.Elements
             ele.Action = ElementAction.GetText;
             //var ele = new ElementObject { Action = ElementAction.GetText };
             return elementRef.ExecuteActions(ele);
+        }
+
+        public static List<ElementResult> GetTexts(this ElementResult elementRef, Enum ele)
+        {
+            var element = new ElementObject(ele) { Action = ElementAction.GetText };
+            return elementRef.ExecuteActions(element);
         }
 
         public static List<ElementResult> GetCheckboxes(this ElementResult elementRef)

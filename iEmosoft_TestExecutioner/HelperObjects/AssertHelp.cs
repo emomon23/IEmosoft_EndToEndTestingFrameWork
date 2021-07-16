@@ -63,6 +63,28 @@ namespace aUI.Automation.HelperObjects
                 throw;
             }
         }
+
+        public void Contains(object expected, System.Collections.ICollection actual, string step)
+        {
+            TE.BeginTestCaseStep($"Assert: {step}");
+            try
+            {
+                Assert.Contains(expected, actual, step);
+            }
+            catch (AssertionException)
+            {
+                TE.FailCurrentStep(expected.ToString(), actual.ToString());
+                throw;
+            }
+        }
+
+        public void IsTrue(bool condition, string step)
+        {
+            Assert.True(condition, step);
+        }
+
+
+
         public void Fail(string step)
         {
             TE.BeginTestCaseStep($"Assert: {step}");

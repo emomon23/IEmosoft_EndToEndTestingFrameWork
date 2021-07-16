@@ -115,6 +115,8 @@ namespace aUI.Automation.BaseClasses
                 result = result.Replace(fileName, "Failed - " + fileName);
             }
 
+            result = result.Replace("\"", "").Replace("*", "").Replace("|", "-");
+
             return result;
         }
 
