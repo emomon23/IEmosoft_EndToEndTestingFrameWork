@@ -25,7 +25,7 @@
 	<AssemblyName>TestAutomation</AssemblyName>
 	<PackageId>Framework.Selenium</PackageId>
 	<RepositoryUrl>https://github.com/andrew041/IEmosoft_EndToEndTestingFrameWork</RepositoryUrl>
-	<Authors>emomon23, andrew041, wesbrewer</Authors>
+	<Authors>emomon23, maddog204, andrew041, wesbrewer</Authors>
   </PropertyGroup>
 
   <ItemGroup>
