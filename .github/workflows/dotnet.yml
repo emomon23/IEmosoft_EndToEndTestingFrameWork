@@ -3,8 +3,6 @@ name: .NET
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -22,8 +20,10 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Publish
-      uses: brandedoutcast/publish-nuget@v2.5.2
+      id: publish_nuget
+      uses: brandedoutcast/publish-nuget@v2.5.5
       with:
+        PACKAGE_NAME: Framework.Automation
         PROJECT_FILE_PATH: iEmosoft_TestExecutioner/TestAutomation.csproj
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
 #    - name: Test
