@@ -89,7 +89,7 @@ namespace aUI.Automation.HelperObjects
             }
             return str.Trim();
         }
-        private string TestName
+        public string TestName
         {
             get
             {

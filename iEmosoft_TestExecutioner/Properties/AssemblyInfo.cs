@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Automation")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A full-featured Selenium wrapper that incorporates Appium and other runners, API testing, and Database testing. This package tracks steps taken and has reporting extentions for some tools and can be expanded for nearly any test management tool. Advanced, object-oriented design for fast, efficient, and reliable automated tests.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Automation")]

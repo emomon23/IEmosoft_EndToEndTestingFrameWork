@@ -88,20 +88,22 @@ namespace aUI.Automation.Elements
         public ElementResult ExecuteAction(ElementObject ele, ElementResult starter = null)
         {
             var eleName = starter == null ? ele.ElementName : starter.ElementName;
-            switch (ele.Action)
+            if (ele.ReportStep)
             {
-                case ElementAction.Click:
-                case ElementAction.EnterText:
-                case ElementAction.Dropdown:
-                case ElementAction.DropdownIndex:
-                case ElementAction.RadioBtn:
-                case ElementAction.MultiDropdown:
-                case ElementAction.Hover:
-                    TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {eleName}",
-                        ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
-                    break;
+                switch (ele.Action)
+                {
+                    case ElementAction.Click:
+                    case ElementAction.EnterText:
+                    case ElementAction.Dropdown:
+                    case ElementAction.DropdownIndex:
+                    case ElementAction.RadioBtn:
+                    case ElementAction.MultiDropdown:
+                    case ElementAction.Hover:
+                        TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {eleName}",
+                            ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
+                        break;
+                }
             }
-
             var element = starter;
             //check if 'ele' has an element in it or not.
             if (!string.IsNullOrEmpty(ele.EleRef))
@@ -123,18 +125,22 @@ namespace aUI.Automation.Elements
         public List<ElementResult> ExecuteActions(ElementObject ele, ElementResult starter = null)
         {
             var eleName = starter == null ? ele.ElementName : starter.ElementName;
-            switch (ele.Action)
+
+            if (ele.ReportStep)
             {
-                case ElementAction.Click:
-                case ElementAction.EnterText:
-                case ElementAction.Dropdown:
-                case ElementAction.DropdownIndex:
-                case ElementAction.RadioBtn:
-                case ElementAction.MultiDropdown:
-                case ElementAction.Hover:
-                    TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {eleName}",
-                        ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
-                    break;
+                switch (ele.Action)
+                {
+                    case ElementAction.Click:
+                    case ElementAction.EnterText:
+                    case ElementAction.Dropdown:
+                    case ElementAction.DropdownIndex:
+                    case ElementAction.RadioBtn:
+                    case ElementAction.MultiDropdown:
+                    case ElementAction.Hover:
+                        TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {eleName}",
+                            ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
+                        break;
+                }
             }
             List<ElementResult> elements = null;
             if (ele.EleType == ElementType.AccessabilityId)

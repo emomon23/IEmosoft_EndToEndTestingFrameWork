@@ -26,6 +26,7 @@ namespace aUI.Automation.Authors
          * XRayTestFolder
          */
 
+        private int EditTestThreshold = 25;
         string Project = Config.GetConfigSetting("XRayProject");
         string TestFolder = Config.GetConfigSetting("XRayTestFolder");
         string RetiredFolder = Config.GetConfigSetting("XRayRetiredFolder");
@@ -84,7 +85,7 @@ namespace aUI.Automation.Authors
 
         public void AddTestResult(TestExecutioner te, string testName)
         {
-            var testCase = FindTestCase(testName, te.RecordedSteps);
+            var testCase = FindTestCase(testName, te);
 
             AddTestToTestRun(testCase.IssueId);
             AddTestResults(te, testCase.IssueKey);
@@ -162,7 +163,7 @@ namespace aUI.Automation.Authors
             //check diff count
             var diff = test.StepDiff(testSteps);
             
-            if(diff > 10)
+            if(diff > EditTestThreshold)
             {
                 RemoveTestFromTestRun(test.IssueId);
                 MoveTestCase(test.IssueId, RetiredFolder);
@@ -170,25 +171,90 @@ namespace aUI.Automation.Authors
             }
             else
             {
+                var mutations = new List<string>();
+                var removeItems = true;
+                int index;
+                for (index = 0; index < testSteps.Count; index++)
+                {
+                    //if testSteps is out of range, break
+                    if (index >= test.Steps.Count)
+                    {
+                        removeItems = false;
+                        break;
+                    }
+                    else if (!((string)test.Steps[index].action).Equals(testSteps[index].StepDescription))
+                    {
+                        break;
+                        //if old and new steps don't match, break
+                        //make sure prior steps are removed from that index on
+                    }
+                }
+                
+                if (removeItems || testSteps.Count < test.Steps.Count)
+                {
+                    //TODO figure out how to remove steps if any remain
+                    for(int i = index; i < test.Steps.Count; i++)
+                    {
+                        mutations.Add($"removeTestStep(stepId: \"{(string)test.Steps[i].id}\")");
+                    }
+                }
+
+                //update test steps that already exist
+                for (int i = index; i < test.Steps.Count && i < testSteps.Count; i++)
+                {
+                    GenerateTestSteps(new List<TestCaseStep>() { testSteps[i] }, out var str);
+                    mutations.Add($"updateTestStep(stepId: \"{(string)test.Steps[i].id}\" step: {str[1..^1]})");
+                }
+
+                //add new test steps
+                for(int i = test.Steps.Count; i < testSteps.Count; i++)
+                {
+                    GenerateTestSteps(new List<TestCaseStep>() { testSteps[i] }, out var str);
+                    mutations.Add($"addTestStep(issueId: \"{(string)test.IssueId}\" step: {str[1..^1]}){{id}}");
+                }
+
+                for (int i = 0; i < mutations.Count; i+= 10)
+                {
+                    var query = $"mutation {{ {string.Join(" ", GetMutationSubset(mutations, i))} }}";
+                    var rsp = ApiObj.PostCall(Endpts.Graph, new { query }, "");
+                }
+
+                //TODO build call to add new test steps
+
                 //somehow figure out how to update the steps
                 //start with finding where steps differ
                 //from that point, update existing steps
-                    //if now fewer steps, then remove excess
-                    //if now more steps, then add
-                    //if steps are the same, then make no change
+                //if now fewer steps, then remove excess
+                //if now more steps, then add
+                //if steps are the same, then make no change
             }
         }
 
-        private XRayTest FindTestCase(string testName, List<TestCaseStep> testSteps)
+        private List<string> GetMutationSubset(List<string> list, int start, int max = 10)
         {
+            var rtn = new List<string>();
+            for(int i = start; i < (start+max) && i < list.Count; i++)
+            {
+                rtn.Add($"val{i}: {list[i]}");
+            }
+
+            return rtn;
+        }
+
+        private XRayTest FindTestCase(string testName, TestExecutioner te)
+        {
+            var testSteps = te.RecordedSteps;
             bool hasTest = Tests.Any(x => x.Name.ToLower().Trim().Equals(testName.ToLower().Trim()));
 
             if (hasTest)
             {
                 var test = Tests.First(x => x.Name.Trim().Equals(testName.Trim()));
-
-                UpdateTestCase(testName, test, testSteps);
-
+                
+                if (!te.TestCaseFailed)
+                {
+                    UpdateTestCase(testName, test, testSteps);
+                }
+                
                 return test;
             }
             else
@@ -251,6 +317,7 @@ namespace aUI.Automation.Authors
             };
 
             //generate this from each test object we get
+
             var test = new
             {
                 testKey,
@@ -258,7 +325,7 @@ namespace aUI.Automation.Authors
                 finish,
                 comment = "",
                 status = te.TestCaseFailed ? "FAILED" : "PASSED",
-                steps = GenerateTestSteps(te.RecordedSteps, out _)
+                steps = GenerateTestSteps(te.RecordedSteps, out _, te.TestCaseFailed)
             };
 
             var body = new
@@ -272,15 +339,18 @@ namespace aUI.Automation.Authors
             //check upload????????
         }
 
-        private object[] GenerateTestSteps(List<TestCaseStep> steps, out string xrayStr)
+        private object[] GenerateTestSteps(List<TestCaseStep> steps, out string xrayStr, bool testFailed = false)
         {
             xrayStr = "[";
             List<object> xraySteps = new List<object>();
-            foreach(var step in steps)
+            for(int i = 0; i < steps.Count; i++)
+            //foreach(var step in steps)
             {
+                var step = steps[i];
                 var status = step.StepPassed ? "PASSED" : "FAILED";
-                if (!step.StepPassed & step.ImageData != null)
+                if (step.ImageData != null && (!step.StepPassed || (testFailed && i == steps.Count-1)))
                 {
+                    status = "FAILED";
                     var rand = new RandomTestData();
 
                     var evidences = new object[]

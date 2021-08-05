@@ -8058,11 +8058,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
-      "projectName": "TestAutomation",
-      "projectPath": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectUniqueName": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectName": "Framework.Selenium",
+      "projectPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
       "packagesPath": "C:\\Users\\andrew.enoksen\\.nuget\\packages\\",
-      "outputPath": "C:\\Git\\automation-framework\\iEmosoft_TestExecutioner\\obj\\",
+      "outputPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\andrew.enoksen\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -8195,7 +8195,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
       }
     }
   },
