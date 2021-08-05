@@ -30,7 +30,7 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push
-      run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --source https://nuget.pkg.github.com/andrew041/index.json --api-key ${GITHUB_TOKEN}
+      run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${GITHUB_TOKEN}
       env:
         GITHUB_TOKEN: ${{ secrets.NUGET_API_KEY }}
 #    - name: Publish
