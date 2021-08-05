@@ -23,11 +23,11 @@ jobs:
 #      uses: actions/setup-dotnet@v1
 #      with:
 #        dotnet-version: 5.0.x
-    - name: Restore dependencies
-      run: dotnet restore
+#    - name: Restore dependencies
+#      run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore --configuration Release /p:Version=${VERSION}
-      - name: Pack
+      run: dotnet build --configuration Release /p:Version=${VERSION}
+    - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push
       run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --source https://nuget.pkg.github.com/andrew041/index.json --api-key ${GITHUB_TOKEN}
