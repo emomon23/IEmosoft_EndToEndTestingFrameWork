@@ -7,7 +7,7 @@
 
     <RootNamespace>aUI.Automation</RootNamespace>
 
-    <Configurations>Debug;Release;Dev;Stage;UAT</Configurations>
+    <Configurations>Debug;Release;Dev;Stage;UAT;Prod</Configurations>
 
     <Description></Description>
 
@@ -23,6 +23,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<PublishChromeDriver>True</PublishChromeDriver>
 	<AssemblyName>TestAutomation</AssemblyName>
+	<PackageId>Framework.Selenium</PackageId>
+	<RepositoryUrl>https://github.com/andrew041/IEmosoft_EndToEndTestingFrameWork</RepositoryUrl>
+	<Authors>emomon23, andrew041, wesbrewer</Authors>
   </PropertyGroup>
 
   <ItemGroup>

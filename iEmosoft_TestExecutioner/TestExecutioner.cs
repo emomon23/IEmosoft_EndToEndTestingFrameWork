@@ -19,7 +19,7 @@ namespace aUI.Automation
     {
         private IUIDriver UiDriver = null;
         private IScreenCapture ScreenCapture = null;
-        private BaseAuthor TestAuthor = null;
+        public BaseAuthor TestAuthor = null;
         private bool ReportingEnabled = true;
         private bool TestPassed = true;
         public DateTime StartTime { get; private set; }
@@ -347,7 +347,12 @@ namespace aUI.Automation
 
         public bool TestCaseFailed
         {
-            get { return TestAuthor != null ? TestAuthor.TestCaseFailed : false; }
+            get {
+                var initialStatus = TestAuthor != null ? TestAuthor.TestCaseFailed : false;
+                var nunit = TestContext.CurrentContext.Result.FailCount > 0;
+                var nothing = TestAuthor.RecordedSteps.Count == 0;
+                return initialStatus || nunit || nothing;
+            }
         }
 
         public Exception FailCurrentStep(Exception unexpectedException)
@@ -1084,13 +1089,13 @@ namespace aUI.Automation
             var table = WaitFor(tableRef);
             var headers = table.GetTexts(new ElementObject(ElementType.Tag, "th"));
 
-            var body = table.GetText(new ElementObject(ElementType.Tag, "tbody") { Scroll = scroll });
-            var rows = body.GetTexts(new ElementObject(ElementType.Tag, "tr") { Scroll = scroll });//set scroll to false
+            var body = table.GetText(new ElementObject(ElementType.Tag, "tbody") { Scroll = scroll, ScrollLoc = "start" });
+            var rows = body.GetTexts(new ElementObject(ElementType.Tag, "tr") { Scroll = scroll, ScrollLoc = "start" });//set scroll to false
             var tableBody = new List<List<ElementResult>>();
 
             foreach (var row in rows)
             {
-                var cells = row.GetTexts(new ElementObject(ElementType.Tag, "td") { Scroll = scroll });
+                var cells = row.GetTexts(new ElementObject(ElementType.Tag, "td") { Scroll = scroll, ScrollLoc = "start" });
                 tableBody.Add(cells);
             }
 

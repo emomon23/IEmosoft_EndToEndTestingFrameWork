@@ -34,6 +34,7 @@ namespace aUI.Automation.Elements
         /// </summary>
         public Dictionary<string, string> RuntimeRefUpdate = new();
         public string ExpectedValue = "";
+        public bool ReportStep = true;
 
         public ElementObject()
         {

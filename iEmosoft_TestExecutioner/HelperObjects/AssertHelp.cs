@@ -80,7 +80,7 @@ namespace aUI.Automation.HelperObjects
 
         public void IsTrue(bool condition, string step)
         {
-            Assert.True(condition, step);
+              True(condition, step);
         }
 
 
