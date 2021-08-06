@@ -31,7 +31,7 @@ jobs:
     #/p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg 
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push Package
-      run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --no-symbols --source https://api.nuget.org/v3/index.json --api-key ${GITHUB_TOKEN}
+      run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${GITHUB_TOKEN} --no-symbols true
       env:
         GITHUB_TOKEN: ${{ secrets.NUGET_API_KEY }}
 #    - name: Publish
