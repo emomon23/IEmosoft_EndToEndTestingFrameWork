@@ -1,17 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-420456386 -->
-  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="$(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
-    <ItemGroup>
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')"
-        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
-      <ReferenceCopyLocalPaths
-        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
-        Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
-    </ItemGroup>
-  </Target>
-  
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
 
@@ -24,6 +12,8 @@
     <Description>A full-featured Selenium wrapper that incorporates Appium and other runners, API testing, and Database testing. This package tracks steps taken and has reporting extentions for some tools and can be expanded for nearly any test management tool. Advanced, object-oriented design for fast, efficient, and reliable automated tests.</Description>
 
     <Copyright></Copyright>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <RepositoryType>git</RepositoryType>
 

@@ -28,7 +28,8 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release /p:Version=${VERSION}
     - name: Pack
-      run: dotnet pack --configuration Release /p:Version=${VERSION} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg --no-build --output .
+    #/p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg 
+      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push Package
       run: dotnet nuget push Framework.Selenium.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${GITHUB_TOKEN}
       env:
