@@ -96,18 +96,18 @@ namespace aUI.Automation.Enums
             }
         }
 
-        public static Enum RelatedEnum(this Enum field)
+        public static Enum RelatedEnum(this Enum field, Enum related = null)
         {
             var fi = field.GetType().GetField(field.ToString());
-            var attributes = (RelatedEnum[])fi.GetCustomAttributes(typeof(RelatedEnum), false);
+            var attributes = (RelatedEnumAttribute[])fi.GetCustomAttributes(typeof(RelatedEnumAttribute), false);
 
             if (attributes.Length > 0)
             {
-                return attributes[0].Ref;
+                return attributes[0].RelatedEnum;
             }
             else
             {
-                return null;
+                return related;
             }
         }
     }
@@ -143,12 +143,12 @@ namespace aUI.Automation.Enums
     }
 
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
-    public class RelatedEnum : Attribute
+    public class RelatedEnumAttribute : Attribute
     {
-        public Enum Ref { get; }
-        public RelatedEnum(Enum related)
+        public Enum RelatedEnum { get; }
+        public RelatedEnumAttribute(object related)
         {
-            Ref = related;
+            RelatedEnum = (Enum)related;
         }
     }
 }
