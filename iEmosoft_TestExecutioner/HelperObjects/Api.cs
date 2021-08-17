@@ -62,7 +62,7 @@ namespace aUI.Automation.HelperObjects
             StartStep(endpt, "Post", expectedCode);
             var data = FormatBody(body);
             var rspMsg = Client.PostAsync(endpt.Api() + vars, data).Result;
-            var a = rspMsg.Content.ReadAsStringAsync();
+            var a = rspMsg.Content.ReadAsStringAsync().Result;
             AssertResult(expectedCode, rspMsg);
 
             return rspMsg.GetRsp();

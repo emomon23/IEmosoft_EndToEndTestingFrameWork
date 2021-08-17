@@ -154,8 +154,6 @@ namespace aUI.Automation.Authors
                     Tests.Add(new XRayTest(test));
                 }
             } while (start < totalCount && totalCount < 5000);
-
-            var a = "";
         }
 
         private void UpdateTestCase(string testName, XRayTest test, List<TestCaseStep> testSteps)
@@ -310,6 +308,8 @@ namespace aUI.Automation.Authors
             var start = te.StartTime.ToString("yyyy-MM-dd'T'HH:mm:ssK");
             var end = te.DisposeTime == null ? DateTime.Now : (DateTime)te.DisposeTime;
             var finish = end.ToString("yyyy-MM-dd'T'HH:mm:ssK");
+
+            te.FailLastStepIfFailureNotTriggered();
 
             var info = new
             {
