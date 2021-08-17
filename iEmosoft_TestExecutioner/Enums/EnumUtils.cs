@@ -95,6 +95,21 @@ namespace aUI.Automation.Enums
                 return defaultRtn ?? field.ToString();
             }
         }
+
+        public static Enum RelatedEnum(this Enum field, Enum related = null)
+        {
+            var fi = field.GetType().GetField(field.ToString());
+            var attributes = (RelatedEnumAttribute[])fi.GetCustomAttributes(typeof(RelatedEnumAttribute), false);
+
+            if (attributes.Length > 0)
+            {
+                return attributes[0].RelatedEnum;
+            }
+            else
+            {
+                return related;
+            }
+        }
     }
 
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
@@ -124,6 +139,16 @@ namespace aUI.Automation.Enums
         public ApiAttribute(string api)
         {
             Api = api;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Field)]
+    public class RelatedEnumAttribute : Attribute
+    {
+        public Enum RelatedEnum { get; }
+        public RelatedEnumAttribute(object related)
+        {
+            RelatedEnum = (Enum)related;
         }
     }
 }

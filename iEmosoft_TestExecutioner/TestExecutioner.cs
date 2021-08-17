@@ -1104,6 +1104,31 @@ namespace aUI.Automation
         #endregion
         #endregion
 
+        public void FailLastStepIfFailureNotTriggered()
+        {
+            try
+            {
+                var result = TestContext.CurrentContext.Result;
+                if (result.FailCount > 0 || (result.PassCount == 0 && result.SkipCount == 0))
+                {
+                    if (CurrentStep == null)
+                    {
+                        FailTest(new Exception("Test failed before any steps were initiated."));
+                    }
+                    else if (CurrentStep.StepPassed)
+                    {
+                        CurrentStep.StepPassed = false;
+                        CurrentStep.ActualResult = $"Step failed due to: {result.Message}";
+                        if (UiDriver.RawWebDriver != null && UiDriver.RawWebDriver.WindowHandles.Count > 0)
+                        {
+                            CaptureScreen("");
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
         public void Dispose()
         {
             try
