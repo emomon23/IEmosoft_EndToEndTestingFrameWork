@@ -691,15 +691,6 @@
           "lib/net5.0/Zstandard.Net.dll": {}
         }
       },
-      "MySql.Data.Entity/6.10.9": {
-        "type": "package",
-        "compile": {
-          "lib/net452/MySql.Data.Entity.EF6.dll": {}
-        },
-        "runtime": {
-          "lib/net452/MySql.Data.Entity.EF6.dll": {}
-        }
-      },
       "NETStandard.Library/2.0.0": {
         "type": "package",
         "dependencies": {
@@ -3675,23 +3666,6 @@
         "lib/netstandard2.1/Zstandard.Net.dll",
         "mysql.data.8.0.23.nupkg.sha512",
         "mysql.data.nuspec"
-      ]
-    },
-    "MySql.Data.Entity/6.10.9": {
-      "sha512": "csewGW5NKXVHKdnzKXc9vB8pWQNyt9y9u9Qjk3NoIJNVPYK+DOGmaIgwQfkoOr0WWe536NZh+ZXLgw8XRv2eWw==",
-      "type": "package",
-      "path": "mysql.data.entity/6.10.9",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "content/app.config.transform",
-        "content/web.config.transform",
-        "contentFiles/any/net452/app.config.transform",
-        "contentFiles/any/net452/web.config.transform",
-        "lib/net452/MySql.Data.Entity.EF6.dll",
-        "lib/net452/MySql.Data.Entity.EF6.xml",
-        "mysql.data.entity.6.10.9.nupkg.sha512",
-        "mysql.data.entity.nuspec"
       ]
     },
     "NETStandard.Library/2.0.0": {
@@ -8211,7 +8185,6 @@
       "Microsoft.NET.Test.Sdk >= 16.9.4",
       "Microsoft.SourceLink.GitHub >= 1.0.0",
       "MySql.Data >= 8.0.23",
-      "MySql.Data.Entity >= 6.10.9",
       "NUnit >= 3.13.1",
       "NUnit3TestAdapter >= 3.17.0",
       "Newtonsoft.Json >= 13.0.1",
@@ -8228,19 +8201,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\andrew.enoksen\\.nuget\\packages\\": {}
+    "C:\\Users\\WesleyBrewer\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectUniqueName": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
       "projectName": "Framework.Selenium",
-      "projectPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
-      "packagesPath": "C:\\Users\\andrew.enoksen\\.nuget\\packages\\",
-      "outputPath": "C:\\Git\\BaseFramework\\IEmosoft_EndToEndTestingFrameWork\\iEmosoft_TestExecutioner\\obj\\",
+      "projectPath": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "packagesPath": "C:\\Users\\WesleyBrewer\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\andrew.enoksen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\WesleyBrewer\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -8302,10 +8275,6 @@
           "MySql.Data": {
             "target": "Package",
             "version": "[8.0.23, )"
-          },
-          "MySql.Data.Entity": {
-            "target": "Package",
-            "version": "[6.10.9, )"
           },
           "NUnit": {
             "target": "Package",
@@ -8375,20 +8344,8 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.205\\RuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'MySql.Data.Entity 6.10.9' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net5.0'. This package may not be fully compatible with your project.",
-      "libraryId": "MySql.Data.Entity",
-      "targetGraphs": [
-        "net5.0"
-      ]
-    }
-  ]
+  }
 }
