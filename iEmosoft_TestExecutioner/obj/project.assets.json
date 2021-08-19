@@ -8201,19 +8201,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\WesleyBrewer\\.nuget\\packages\\": {}
+    "C:\\Users\\andrew.enoksen\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "projectUniqueName": "C:\\Git\\BaseFramework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
       "projectName": "Framework.Selenium",
-      "projectPath": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
-      "packagesPath": "C:\\Users\\WesleyBrewer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\WesleyBrewer\\OneDrive - Recast Software\\Documents\\Repos\\Framework\\iEmosoft_TestExecutioner\\obj\\",
+      "projectPath": "C:\\Git\\BaseFramework\\iEmosoft_TestExecutioner\\TestAutomation.csproj",
+      "packagesPath": "C:\\Users\\andrew.enoksen\\.nuget\\packages\\",
+      "outputPath": "C:\\Git\\BaseFramework\\iEmosoft_TestExecutioner\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\WesleyBrewer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\andrew.enoksen\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -8344,7 +8344,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.205\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
       }
     }
   }
