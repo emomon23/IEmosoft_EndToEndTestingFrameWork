@@ -99,7 +99,7 @@ namespace aUI.Automation.Elements
                     case ElementAction.RadioBtn:
                     case ElementAction.MultiDropdown:
                     case ElementAction.Hover:
-                        TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {eleName}",
+                        TE.BeginTestCaseStep($"Execute action {ele.Action} on element: {eleName.Replace("_", " ")}",
                             ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
                         break;
                 }
@@ -137,7 +137,7 @@ namespace aUI.Automation.Elements
                     case ElementAction.RadioBtn:
                     case ElementAction.MultiDropdown:
                     case ElementAction.Hover:
-                        TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {eleName}",
+                        TE.BeginTestCaseStep($"Execute action {ele.Action} on elements: {eleName.Replace("_", " ")}",
                             ele.Random || ele.ProtectedValue ? "Random Value" : ele.Text);
                         break;
                 }
@@ -368,7 +368,7 @@ namespace aUI.Automation.Elements
             return desired;
         }
 
-        private By ElementFinder(ElementObject ele)
+        public By ElementFinder(ElementObject ele)
         {
             return ele.EleType switch
             {
