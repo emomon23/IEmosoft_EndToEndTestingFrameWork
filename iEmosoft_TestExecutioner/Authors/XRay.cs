@@ -1,6 +1,7 @@
 ﻿using aUI.Automation.Enums;
 using aUI.Automation.HelperObjects;
 using aUI.Automation.ModelObjects;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,7 @@ namespace aUI.Automation.Authors
 
         private string GetProjectSettings()
         {
-            var query = "query {getProjectSettings (projectIdOrKey: \"XT\") {projectId, testEnvironments}}";
+            var query = "query {getProjectSettings (projectIdOrKey: \""+Project+"\") {projectId, testEnvironments}}";
             var rsp = ApiObj.PostCall(Endpts.Graph, new { query }, "");
 
             foreach(var env in ApiHelper.GetRspList(rsp.data.getProjectSettingstestEnvironments))
@@ -107,7 +108,7 @@ namespace aUI.Automation.Authors
 
         private void GetFolders(string projectId)
         {
-            var query = "query {getFolder(projectId: \"10022\", path: \"/\") {path folders}}";
+            var query = "query {getFolder(projectId: \""+projectId+"\", path: \"/\") {path folders}}";
             var rsp = ApiObj.PostCall(Endpts.Graph, new { query }, "");
 
             //deal with nested folders later
@@ -302,7 +303,6 @@ namespace aUI.Automation.Authors
             var rsp = ApiObj.PostCall(Endpts.Graph, new { query }, "");
         }
 
-
         private void AddTestResults(TestExecutioner te, string testKey)
         {
             var start = te.StartTime.ToString("yyyy-MM-dd'T'HH:mm:ssK");
@@ -310,6 +310,27 @@ namespace aUI.Automation.Authors
             var finish = end.ToString("yyyy-MM-dd'T'HH:mm:ssK");
 
             te.FailLastStepIfFailureNotTriggered();
+
+            if (te.NUnitResult.Outcome.Status.ToString().Equals("Skipped"))
+            {
+                //TODO if adding marker for tests in progress, this needs to update the test status
+                return; //skip reporting the result as it was a skipped test
+            }
+
+            var comment = $"Total Runtime: {end.Subtract(te.StartTime).ToString().Split('.')[0]} (hh:mm:ss)";
+            if (te.TestCaseFailed)
+            {
+                comment += Environment.NewLine + "Step Failures:";
+                var index = 0;
+                foreach(var step in te.RecordedSteps)
+                {
+                    index++;
+                    if (!step.StepPassed)
+                    {
+                        comment += Environment.NewLine + $"Step {index}: {step.StepDescription}   Expected: {step.ExpectedResult}   Actual: {step.ActualResult}";
+                    }
+                }
+            }
 
             var info = new
             {
@@ -323,7 +344,7 @@ namespace aUI.Automation.Authors
                 testKey,
                 start,
                 finish,
-                comment = "",
+                comment = comment,
                 status = te.TestCaseFailed ? "FAILED" : "PASSED",
                 steps = GenerateTestSteps(te.RecordedSteps, out _, te.TestCaseFailed)
             };
