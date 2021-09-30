@@ -87,6 +87,11 @@ namespace aUI.Automation.Elements
 
         public ElementResult ExecuteAction(ElementObject ele, ElementResult starter = null)
         {
+            if(TE.TestTimeLimit < DateTime.Now)
+            {
+                TE.Assert.Fail($"Test Exceeded Max Time Limit of: {TE.TestTimeLimit.Subtract(TE.StartTime)} (hh:mm:ss)");
+            }
+
             var eleName = starter == null ? ele.ElementName : starter.ElementName;
             if (ele.ReportStep)
             {
@@ -108,9 +113,9 @@ namespace aUI.Automation.Elements
             //check if 'ele' has an element in it or not.
             if (!string.IsNullOrEmpty(ele.EleRef))
             {
-                if(ele.EleType == ElementType.AccessabilityId)
+                if (ele.EleType == ElementType.AccessabilityId)
                 {
-                        element = FindAppiumElement(ele, starter?.RawEle);
+                    element = FindAppiumElement(ele, starter?.RawEle);
                 }
                 else
                 {
@@ -124,6 +129,11 @@ namespace aUI.Automation.Elements
 
         public List<ElementResult> ExecuteActions(ElementObject ele, ElementResult starter = null)
         {
+            if (TE.TestTimeLimit < DateTime.Now)
+            {
+                TE.Assert.Fail($"Test Exceeded Max Time Limit of: {TE.TestTimeLimit.Subtract(TE.StartTime).TotalSeconds} seconds");
+            }
+
             var eleName = starter == null ? ele.ElementName : starter.ElementName;
 
             if (ele.ReportStep)
@@ -187,7 +197,7 @@ namespace aUI.Automation.Elements
                         {
                             //scroll till element is within the center 50% of the screen??????????? Just not sure how to drag..
                             //TouchActions action = new TouchActions(Driver);
-                            
+
                             //var visibleText = "Submit";
                             //((AndroidDriver<IWebElement>)Driver).FindElementByAndroidUIAutomator("new UiScrollable(new UiSelector().scrollable(true).instance(0)).scrollIntoView(new UiSelector().textContains(\"" + visibleText + "\").instance(0))");
 
@@ -196,7 +206,7 @@ namespace aUI.Automation.Elements
                         }
                         catch (Exception e) { Console.WriteLine(e.Message); }
                     }
-//                    (((IWrapsDriver)ele).WrappedDriver as IJavaScriptExecutor).ScrollToElement(ele);
+                    //                    (((IWrapsDriver)ele).WrappedDriver as IJavaScriptExecutor).ScrollToElement(ele);
                 }
 
                 switch (eleObj.Action)
@@ -227,7 +237,7 @@ namespace aUI.Automation.Elements
                         }
 
                         select = new SelectElement(ele);
-                        if (select.IsMultiple && eleObj.Clear) 
+                        if (select.IsMultiple && eleObj.Clear)
                         {
                             select.DeselectAll();
                         }
@@ -250,7 +260,7 @@ namespace aUI.Automation.Elements
                         select = new SelectElement(ele);
                         if (select.IsMultiple && eleObj.Clear)
                         {
-                            select.DeselectAll(); 
+                            select.DeselectAll();
                         }
 
                         var start = eleObj.Text.Length > 1 ? 1 : 0;
@@ -288,7 +298,8 @@ namespace aUI.Automation.Elements
                         if (ele.TagName.Equals("select"))
                         {
                             select = new SelectElement(ele);
-                            if (select.IsMultiple) {
+                            if (select.IsMultiple)
+                            {
                                 var ops = new List<string>();
                                 select.AllSelectedOptions.ToList().ForEach(x => ops.Add(x.Text));
                                 rsp.Text = string.Join("\n", ops);
@@ -308,7 +319,7 @@ namespace aUI.Automation.Elements
                             rsp.Text = ele.GetAttribute("value");
                         }
 
-                        if(rsp.Text == null)
+                        if (rsp.Text == null)
                         {
                             rsp.Text = "";
                         }
@@ -352,7 +363,7 @@ namespace aUI.Automation.Elements
             var found = optionList.Contains(desired);
             if (!found)
             {
-                desired = optionList.FirstOrDefault(x => x.Contains(desired));
+                desired = optionList.FirstOrDefault(x => x.ToLower().Contains(desired.ToLower()));
                 found = !string.IsNullOrEmpty(desired);
             }
 
@@ -401,7 +412,7 @@ namespace aUI.Automation.Elements
                     {
                         temp = starter.FindElement(By.XPath($".//*[@{MobileMultiMap}='{ele.EleRef}']"));
                     }
-                    
+
                     var element = new ElementResult(TE) { RawEle = temp, Success = false };
 
                     switch (ele.WaitType)
@@ -433,7 +444,7 @@ namespace aUI.Automation.Elements
                 }
                 catch
                 {
-                    if(ele.WaitType == Wait.Invisible)
+                    if (ele.WaitType == Wait.Invisible)
                     {
                         return new ElementResult(TE) { Success = true };
                     }
@@ -452,8 +463,8 @@ namespace aUI.Automation.Elements
                 try
                 {
                     IReadOnlyCollection<IWebElement> elements;
-                    if (starter == null) 
-                    { 
+                    if (starter == null)
+                    {
                         elements = ((AppiumDriver<IWebElement>)Driver).FindElementsByAccessibilityId(ele.EleRef);
                     }
                     else
@@ -514,6 +525,22 @@ namespace aUI.Automation.Elements
 
         private ElementResult FindElement(ElementObject eleRef, By by, IWebElement starter = null)
         {
+            if(eleRef.MaxWait == 0)
+            {
+                try
+                {
+                    if (starter == null)
+                    {
+                        return new ElementResult(TE) { RawEle = Driver.FindElement(by), Success = true };
+                    }
+                    return new ElementResult(TE) { RawEle = starter.FindElement(by), Success = true };
+                }
+                catch
+                {
+                    return new ElementResult(TE) { RawEle = null, Success = false };
+                }
+                
+            }
             var wait = new WebDriverWait(Driver, new TimeSpan(0, 0, eleRef.MaxWait));
             wait.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(ElementNotVisibleException),
                 typeof(ElementNotInteractableException));
@@ -527,8 +554,8 @@ namespace aUI.Automation.Elements
                     {
                         if (starter == null)
                         {
-                        //TODO Enable custom filter for elements from other elements
-                        if (eleRef.WaitType == Wait.Custom)
+                            //TODO Enable custom filter for elements from other elements
+                            if (eleRef.WaitType == Wait.Custom)
                             {
                                 if (eleRef.CustomCondition != null)
                                 {
@@ -565,7 +592,7 @@ namespace aUI.Automation.Elements
             }
             catch
             {
-                return new ElementResult(TE) { RawEle = null, Success = false};
+                return new ElementResult(TE) { RawEle = null, Success = false };
             }
 
             return new ElementResult(TE) { RawEle = element, Success = sucess };
@@ -574,6 +601,29 @@ namespace aUI.Automation.Elements
         private List<ElementResult> FindElements(ElementObject eleRef, By by, IWebElement starter = null)
         {
             var retur = new List<ElementResult>();
+
+            if (eleRef.MaxWait == 0)
+            {
+                try
+                {
+                    List<IWebElement> found;
+                    if (starter == null)
+                    {
+                        found = Driver.FindElements(by).ToList();
+                    }
+                    else
+                    {
+                        found = starter.FindElements(by).ToList();
+                    }
+                    found.ForEach(x => retur.Add(new ElementResult(TE) { RawEle = x, Success = true }));
+                    return retur;
+                }
+                catch
+                {
+                    return retur;
+                }
+
+            }
             var wait = new WebDriverWait(Driver, new TimeSpan(0, 0, eleRef.MaxWait));
             wait.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(ElementNotVisibleException),
                 typeof(ElementNotInteractableException));
@@ -676,8 +726,8 @@ namespace aUI.Automation.Elements
         public static void ScrollTo(this ElementResult elementRef, string location = "center")
         {
             IJavaScriptExecutor js = elementRef.TE.RawSeleniumWebDriver_AvoidCallingDirectly as IJavaScriptExecutor;
-            
-            if(string.IsNullOrEmpty(location))
+
+            if (string.IsNullOrEmpty(location))
             {
                 js.ExecuteScript($"arguments[0].scrollIntoView(true);", elementRef.RawEle);
                 return;
@@ -687,7 +737,7 @@ namespace aUI.Automation.Elements
         }
         public static ElementResult Click(this ElementResult elementRef, ElementObject ele = null)
         {
-            if(ele == null) { ele = new ElementObject(); }
+            if (ele == null) { ele = new ElementObject(); }
             ele.Action = ElementAction.Click;
             return elementRef.ExecuteAction(ele);
         }

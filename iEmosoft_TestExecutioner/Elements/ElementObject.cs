@@ -45,6 +45,7 @@ namespace aUI.Automation.Elements
             EleType = type;
             EleRef = eleRef;
             ElementName = $"{type} Element Specified";
+            Text = desiredText;
             ExpectedValue = desiredText;
         }
 

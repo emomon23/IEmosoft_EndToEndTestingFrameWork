@@ -57,7 +57,7 @@ namespace aUI.Automation.UIDrivers
                     break;
                 case BrowserDriverEnumeration.Chrome:
                     var chromeOps = new ChromeOptions();
-                    Browser = new ChromeDriver(chromeOps);
+                    Browser = new ChromeDriver("./", chromeOps);
                     DriverType = "Chrome";
                     break;
 

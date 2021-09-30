@@ -23,6 +23,7 @@ namespace aUI.Automation
         private bool ReportingEnabled = true;
         private bool TestPassed = true;
         public DateTime StartTime { get; private set; }
+        public DateTime TestTimeLimit { get; private set; } = DateTime.Now.AddHours(12);
         public DateTime? DisposeTime { get; private set; } = null;
         private List<string> AllTestFiles = new();
         private PoolState poolState = new() { IsAvailable = true, IsPartOfTestExecutionerPool = false };
@@ -31,6 +32,7 @@ namespace aUI.Automation
         public RandomTestData Rand = new();
         public ElementActions Action;
         public AssertHelp Assert;
+        public TestContext.ResultAdapter NUnitResult;
 
         public delegate void ReportSavedEventCallback_Delegate(string locationOfReport);
         public ReportSavedEventCallback_Delegate reportSavedCallback { get; set; }
@@ -47,6 +49,7 @@ namespace aUI.Automation
             };
 
             Initialize(testCaseHeader, uiDriver, author, capture);
+            SetDefaultMaxTime();
             Assert = new AssertHelp(this);
             Action = new ElementActions(this);
         }
@@ -54,6 +57,7 @@ namespace aUI.Automation
         public TestExecutioner(TestCaseHeaderData testCaseHeader, IUIDriver uiDriver = null, BaseAuthor author = null, IScreenCapture capture = null)
         {
             Initialize(testCaseHeader, uiDriver, author, capture);
+            SetDefaultMaxTime();
             Assert = new AssertHelp(this);
             Action = new ElementActions(this);
         }
@@ -74,6 +78,7 @@ namespace aUI.Automation
                 Initialize(testCaseHeader, null, null, null);
             }
 
+            SetDefaultMaxTime();
             Assert = new AssertHelp(this);
             
             if (!apiTest)
@@ -93,8 +98,31 @@ namespace aUI.Automation
             {
                 UiDriver = new UIDrivers.BrowserDriver(new Config(), UIDrivers.BrowserDriver.BrowserDriverEnumeration.Firefox);
             }
+            SetDefaultMaxTime();
             Assert = new AssertHelp(this);
             Action = new ElementActions(this);
+        }
+
+        public void SetMaxTime(int min = 10, int seconds = 0)
+        {
+            TestTimeLimit = StartTime.AddMinutes(min).AddSeconds(seconds);
+        }
+
+        private void SetDefaultMaxTime()
+        {
+            var timeM = Config.GetConfigSetting("TestTimeLimitMin", "0");
+            var timeS = Config.GetConfigSetting("TestTimeLimitSec", "0");
+            var tm = int.TryParse(timeM, out int tmv);
+            var ts = int.TryParse(timeS, out int tsv);
+
+            if (timeM.Equals("0") && timeS.Equals("0") || (!tm && !ts))
+            {
+                SetMaxTime(720, 0);
+            }
+            else
+            {
+                SetMaxTime(tmv, tsv);
+            }
         }
 
         public PoolState PoolState
@@ -921,11 +949,17 @@ namespace aUI.Automation
             var obj = new ElementObject(ele, text) { Action = ElementAction.GetProperty };
             return Action.ExecuteAction(obj);
         }
-        public ElementResult WaitFor(ElementObject ele, Wait wait = Wait.Visible, int maxWait = 10)
+        public ElementResult WaitFor(ElementObject ele, Wait? wait = null, int maxWait = -1)
         {
             ele.Action = ElementAction.Wait;
-            ele.WaitType = wait;
-            ele.MaxWait = maxWait;
+            if (wait.HasValue)
+            {
+                ele.WaitType = (Wait)wait;
+            }
+            if (maxWait >= 0)
+            {
+                ele.MaxWait = maxWait;
+            }
             return Action.ExecuteAction(ele);
         }
 
@@ -1089,13 +1123,13 @@ namespace aUI.Automation
             var table = WaitFor(tableRef);
             var headers = table.GetTexts(new ElementObject(ElementType.Tag, "th"));
 
-            var body = table.GetText(new ElementObject(ElementType.Tag, "tbody") { Scroll = scroll, ScrollLoc = "start" });
-            var rows = body.GetTexts(new ElementObject(ElementType.Tag, "tr") { Scroll = scroll, ScrollLoc = "start" });//set scroll to false
+            var body = table.GetText(new ElementObject(ElementType.Tag, "tbody") { Scroll = scroll, ScrollLoc = "start", MaxWait = 0 });
+            var rows = body.GetTexts(new ElementObject(ElementType.Tag, "tr") { Scroll = scroll, ScrollLoc = "start", MaxWait = 0 });//set scroll to false
             var tableBody = new List<List<ElementResult>>();
 
             foreach (var row in rows)
             {
-                var cells = row.GetTexts(new ElementObject(ElementType.Tag, "td") { Scroll = scroll, ScrollLoc = "start" });
+                var cells = row.GetTexts(new ElementObject(ElementType.Tag, "td") { Scroll = scroll, ScrollLoc = "start", MaxWait = 0 });
                 tableBody.Add(cells);
             }
 
@@ -1108,8 +1142,8 @@ namespace aUI.Automation
         {
             try
             {
-                var result = TestContext.CurrentContext.Result;
-                if (result.FailCount > 0 || (result.PassCount == 0 && result.SkipCount == 0))
+                NUnitResult = TestContext.CurrentContext.Result;
+                if (NUnitResult.FailCount > 0 || (NUnitResult.PassCount == 0 && NUnitResult.SkipCount == 0))
                 {
                     if (CurrentStep == null)
                     {
@@ -1118,7 +1152,7 @@ namespace aUI.Automation
                     else if (CurrentStep.StepPassed)
                     {
                         CurrentStep.StepPassed = false;
-                        CurrentStep.ActualResult = $"Step failed due to: {result.Message}";
+                        CurrentStep.ActualResult = $"Step failed due to: {NUnitResult.Message}";
                         if (UiDriver.RawWebDriver != null && UiDriver.RawWebDriver.WindowHandles.Count > 0)
                         {
                             CaptureScreen("");
@@ -1133,8 +1167,8 @@ namespace aUI.Automation
         {
             try
             {
-                var result = TestContext.CurrentContext.Result;
-                if (result.FailCount > 0 || (result.PassCount == 0 && result.SkipCount == 0))
+                NUnitResult = TestContext.CurrentContext.Result;
+                if (NUnitResult.FailCount > 0 || (NUnitResult.PassCount == 0 && NUnitResult.SkipCount == 0))
                 {
                     if (CurrentStep == null)
                     {
@@ -1143,7 +1177,7 @@ namespace aUI.Automation
                     else if (CurrentStep.StepPassed)
                     {
                         CurrentStep.StepPassed = false;
-                        CurrentStep.ActualResult = $"Step failed due to: {result.Message}";
+                        CurrentStep.ActualResult = $"Step failed due to: {NUnitResult.Message}";
                         if (UiDriver.RawWebDriver != null && UiDriver.RawWebDriver.WindowHandles.Count > 0)
                         {
                             CaptureScreen("");
