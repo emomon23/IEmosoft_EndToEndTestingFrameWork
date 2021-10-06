@@ -155,6 +155,11 @@ namespace aUI.Automation.HelperObjects
                     .AddJsonFile($"appsettings.{env}.json", true, true)
                     .Build();
 
+                if(config.GetSection($"appSettings:{settingName}").Value == null)
+                {
+                    return resultIfNotFound;
+                }
+
                 return config.GetSection($"appSettings:{settingName}").Value;
 
                 //                var result = System.Configuration.ConfigurationManager.AppSettings[settingName];
