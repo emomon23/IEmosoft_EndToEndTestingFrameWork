@@ -46,7 +46,7 @@ namespace aUI.Automation.HelperObjects
                 "ANDROIDREMOTE" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.AndroidRemote),
                 "IOS" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.IOS),
                 "WPF" => new WindowsWhite(),
-                _ => throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHOME', 'IE','FIREFOX'"),
+                _ => throw new Exception("Unknown UI driver type in config, expected 'WPF', 'CHROME', 'IE','FIREFOX'"),
             };
             if (driver == null)
             {
