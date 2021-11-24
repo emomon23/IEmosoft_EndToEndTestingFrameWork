@@ -42,6 +42,7 @@ namespace aUI.Automation.HelperObjects
                 "CHROMEREMOTE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.ChromeRemote),
                 "FIREFOXREMOTE" => new BrowserDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.FirefoxRemote),
                 "WINDOWS" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Windows),
+                "WINDOWSREMOTE" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.WindowsRemote),
                 "ANDROID" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.Android),
                 "ANDROIDREMOTE" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.AndroidRemote),
                 "IOS" => new MobileDriver(Configuration, BrowserDriver.BrowserDriverEnumeration.IOS),

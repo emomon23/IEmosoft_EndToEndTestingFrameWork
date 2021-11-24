@@ -20,30 +20,13 @@ namespace aUI.Automation.UIDrivers
             BrowserVendor = browserVendor;
             var options = ConfigBuilder();
 
-            var appiumServer = Config.GetConfigSetting("RemoteServer", "");
-            var local = string.IsNullOrEmpty(appiumServer);
-            if(browserVendor == BrowserDriverEnumeration.AndroidRemote)
+            if (browserVendor.ToString().Contains("Remote"))
             {
-                var uri = Config.GetConfigSetting("SeleniumHubUrl");
+                var uri = Config.GetConfigSetting("AppiumServerUri");
 
-                var capabilities = new DesiredCapabilities();
-                capabilities.SetCapability(CapabilityType.BrowserName, "android");
-                capabilities.SetCapability(CapabilityType.BrowserVersion, "10");
-                capabilities.SetCapability(CapabilityType.Timeouts, 120);
-                capabilities.SetCapability("newCommandTimeout", "120000");
-                capabilities.SetCapability("screenResolution", "720x1280");
-                capabilities.SetCapability("skin", "720x1280");
-
-
-                options.AddAdditionalCapability(MobileCapabilityType.BrowserName, "android");
-                options.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, "10.0");
-                options.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, "120");
-                options.AddAdditionalCapability("waitDuration", 120);
-
-
-                RawWebDriver = new RemoteWebDriver(new Uri(uri), options);// capabilities, new TimeSpan(0,2,0)); //options);
+                RawWebDriver = new RemoteWebDriver(new Uri(uri), options);
             }
-            else if (local)
+            else
             {
                 Local = new AppiumServiceBuilder().UsingAnyFreePort().Build();
                 Local.Start();
@@ -61,35 +44,19 @@ namespace aUI.Automation.UIDrivers
                         break;
                 }
             }
-            else
-            {
-                var uri = new Uri(appiumServer);
-                switch (browserVendor)
-                {
-                    case BrowserDriverEnumeration.Windows:
-                        RawWebDriver = new WindowsDriver<IWebElement>(uri, options);
-                        break;
-                    case BrowserDriverEnumeration.Android:
-                        RawWebDriver = new AndroidDriver<IWebElement>(uri, options);
-                        break;
-                    case BrowserDriverEnumeration.IOS:
-                        RawWebDriver = new IOSDriver<IWebElement>(uri, options);
-                        break;
-                }
-            }
         }
 
-        private AppiumOptions ConfigBuilder()
+        private static AppiumOptions ConfigBuilder()
         {
             var ops = new AppiumOptions();
             
-            ops.AddAdditionalCapability(MobileCapabilityType.DeviceName, Config.GetConfigSetting("DeviceName", ""));
-            ops.AddAdditionalCapability(MobileCapabilityType.PlatformName, Config.GetConfigSetting("PlatformName", ""));
-            ops.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, Config.GetConfigSetting("PlatformVersion", ""));
-            ops.AddAdditionalCapability(MobileCapabilityType.App, Config.GetConfigSetting("App", "")); //TODO update for pulling path dynamically
-            ops.AddAdditionalCapability(MobileCapabilityType.BrowserName, Config.GetConfigSetting("BrowserName", ""));
+            ops.AddAdditionalCapability(MobileCapabilityType.DeviceName, Config.GetConfigSetting("AppiumDeviceName", ""));
+            ops.AddAdditionalCapability(MobileCapabilityType.PlatformName, Config.GetConfigSetting("AppiumPlatformName", ""));
+            ops.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, Config.GetConfigSetting("AppiumPlatformVersion", ""));
+            ops.AddAdditionalCapability(MobileCapabilityType.App, Config.GetConfigSetting("AppiumApp", ""));
+            ops.AddAdditionalCapability(MobileCapabilityType.BrowserName, Config.GetConfigSetting("AppiumBrowserName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, "120");//unsure if this is enough/too much
-            ops.AddAdditionalCapability(MobileCapabilityType.Orientation, Config.GetConfigSetting("Orientation", "PORTRAIT"));
+            ops.AddAdditionalCapability(MobileCapabilityType.Orientation, Config.GetConfigSetting("AppiumOrientation", "PORTRAIT"));
             //build appium config
             /* 
              * language
