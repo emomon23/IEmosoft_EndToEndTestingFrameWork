@@ -8,6 +8,7 @@ using OpenQA.Selenium.Appium.Service;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Remote;
 using System;
+using System.Net.Http;
 
 namespace aUI.Automation.UIDrivers
 {
@@ -20,11 +21,27 @@ namespace aUI.Automation.UIDrivers
             BrowserVendor = browserVendor;
             var options = ConfigBuilder();
 
-            if (browserVendor.ToString().Contains("Remote"))
+            if (browserVendor.ToString().Contains("REMOTE"))
             {
                 var uri = Config.GetConfigSetting("AppiumServerUri");
 
-                RawWebDriver = new RemoteWebDriver(new Uri(uri), options);
+                HttpClientHandler clientHandler = new()
+                {
+                    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
+                };
+
+                // Pass the handler to httpclient(from you are calling api)
+                HttpClient client = new HttpClient(clientHandler);
+
+                switch (browserVendor)
+                {
+                    case BrowserDriverEnumeration.WindowsRemote:
+                        RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
+                        break;
+                    case BrowserDriverEnumeration.AndroidRemote:
+                        RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
+                        break;
+                }
             }
             else
             {
