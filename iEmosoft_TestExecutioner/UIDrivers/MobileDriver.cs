@@ -6,7 +6,6 @@ using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
 using OpenQA.Selenium.Appium.Service;
 using OpenQA.Selenium.Appium.Windows;
-using OpenQA.Selenium.Remote;
 using System;
 using System.Net.Http;
 
@@ -21,7 +20,7 @@ namespace aUI.Automation.UIDrivers
             BrowserVendor = browserVendor;
             var options = ConfigBuilder();
 
-            if (browserVendor.ToString().Contains("REMOTE"))
+            if (BrowserVendor.ToString().Contains("Remote"))
             {
                 var uri = Config.GetConfigSetting("AppiumServerUri");
 
@@ -32,15 +31,17 @@ namespace aUI.Automation.UIDrivers
 
                 // Pass the handler to httpclient(from you are calling api)
                 HttpClient client = new HttpClient(clientHandler);
-
-                switch (browserVendor)
+                using (client)
                 {
-                    case BrowserDriverEnumeration.WindowsRemote:
-                        RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
-                        break;
-                    case BrowserDriverEnumeration.AndroidRemote:
-                        RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
-                        break;
+                    switch (BrowserVendor)
+                    {
+                        case BrowserDriverEnumeration.WindowsRemote:
+                            RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
+                            break;
+                        case BrowserDriverEnumeration.AndroidRemote:
+                            RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
+                            break;
+                    }
                 }
             }
             else
@@ -48,7 +49,7 @@ namespace aUI.Automation.UIDrivers
                 Local = new AppiumServiceBuilder().UsingAnyFreePort().Build();
                 Local.Start();
 
-                switch (browserVendor)
+                switch (BrowserVendor)
                 {
                     case BrowserDriverEnumeration.Windows:
                         RawWebDriver = new WindowsDriver<IWebElement>(Local, options);
@@ -87,15 +88,39 @@ namespace aUI.Automation.UIDrivers
         {
             try
             {
-                ((AndroidDriver<IWebElement>)RawWebDriver).CloseApp();
+                switch (BrowserVendor)
+                {
+                    case BrowserDriverEnumeration.Windows:
+                        ((WindowsDriver<IWebElement>)RawWebDriver).CloseApp();
+                        break;
+                    case BrowserDriverEnumeration.Android:
+                        ((AndroidDriver<IWebElement>)RawWebDriver).CloseApp();
+                        break;
+                    case BrowserDriverEnumeration.IOS:
+                        ((IOSDriver<IWebElement>)RawWebDriver).CloseApp();
+                        break;
+                }
             }
             catch {
-                ((AndroidDriver<IWebElement>)RawWebDriver).Close();
+                switch (BrowserVendor)
+                {
+                    case BrowserDriverEnumeration.Windows:
+                        ((WindowsDriver<IWebElement>)RawWebDriver).Close();
+                        break;
+                    case BrowserDriverEnumeration.Android:
+                        ((AndroidDriver<IWebElement>)RawWebDriver).Close();
+                        break;
+                    case BrowserDriverEnumeration.IOS:
+                        ((IOSDriver<IWebElement>)RawWebDriver).Close();
+                        break;
+                }
             }
-            if(Local != null)
+
+            if (Local != null)
             {
                 Local.Dispose();
             }
+
             RawWebDriver.Dispose();
         }
     }

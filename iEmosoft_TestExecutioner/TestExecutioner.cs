@@ -380,7 +380,7 @@ namespace aUI.Automation
             }
         }
 
-        public void FailCurrentStep(string expectedResult, string actualResult, bool isShowStoppingError = true)
+        public void FailCurrentStep(string expectedResult, string actualResult)
         {
             TestPassed = false;
             var currentStep = CurrentStep;
@@ -399,11 +399,6 @@ namespace aUI.Automation
                 }
 
                 CaptureScreen(actualResult);
-            }
-
-            if (isShowStoppingError)
-            {
-                Assert.True(false, string.Format("Expected: {0}, Actual: {1}", expectedResult, actualResult));
             }
         }
 
