@@ -7,7 +7,6 @@ using OpenQA.Selenium.Appium.iOS;
 using OpenQA.Selenium.Appium.Service;
 using OpenQA.Selenium.Appium.Windows;
 using System;
-using System.Net.Http;
 
 namespace aUI.Automation.UIDrivers
 {
@@ -20,54 +19,25 @@ namespace aUI.Automation.UIDrivers
             BrowserVendor = browserVendor;
             var options = ConfigBuilder();
 
-            if (BrowserVendor.ToString().Contains("Remote"))
+            var uri = Config.GetConfigSetting("AppiumServerUri", "http://127.0.01:4723/wd/hub");
+
+            switch (BrowserVendor)
             {
-                var uri = Config.GetConfigSetting("AppiumServerUri");
-
-                HttpClientHandler clientHandler = new()
-                {
-                    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
-                };
-
-                // Pass the handler to httpclient(from you are calling api)
-                HttpClient client = new HttpClient(clientHandler);
-                using (client)
-                {
-                    switch (BrowserVendor)
-                    {
-                        case BrowserDriverEnumeration.WindowsRemote:
-                            RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
-                            break;
-                        case BrowserDriverEnumeration.AndroidRemote:
-                            RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                Local = new AppiumServiceBuilder().UsingAnyFreePort().Build();
-                Local.Start();
-
-                switch (BrowserVendor)
-                {
-                    case BrowserDriverEnumeration.Windows:
-                        RawWebDriver = new WindowsDriver<IWebElement>(Local, options);
-                        break;
-                    case BrowserDriverEnumeration.Android:
-                        RawWebDriver = new AndroidDriver<IWebElement>(Local, options);
-                        break;
-                    case BrowserDriverEnumeration.IOS:
-                        RawWebDriver = new IOSDriver<IWebElement>(Local, options);
-                        break;
-                }
+                case BrowserDriverEnumeration.Windows:
+                    RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
+                    break;
+                case BrowserDriverEnumeration.Android:
+                    RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
+                    break;
+                case BrowserDriverEnumeration.IOS:
+                    RawWebDriver = new IOSDriver<IWebElement>(new Uri(uri), options);
+                    break;
             }
         }
 
         private static AppiumOptions ConfigBuilder()
         {
-            var ops = new AppiumOptions();
-            
+            var ops = new AppiumOptions();            
             ops.AddAdditionalCapability(MobileCapabilityType.DeviceName, Config.GetConfigSetting("AppiumDeviceName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.PlatformName, Config.GetConfigSetting("AppiumPlatformName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, Config.GetConfigSetting("AppiumPlatformVersion", ""));

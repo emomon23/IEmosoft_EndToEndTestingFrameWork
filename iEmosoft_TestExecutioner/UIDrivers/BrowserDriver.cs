@@ -26,11 +26,8 @@ namespace aUI.Automation.UIDrivers
             Edge,
             EdgeRemote,
             Windows,
-            WindowsRemote,
             Android,
-            AndroidRemote,
             IOS,
-            IOSRemote,
             SauceLabs,
         }
 
