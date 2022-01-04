@@ -17,27 +17,8 @@ namespace aUI.Automation.UIDrivers
         public MobileDriver(IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Android) : base(configuration, browserVendor)
         {
             BrowserVendor = browserVendor;
-            var options = ConfigBuilder();
 
-            var uri = Config.GetConfigSetting("AppiumServerUri", "http://127.0.01:4723/wd/hub");
-
-            switch (BrowserVendor)
-            {
-                case BrowserDriverEnumeration.Windows:
-                    RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), options);
-                    break;
-                case BrowserDriverEnumeration.Android:
-                    RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), options);
-                    break;
-                case BrowserDriverEnumeration.IOS:
-                    RawWebDriver = new IOSDriver<IWebElement>(new Uri(uri), options);
-                    break;
-            }
-        }
-
-        private static AppiumOptions ConfigBuilder()
-        {
-            var ops = new AppiumOptions();            
+            var ops = new AppiumOptions();
             ops.AddAdditionalCapability(MobileCapabilityType.DeviceName, Config.GetConfigSetting("AppiumDeviceName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.PlatformName, Config.GetConfigSetting("AppiumPlatformName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, Config.GetConfigSetting("AppiumPlatformVersion", ""));
@@ -45,13 +26,21 @@ namespace aUI.Automation.UIDrivers
             ops.AddAdditionalCapability(MobileCapabilityType.BrowserName, Config.GetConfigSetting("AppiumBrowserName", ""));
             ops.AddAdditionalCapability(MobileCapabilityType.NewCommandTimeout, "120");//unsure if this is enough/too much
             ops.AddAdditionalCapability(MobileCapabilityType.Orientation, Config.GetConfigSetting("AppiumOrientation", "PORTRAIT"));
-            //build appium config
-            /* 
-             * language
-             * locale
-             * udid
-             */
-            return ops;
+
+            var uri = Config.GetConfigSetting("AppiumServerUri", "http://127.0.01:4723/wd/hub");
+
+            switch (BrowserVendor)
+            {
+                case BrowserDriverEnumeration.Windows:
+                    RawWebDriver = new WindowsDriver<IWebElement>(new Uri(uri), ops);
+                    break;
+                case BrowserDriverEnumeration.Android:
+                    RawWebDriver = new AndroidDriver<IWebElement>(new Uri(uri), ops);
+                    break;
+                case BrowserDriverEnumeration.IOS:
+                    RawWebDriver = new IOSDriver<IWebElement>(new Uri(uri), ops);
+                    break;
+            }
         }
 
         public override void Dispose()
