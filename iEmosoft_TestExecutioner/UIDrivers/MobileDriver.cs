@@ -4,7 +4,6 @@ using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Appium.iOS;
-using OpenQA.Selenium.Appium.Service;
 using OpenQA.Selenium.Appium.Windows;
 using System;
 
@@ -12,7 +11,6 @@ namespace aUI.Automation.UIDrivers
 {
     public class MobileDriver : BrowserDriver
     {
-        readonly AppiumLocalService Local = null;
         readonly BrowserDriverEnumeration BrowserVendor = BrowserDriverEnumeration.Android;
         public MobileDriver(IAutomationConfiguration configuration, BrowserDriverEnumeration browserVendor = BrowserDriverEnumeration.Android) : base(configuration, browserVendor)
         {
@@ -45,39 +43,17 @@ namespace aUI.Automation.UIDrivers
 
         public override void Dispose()
         {
-            try
+            switch (BrowserVendor)
             {
-                switch (BrowserVendor)
-                {
-                    case BrowserDriverEnumeration.Windows:
-                        ((WindowsDriver<IWebElement>)RawWebDriver).CloseApp();
-                        break;
-                    case BrowserDriverEnumeration.Android:
-                        ((AndroidDriver<IWebElement>)RawWebDriver).CloseApp();
-                        break;
-                    case BrowserDriverEnumeration.IOS:
-                        ((IOSDriver<IWebElement>)RawWebDriver).CloseApp();
-                        break;
-                }
-            }
-            catch {
-                switch (BrowserVendor)
-                {
-                    case BrowserDriverEnumeration.Windows:
-                        ((WindowsDriver<IWebElement>)RawWebDriver).Close();
-                        break;
-                    case BrowserDriverEnumeration.Android:
-                        ((AndroidDriver<IWebElement>)RawWebDriver).Close();
-                        break;
-                    case BrowserDriverEnumeration.IOS:
-                        ((IOSDriver<IWebElement>)RawWebDriver).Close();
-                        break;
-                }
-            }
-
-            if (Local != null)
-            {
-                Local.Dispose();
+                case BrowserDriverEnumeration.Windows:
+                    ((WindowsDriver<IWebElement>)RawWebDriver).CloseApp();
+                    break;
+                case BrowserDriverEnumeration.Android:
+                    ((AndroidDriver<IWebElement>)RawWebDriver).CloseApp();
+                    break;
+                case BrowserDriverEnumeration.IOS:
+                    ((IOSDriver<IWebElement>)RawWebDriver).CloseApp();
+                    break;
             }
 
             RawWebDriver.Dispose();
